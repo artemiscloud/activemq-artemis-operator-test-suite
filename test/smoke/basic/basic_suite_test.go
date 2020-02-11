@@ -1,7 +1,8 @@
 package basic_test
 
 import (
-	"broker-suite/test"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/rh-messaging/shipshape/pkg/framework/ginkgowrapper"
 	"testing"
 	 "github.com/onsi/ginkgo"
 	 "github.com/onsi/gomega"
@@ -9,9 +10,9 @@ import (
 
 func TestBasic(t *testing.T) {
 
-	RegisterFailHandler(Fail)
+	gomega.RegisterFailHandler(ginkgowrapper.Fail)
 	test.Initialize(t, "basic", "Basic Suite")
 
-	RunSpecs(t, "Basic Suite")
+	ginkgo.RunSpecs(t, "Basic Suite")
 
 }

@@ -10,7 +10,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-	//brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
+	"fmt"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	brokerapi "github.com/rh-messaging/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
 
 
@@ -55,6 +56,9 @@ var _ = ginkgo.Describe("DeploymentTwoBrokers", func() {
 		for num,_ := range artemis.Spec.Connectors {
 			artemis.Spec.Connectors[num].SSLEnabled=false
 		}
+		
+		artemis.Spec.DeploymentPlan.Image=test.BrokerImageName
+		fmt.Printf("Image: %s", test.BrokerImageName)
 		ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
 
 		//ctx1.Clients.KubeClient.AppsV1().StatefulSets(ctx1.Namespace).Create(&artemis)
