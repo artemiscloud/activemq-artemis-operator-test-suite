@@ -2,16 +2,16 @@ package basic
 
 import (
 	"github.com/onsi/ginkgo"
+	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/operators"
-	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
 // Constants available for all test specs related with the One Interior topology
 const (
 	DeployName = "basic"
 	DeploySize = 1
-	
 )
 
 var (
@@ -19,16 +19,18 @@ var (
 	Framework *framework.Framework
 	// Basic Operator instance
 	brokerOperator operators.OperatorSetup
-	builder operators.OperatorSetupBuilder
-	brokerClient brokerclientset.Interface
+	builder        operators.OperatorSetupBuilder
+	brokerClient   brokerclientset.Interface
 )
 
 // Create the Framework instance to be used oneinterior test
 var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
-	//Set image to downstream one.
-	builder.WithImage("brew-pulp-docker01.web.prod.ext.phx2.redhat.com:8888/amq7/amq-broker-operator:0.9")
+	//Set image to parameter if one is supplied, otherwise use default from shipshape.
+	if len(test.OperatorImageName) != 0 {
+		builder.WithImage(test.OperatorImageName)
+	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder).
 		Build()
