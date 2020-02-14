@@ -27,7 +27,8 @@ var (
 var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
-	/*builder.WithImage(ImageName)*/
+	//Set image to downstream one.
+	builder.WithImage("brew-pulp-docker01.web.prod.ext.phx2.redhat.com:8888/amq7/amq-broker-operator:0.9")
 	Framework = framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder).
 		Build()

@@ -34,7 +34,7 @@ require (
 	github.com/openshift/client-go v0.0.0-20190412095722-0255926f5393
 	github.com/pborman/uuid v1.2.0
 	github.com/petar/GoLLRB v0.0.0-20190514000832-33fb24c13b99
-	github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible
+	github.com/rh-messaging/activemq-artemis-operator v0.0.0
 	github.com/rh-messaging/shipshape v0.0.0
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d
@@ -64,6 +64,6 @@ require (
 )
 
 // For local override of dependencies, use following:
-//replace github.com/rh-messaging/activemq-artemis-operator v0.0.0 => ../../../github.com/rh-messaging/activemq-artemis-operator
+replace github.com/rh-messaging/activemq-artemis-operator v0.0.0 => ../../../github.com/rh-messaging/activemq-artemis-operator
 
-//replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
+replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
