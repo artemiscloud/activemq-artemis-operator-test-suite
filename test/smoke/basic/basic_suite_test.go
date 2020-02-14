@@ -23,11 +23,10 @@ func TestBasic(t *testing.T) {
 	test.Initialize(t, "basic", "Basic Suite")
 }
 
-func DeployAndScale(ctx1 *framework.ContextData,
-	initial int,
+func Scale(ctx1 *framework.ContextData,
 	result int) error {
 	resourceVersion := int64(0)
-	err := DeployBrokers(ctx1, initial)
+	var err error
 	gomega.Expect(err).To(gomega.BeNil())
 	err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", 1, time.Second*10, time.Minute*5)
 	gomega.Expect(err).To(gomega.BeNil())
@@ -42,7 +41,7 @@ func DeployAndScale(ctx1 *framework.ContextData,
 
 	_, err = brokerClient.BrokerV2alpha1().ActiveMQArtemises(ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
-	err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", 4, time.Second*10, time.Minute*5)
+	err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", result, time.Second*10, time.Minute*5)
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return err
@@ -81,8 +80,10 @@ func DeployBrokers(ctx1 *framework.ContextData, count int) error {
 	//ctx1.Clients.KubeClient.AppsV1().StatefulSets(ctx1.Namespace).Create(&artemis)
 	_, err = brokerClient.BrokerV2alpha1().ActiveMQArtemises(ctx1.Namespace).Create(&artemis)
 	gomega.Expect(err).To(gomega.BeNil())
-	err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", 1, time.Second*10, time.Minute*5)
-	gomega.Expect(err).To(gomega.BeNil())
 
+	if (count!=0) {
+		err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", count, time.Second*10, time.Minute*5)
+		gomega.Expect(err).To(gomega.BeNil())
+	}
 	return err
 }

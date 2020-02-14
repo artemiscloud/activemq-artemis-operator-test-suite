@@ -18,20 +18,21 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and scale it to 4 replicas", func() {
-		gomega.Expect(DeployAndScale(ctx1, 1, 4)).To(gomega.BeNil())
-
+		gomega.Expect(DeployBrokers(ctx1, 1)).To(gomega.BeNil())
+		gomega.Expect(Scale(ctx1,4)).To(gomega.BeNil())
 	})
 
 	ginkgo.It("Deploy multiple broker instances and scale it down to 1", func() {
-		gomega.Expect(DeployAndScale(ctx1, 4, 1)).To(gomega.BeNil())
+		gomega.Expect(DeployBrokers(ctx1, 4)).To(gomega.BeNil())
+		gomega.Expect(Scale(ctx1,1)).To(gomega.BeNil())
 	})
 
 	ginkgo.It("Deploy single broker instances and scale it down to 0", func() {
-		gomega.Expect(DeployAndScale(ctx1, 1, 0)).To(gomega.BeNil())
-	})
+		gomega.Expect(DeployBrokers(ctx1, 1)).To(gomega.BeNil())
+		gomega.Expect(Scale(ctx1,0)).To(gomega.BeNil())	})
 
 	ginkgo.It("Deploy zero broker instances and scale up to 1", func() {
-		gomega.Expect(DeployAndScale(ctx1, 0, 1)).To(gomega.BeNil())
-	})
+		gomega.Expect(DeployBrokers(ctx1, 0)).To(gomega.BeNil())
+		gomega.Expect(Scale(ctx1,1)).To(gomega.BeNil())	})
 
 })

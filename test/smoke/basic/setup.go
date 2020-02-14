@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"fmt"
 	"github.com/onsi/ginkgo"
 	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
@@ -30,6 +31,10 @@ var _ = ginkgo.BeforeEach(func() {
 	//Set image to parameter if one is supplied, otherwise use default from shipshape.
 	if len(test.OperatorImageName) != 0 {
 		builder.WithImage(test.OperatorImageName)
+	}
+	if (test.DownstreamBuild) {
+		fmt.Print("downstream build activating")
+		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder).
