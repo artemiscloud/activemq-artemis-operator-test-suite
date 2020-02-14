@@ -2,6 +2,7 @@ package basic
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ghodss/yaml"
 	"github.com/onsi/gomega"
 	brokerapi "github.com/rh-messaging/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
@@ -27,16 +28,13 @@ func Scale(ctx1 *framework.ContextData,
 	result int) error {
 	resourceVersion := int64(0)
 	var err error
-	gomega.Expect(err).To(gomega.BeNil())
-	err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", 1, time.Second*10, time.Minute*5)
-	gomega.Expect(err).To(gomega.BeNil())
 	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := brokerClient.BrokerV2alpha1().ActiveMQArtemises(ctx1.Namespace).Get("ex-aao", v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
-	artemisCreated.Spec.DeploymentPlan.Size = 1
+	artemisCreated.Spec.DeploymentPlan.Size = int32(result)
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 
 	_, err = brokerClient.BrokerV2alpha1().ActiveMQArtemises(ctx1.Namespace).Update(artemisCreated)
@@ -85,5 +83,8 @@ func DeployBrokers(ctx1 *framework.ContextData, count int) error {
 		err = framework.WaitForStatefulSet(ctx1.Clients.KubeClient, ctx1.Namespace, "ex-aao-ss", count, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
 	}
+	fmt.Print("Waiting for 5 seconds\n")
+	time.Sleep(time.Duration(5) * time.Second)
+	fmt.Print("Done waiting\n")
 	return err
 }

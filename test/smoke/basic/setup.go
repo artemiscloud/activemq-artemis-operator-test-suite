@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"fmt"
 	"github.com/onsi/ginkgo"
 	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
@@ -33,7 +32,6 @@ var _ = ginkgo.BeforeEach(func() {
 		builder.WithImage(test.OperatorImageName)
 	}
 	if (test.DownstreamBuild) {
-		fmt.Print("downstream build activating")
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
@@ -51,5 +49,7 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-	Framework.AfterEach()
+	if !ginkgo.CurrentGinkgoTestDescription().Failed {
+		Framework.AfterEach()
+	}
 })
