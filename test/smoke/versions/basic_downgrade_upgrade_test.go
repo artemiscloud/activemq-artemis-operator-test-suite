@@ -22,14 +22,21 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 
 	ginkgo.It("Deploy broker and downgrade it to another version", func() {
 		gomega.Expect(dw.DeployBrokers(1)).To(gomega.BeNil())
-		// Check for jolokia call for version, curl from pod
+		podLog, _ := ctx1.GetLogs("ex-aao-ss-0")
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.BrokerVersion))
 		gomega.Expect(dw.WithCustomImage(test.BrokerImageNameOld).ChangeImage())
+		podLog, _ = ctx1.GetLogs("ex-aao-ss-0")
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.BrokerVersionOld))
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
 		gomega.Expect(dw.WithCustomImage(test.BrokerImageNameOld).DeployBrokers( 1)).To(gomega.BeNil())
+		podLog, _ := ctx1.GetLogs("ex-aao-ss-0")
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.BrokerVersionOld))
 		// Check for jolokia call for version, curl from pod
 		gomega.Expect(dw.WithCustomImage(test.BrokerImageName).ChangeImage())
+		podLog, _ = ctx1.GetLogs("ex-aao-ss-0")
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.BrokerVersionOld))
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
