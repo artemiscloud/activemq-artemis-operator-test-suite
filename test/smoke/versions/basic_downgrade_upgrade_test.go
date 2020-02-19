@@ -11,23 +11,25 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 
 	var (
 		ctx1 *framework.ContextData
+		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.BrokerImageName)
 	)
 
 	// Initialize after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
+		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.BrokerImageName)
 	})
 
 	ginkgo.It("Deploy broker and downgrade it to another version", func() {
-		gomega.Expect(test.DeployBrokers(ctx1, 1,brokerClient, test.BrokerImageName)).To(gomega.BeNil())
+		gomega.Expect(dw.DeployBrokers(1)).To(gomega.BeNil())
 		// Check for jolokia call for version, curl from pod
-		gomega.Expect(test.ChangeImage(ctx1,brokerClient, test.BrokerImageNameOld))
+		gomega.Expect(dw.WithCustomImage(test.BrokerImageNameOld).ChangeImage())
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
-		gomega.Expect(test.DeployBrokers(ctx1, 1,brokerClient, test.BrokerImageNameOld)).To(gomega.BeNil())
+		gomega.Expect(dw.WithCustomImage(test.BrokerImageNameOld).DeployBrokers( 1)).To(gomega.BeNil())
 		// Check for jolokia call for version, curl from pod
-		gomega.Expect(test.ChangeImage(ctx1,brokerClient, test.BrokerImageName))
+		gomega.Expect(dw.WithCustomImage(test.BrokerImageName).ChangeImage())
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
