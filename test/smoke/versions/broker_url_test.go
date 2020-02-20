@@ -23,7 +23,7 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 
 	ginkgo.It("Create invalid url for deployment", func() {
 		gomega.Expect(dw.WithWait(false).WithCustomImage( "gibberish://whatever").DeployBrokers(1)).To(gomega.BeNil())
-		gomega.Expect(dw.WithWait(true).WithCustomImage(test.BrokerImageName).DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(dw.WithWait(true).WithCustomImage(test.TestConfig.BrokerImageName).DeployBrokers(1)).To(gomega.BeNil())
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
