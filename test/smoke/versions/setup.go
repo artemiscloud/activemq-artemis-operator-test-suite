@@ -28,10 +28,10 @@ var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
 	//Set image to parameter if one is supplied, otherwise use default from shipshape.
-	if len(test.OperatorImageName) != 0 {
-		builder.WithImage(test.OperatorImageName)
+	if len(test.TestConfig.OperatorImageName) != 0 {
+		builder.WithImage(test.TestConfig.OperatorImageName)
 	}
-	if (test.DownstreamBuild) {
+	if (test.TestConfig.DownstreamBuild) {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
