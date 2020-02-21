@@ -14,7 +14,7 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.TestConfig.BrokerImageName)
 	)
 
-	// Initialize after framework has been created
+	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
 		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.TestConfig.BrokerImageName)
