@@ -31,7 +31,7 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 		gomega.Expect(podLog).To(gomega.ContainSubstring(test.TestConfig.BrokerVersion))
 	})
 
-	ginkgo.It("Define gibberish url for broker image then replace with proper one", func() {
+	ginkgo.It("Define gibberish url for broker imag,e then replace with proper one", func() {
 		gomega.Expect(dw.WithCustomImage("gibberish://non-url-at-all").DeployBrokers( 1)).To(gomega.BeNil())
 		time.Sleep(time.Duration(10)*time.Second)
 		gomega.Expect(dw.WithCustomImage(test.TestConfig.BrokerImageName).ChangeImage())
