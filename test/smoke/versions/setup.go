@@ -1,4 +1,4 @@
-package basic
+package versions
 
 import (
 	"github.com/onsi/ginkgo"
@@ -31,7 +31,7 @@ var _ = ginkgo.BeforeEach(func() {
 	if len(test.TestConfig.OperatorImageName) != 0 {
 		builder.WithImage(test.TestConfig.OperatorImageName)
 	}
-	if test.TestConfig.DownstreamBuild {
+	if (test.TestConfig.DownstreamBuild) {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").

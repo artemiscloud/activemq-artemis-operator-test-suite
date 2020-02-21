@@ -1,17 +1,14 @@
-package basic_test
+package basic
 
 import (
-	"broker-suite/test"
+	"github.com/onsi/gomega"
+	"github.com/rh-messaging/shipshape/pkg/framework/ginkgowrapper"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"testing"
-	 "github.com/onsi/ginkgo"
-	 "github.com/onsi/gomega"
 )
 
 func TestBasic(t *testing.T) {
 
-	RegisterFailHandler(Fail)
-	test.Initialize(t, "basic", "Basic Suite")
-
-	RunSpecs(t, "Basic Suite")
-
+	gomega.RegisterFailHandler(ginkgowrapper.Fail)
+	test.PrepareNamespace(t, "basic", "Basic Suite")
 }
