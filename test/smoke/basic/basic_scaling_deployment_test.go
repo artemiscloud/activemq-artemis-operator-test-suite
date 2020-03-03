@@ -39,4 +39,8 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 		gomega.Expect(dw.WithWait(false).DeployBrokers(0)).To(gomega.BeNil())
 		gomega.Expect(dw.WithWait(true).Scale(1)).To(gomega.BeNil())	})
 
+	ginkgo.It("Deploy single broker instance and scale up to max (16)", func() {
+		gomega.Expect(dw.WithWait(false).DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(dw.WithWait(true).Scale(16)).To(gomega.BeNil())	})
+
 })
