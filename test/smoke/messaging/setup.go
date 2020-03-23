@@ -1,4 +1,4 @@
-package basic
+package messaging
 
 import (
 	"github.com/onsi/ginkgo"
@@ -10,7 +10,7 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "basic"
+	DeployName = "messaging"
 	DeploySize = 1
 )
 
@@ -41,7 +41,7 @@ var _ = ginkgo.BeforeEach(func() {
 	brokerClient = brokerOperator.Interface().(brokerclientset.Interface)
 }, 60)
 
-// Deploy Interconnect
+
 var _ = ginkgo.JustBeforeEach(func() {
 
 })
@@ -49,9 +49,9 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-/*	if (test.TestConfig.DebugRun) {
-		log.Logf("Not removing namespace due to debug option")
-	} else {
-		Framework.AfterEach()
-	}*/
+	/*	if (test.TestConfig.DebugRun) {
+			log.Logf("Not removing namespace due to debug option")
+		} else {
+			Framework.AfterEach()
+		}*/
 })
