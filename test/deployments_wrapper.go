@@ -22,6 +22,8 @@ type DeploymentWrapper struct {
 	brokerClient brokerclientset.Interface
 	ctx1         *framework.ContextData
 	customImage  string
+	migration    bool
+	persistence  bool
 }
 
 // WithWait sets if shipshape would wait for completion
@@ -48,6 +50,16 @@ func (dw DeploymentWrapper) WithCustomImage(image string) DeploymentWrapper {
 	return dw
 }
 
+func (dw DeploymentWrapper) WithMigration(migration bool) DeploymentWrapper {
+	dw.migration = migration
+	return dw
+}
+
+func (dw DeploymentWrapper) WithPersistence(persistence bool) DeploymentWrapper {
+	dw.persistence = persistence
+	return dw
+}
+
 // Scale scales already deployed Broker
 func (dw DeploymentWrapper) Scale(result int) error {
 	resourceVersion := int64(0)
@@ -60,7 +72,8 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	gomega.Expect(err).To(gomega.BeNil())
 	artemisCreated.Spec.DeploymentPlan.Size = int32(result)
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
-
+	artemisCreated.Spec.DeploymentPlan.MessageMigration = &dw.migration
+	artemisCreated.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
 	if dw.wait {
