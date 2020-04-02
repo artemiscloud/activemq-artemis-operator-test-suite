@@ -1,4 +1,4 @@
-package messaging
+package versions
 
 import (
 	"github.com/onsi/gomega"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestMessaging(t *testing.T) {
+func TestVersions(t *testing.T) {
 
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
 	test.PrepareNamespace(t, "messaging", "Messaging Suite")
