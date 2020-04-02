@@ -16,6 +16,7 @@ import (
 	"time"
 )
 
+// DeploymentWrapper takes care of deployment of Broker
 type DeploymentWrapper struct {
 	wait         bool
 	brokerClient brokerclientset.Interface
@@ -23,26 +24,31 @@ type DeploymentWrapper struct {
 	customImage  string
 }
 
+// WithWait sets if shipshape would wait for completion
 func (dw DeploymentWrapper) WithWait(wait bool) DeploymentWrapper {
-	dw.wait=wait
+	dw.wait = wait
 	return dw
 }
 
+// WithBrokerClient sets broker kubernetes client to use
 func (dw DeploymentWrapper) WithBrokerClient(brokerClient brokerclientset.Interface) DeploymentWrapper {
 	dw.brokerClient = brokerClient
 	return dw
 }
 
+// WithContext sets shipshape context
 func (dw DeploymentWrapper) WithContext(ctx1 *framework.ContextData) DeploymentWrapper {
-	dw.ctx1=ctx1
+	dw.ctx1 = ctx1
 	return dw
 }
 
+// WithCustomImage wets Broker Image to be used
 func (dw DeploymentWrapper) WithCustomImage(image string) DeploymentWrapper {
-	dw.customImage=image
+	dw.customImage = image
 	return dw
 }
 
+// Scale scales already deployed Broker
 func (dw DeploymentWrapper) Scale(result int) error {
 	resourceVersion := int64(0)
 	var err error
@@ -67,6 +73,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	return err
 }
 
+// DeployBrokers actually deploys brokers defined by dw
 func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	artemis := brokerapi.ActiveMQArtemis{}
 	resp, err := http.Get("https://raw.githubusercontent.com/rh-messaging/activemq-artemis-operator/master/deploy/crs/broker_v2alpha1_activemqartemis_cr.yaml") //load yaml body from url
@@ -87,15 +94,16 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	log.Logf("modifying acceptors")
 	artemis.Spec.DeploymentPlan.Size = int32(count)
 
-	for num, _ := range artemis.Spec.Acceptors {
+	for num := range artemis.Spec.Acceptors {
 		artemis.Spec.Acceptors[num].SSLEnabled = false
 	}
-	for num, _ := range artemis.Spec.Connectors {
+	for num := range artemis.Spec.Connectors {
 		artemis.Spec.Connectors[num].SSLEnabled = false
 	}
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
+	artemis.ObjectMeta.Name = "ex-aao"
 
 	//dw.ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
 
@@ -116,6 +124,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	return err
 }
 
+// ChangeImage changes image used in Broker instance to a new one
 func (dw DeploymentWrapper) ChangeImage() error {
 	resourceVersion := int64(0)
 	var err error

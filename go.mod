@@ -38,12 +38,12 @@ require (
 	github.com/rh-messaging/shipshape v0.0.0
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1
 	golang.org/x/text v0.3.2
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	golang.org/x/tools v0.0.0-20200115044656-831fdb1e1868
+	golang.org/x/tools v0.0.0-20200331025713-a30bf2db82d4
 	google.golang.org/appengine v1.6.5
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7
 	gopkg.in/inf.v0 v0.9.1
