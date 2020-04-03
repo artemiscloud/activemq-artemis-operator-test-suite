@@ -70,6 +70,25 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		err := dw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
+		_ = sender.Deploy()
+		_ = receiver.Deploy()
+		sender.Wait()
+		receiver.Wait()
+
+		senderResult := sender.Result()
+		receiverResult := receiver.Result()
+
+		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+
+		for _, msg := range receiverResult.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+		}
+	})
+
+	ginkgo.It("Deploy broker with persistence but without migration", func() {
+		err := dw.WithPersistence(true).WithMigration(false).DeployBrokers(2)
+		gomega.Expect(err).To(gomega.BeNil())
 	})
 
 })

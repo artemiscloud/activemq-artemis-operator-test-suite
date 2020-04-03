@@ -76,6 +76,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
+	originalSize := artemisCreated.Spec.DeploymentPlan.Size
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
 	artemisCreated.Spec.DeploymentPlan.Size = int32(result)
@@ -90,7 +91,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 			dw.ctx1.Namespace,
 			dw.name+"-ss",
 			result,
-			time.Second*10, time.Minute*time.Duration(5*result))
+			time.Second*10, time.Minute*time.Duration(5*max(result, int(originalSize))))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
@@ -140,7 +141,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 		log.Logf("Waiting for exactly " + string(count) + " instances.\n")
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
-			dw.name + "-ss",
+			dw.name+"-ss",
 			count,
 			time.Second*10, time.Minute*time.Duration(5*count))
 		gomega.Expect(err).To(gomega.BeNil())
@@ -171,11 +172,18 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	gomega.Expect(err).To(gomega.BeNil())
 	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 		dw.ctx1.Namespace,
-		dw.name + "aao-ss",
+		dw.name+"aao-ss",
 		int(countExpected),
 		time.Second*10, time.Minute*time.Duration(5*countExpected))
 
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return err
+}
+
+func max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
 }
