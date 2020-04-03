@@ -11,7 +11,6 @@ import (
 // Constants available for all test specs related with the One Interior topology
 const (
 	DeployName = "messaging"
-	DeploySize = 1
 )
 
 var (
@@ -19,7 +18,6 @@ var (
 	Framework *framework.Framework
 	// Basic Operator instance
 	brokerOperator operators.OperatorSetup
-	builder        operators.OperatorSetupBuilder
 	brokerClient   brokerclientset.Interface
 )
 
@@ -28,10 +26,10 @@ var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
 	//Set image to parameter if one is supplied, otherwise use default from shipshape.
-	if len(test.TestConfig.OperatorImageName) != 0 {
-		builder.WithImage(test.TestConfig.OperatorImageName)
+	if len(test.Config.OperatorImageName) != 0 {
+		builder.WithImage(test.Config.OperatorImageName)
 	}
-	if test.TestConfig.DownstreamBuild {
+	if test.Config.DownstreamBuild {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
@@ -40,7 +38,6 @@ var _ = ginkgo.BeforeEach(func() {
 	brokerOperator = Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
 	brokerClient = brokerOperator.Interface().(brokerclientset.Interface)
 }, 60)
-
 
 var _ = ginkgo.JustBeforeEach(func() {
 

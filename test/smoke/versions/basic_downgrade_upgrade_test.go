@@ -11,34 +11,37 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 
 	var (
 		ctx1 *framework.ContextData
-		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.TestConfig.BrokerImageName)
+		dw   = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName)
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
-		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.TestConfig.BrokerImageName)
+		dw = test.DeploymentWrapper{}.
+			WithWait(true).
+			WithBrokerClient(brokerClient).
+			WithContext(ctx1).
+			WithCustomImage(test.Config.BrokerImageName).
+			WithName(DeployName)
 	})
 
 	ginkgo.It("Deploy broker and downgrade it to another version", func() {
 		gomega.Expect(dw.DeployBrokers(1)).To(gomega.BeNil())
 		podLog, _ := ctx1.GetLogs("ex-aao-ss-0")
-		gomega.Expect(podLog).To(gomega.ContainSubstring(test.TestConfig.BrokerVersion))
-		gomega.Expect(dw.WithCustomImage(test.TestConfig.BrokerImageNameOld).ChangeImage())
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.Config.BrokerVersion))
+		gomega.Expect(dw.WithCustomImage(test.Config.BrokerImageNameOld).ChangeImage())
 		podLog, _ = ctx1.GetLogs("ex-aao-ss-0")
-		gomega.Expect(podLog).To(gomega.ContainSubstring(test.TestConfig.BrokerVersionOld))
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.Config.BrokerVersionOld))
 	})
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
-		gomega.Expect(dw.WithCustomImage(test.TestConfig.BrokerImageNameOld).DeployBrokers( 1)).To(gomega.BeNil())
+		gomega.Expect(dw.WithCustomImage(test.Config.BrokerImageNameOld).DeployBrokers(1)).To(gomega.BeNil())
 		podLog, _ := ctx1.GetLogs("ex-aao-ss-0")
-		gomega.Expect(podLog).To(gomega.ContainSubstring(test.TestConfig.BrokerVersionOld))
-		gomega.Expect(dw.WithCustomImage(test.TestConfig.BrokerImageName).ChangeImage())
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.Config.BrokerVersionOld))
+		gomega.Expect(dw.WithCustomImage(test.Config.BrokerImageName).ChangeImage())
 		podLog, _ = ctx1.GetLogs("ex-aao-ss-0")
-		gomega.Expect(podLog).To(gomega.ContainSubstring(test.TestConfig.BrokerVersion))
+		gomega.Expect(podLog).To(gomega.ContainSubstring(test.Config.BrokerVersion))
 	})
-
-
 
 	ginkgo.It("Deploy broker and upgrade it to another version", func() {
 

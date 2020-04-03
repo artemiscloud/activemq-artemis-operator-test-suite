@@ -15,16 +15,19 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 		dw test.DeploymentWrapper
 	)
 
-
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
-		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.TestConfig.BrokerImageName)
+		dw = test.DeploymentWrapper{}.WithWait(true).
+			WithBrokerClient(brokerClient).
+			WithContext(ctx1).
+			WithCustomImage(test.Config.BrokerImageName).
+			WithName(DeployName)
 	})
 
 	ginkgo.It("Deploy single broker instance", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := dw.DeployBrokers( 1)
+		err := dw.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 

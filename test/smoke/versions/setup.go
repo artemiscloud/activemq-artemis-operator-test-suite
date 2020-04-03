@@ -10,8 +10,7 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "basic"
-	DeploySize = 1
+	DeployName = "versions"
 )
 
 var (
@@ -19,7 +18,6 @@ var (
 	Framework *framework.Framework
 	// Basic Operator instance
 	brokerOperator operators.OperatorSetup
-	builder        operators.OperatorSetupBuilder
 	brokerClient   brokerclientset.Interface
 )
 
@@ -28,10 +26,10 @@ var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
 	//Set image to parameter if one is supplied, otherwise use default from shipshape.
-	if len(test.TestConfig.OperatorImageName) != 0 {
-		builder.WithImage(test.TestConfig.OperatorImageName)
+	if len(test.Config.OperatorImageName) != 0 {
+		builder.WithImage(test.Config.OperatorImageName)
 	}
-	if (test.TestConfig.DownstreamBuild) {
+	if test.Config.DownstreamBuild {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
 	Framework = framework.NewFrameworkBuilder("broker-framework").
@@ -49,9 +47,9 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-/*	if (test.TestConfig.DebugRun) {
-		log.Logf("Not removing namespace due to debug option")
-	} else {
-		Framework.AfterEach()
-	}*/
+	/*	if (test.TestConfig.DebugRun) {
+			log.Logf("Not removing namespace due to debug option")
+		} else {
+			Framework.AfterEach()
+		}*/
 })

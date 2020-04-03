@@ -24,11 +24,17 @@ type DeploymentWrapper struct {
 	customImage  string
 	migration    bool
 	persistence  bool
+	name         string
 }
 
 // WithWait sets if shipshape would wait for completion
 func (dw DeploymentWrapper) WithWait(wait bool) DeploymentWrapper {
 	dw.wait = wait
+	return dw
+}
+
+func (dw DeploymentWrapper) WithName(name string) DeploymentWrapper {
+	dw.name = name
 	return dw
 }
 
@@ -50,11 +56,13 @@ func (dw DeploymentWrapper) WithCustomImage(image string) DeploymentWrapper {
 	return dw
 }
 
+// WithMigration Sets Migration parameter (controls message migration availability)
 func (dw DeploymentWrapper) WithMigration(migration bool) DeploymentWrapper {
 	dw.migration = migration
 	return dw
 }
 
+// WithPersistence Sets Persistence parameter (controls creationf of PVCs)
 func (dw DeploymentWrapper) WithPersistence(persistence bool) DeploymentWrapper {
 	dw.persistence = persistence
 	return dw
@@ -66,7 +74,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	var err error
 	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
-	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get("ex-aao", v1.GetOptions{})
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
@@ -80,7 +88,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 		log.Logf("Waiting for exactly " + string(result) + " instances.\n")
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
-			"ex-aao-ss",
+			dw.name+"-ss",
 			result,
 			time.Second*10, time.Minute*time.Duration(5*result))
 		gomega.Expect(err).To(gomega.BeNil())
@@ -120,7 +128,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
-	artemis.ObjectMeta.Name = "ex-aao"
+	artemis.ObjectMeta.Name = dw.name
 
 	//dw.ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
 
@@ -132,7 +140,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 		log.Logf("Waiting for exactly " + string(count) + " instances.\n")
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
-			"ex-aao-ss",
+			dw.name + "-ss",
 			count,
 			time.Second*10, time.Minute*time.Duration(5*count))
 		gomega.Expect(err).To(gomega.BeNil())
@@ -151,7 +159,7 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	var err error
 	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
-	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get("ex-aao", v1.GetOptions{})
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
@@ -163,7 +171,7 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	gomega.Expect(err).To(gomega.BeNil())
 	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 		dw.ctx1.Namespace,
-		"ex-aao-ss",
+		dw.name + "aao-ss",
 		int(countExpected),
 		time.Second*10, time.Minute*time.Duration(5*countExpected))
 
