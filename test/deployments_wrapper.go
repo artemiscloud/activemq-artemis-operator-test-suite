@@ -65,7 +65,11 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	gomega.Expect(err).To(gomega.BeNil())
 	if dw.wait {
 		log.Logf("Waiting for exactly " + string(result) + " instances.\n")
-		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient, dw.ctx1.Namespace, "ex-aao-ss", result, time.Second*10, time.Minute*5)
+		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
+			dw.ctx1.Namespace,
+			"ex-aao-ss",
+			result,
+			time.Second*10, time.Minute*time.Duration(5*result))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
@@ -113,7 +117,11 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 
 	if dw.wait {
 		log.Logf("Waiting for exactly " + string(count) + " instances.\n")
-		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient, dw.ctx1.Namespace, "ex-aao-ss", count, time.Second*10, time.Minute*5)
+		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
+			dw.ctx1.Namespace,
+			"ex-aao-ss",
+			count,
+			time.Second*10, time.Minute*time.Duration(5*count))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
@@ -140,7 +148,12 @@ func (dw DeploymentWrapper) ChangeImage() error {
 
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
-	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient, dw.ctx1.Namespace, "ex-aao-ss", int(countExpected), time.Second*10, time.Minute*5)
+	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
+		dw.ctx1.Namespace,
+		"ex-aao-ss",
+		int(countExpected),
+		time.Second*10, time.Minute*time.Duration(5*countExpected))
+
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return err
