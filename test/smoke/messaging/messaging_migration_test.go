@@ -42,8 +42,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err := dw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		sendUrl := "amqp://ex-aao-ss-1:5672/"
-		receiveUrl := "amqp://ex-aao-ss-0:5672/"
+		sendUrl := "amqp://" + DeployName + "-ss-1:5672/"
+		receiveUrl := "amqp://" + DeployName + "-ss-0:5672/"
 
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -70,8 +70,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		sendUrls := []string{"amqp://ex-aao-ss-3:5672/", "amqp://ex-aao-ss-2:5672/", "amqp://ex-aao-ss-1:5672/", "amqp://ex-aao-ss-0:5672/"}
-		receiveUrl := "amqp://ex-aao-ss-0:5672/"
+		sendUrls := []string{"-ss-3:5672/", "-ss-2:5672/", "-ss-1:5672/", "-ss-0:5672/"}
+		receiveUrl := "amqp://" + DeployName + "-ss-0:5672/"
 
 		receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -79,7 +79,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		err := dw.DeployBrokers(4)
 		for _, url := range sendUrls {
-			sender = srw.WithSendUrl(url).PrepareSender()
+			sender = srw.WithSendUrl("amqp://" + DeployName + url).PrepareSender()
 			_ = sender.Deploy()
 			sender.Wait()
 		}
@@ -99,8 +99,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
-		sendUrl := "amqp://ex-aao-ss-3:5672/"
-		receiveUrl := "amqp://ex-aao-ss-0:5672/"
+		sendUrl := "amqp://" + DeployName + "-ss-3:5672/"
+		receiveUrl := "amqp:/" + DeployName + "-ss-0:5672/"
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).

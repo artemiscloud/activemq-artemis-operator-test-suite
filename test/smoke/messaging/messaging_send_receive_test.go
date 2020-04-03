@@ -36,7 +36,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		url = "amqp://ex-aao-ss-0:5672/"
+		url = "amqp://" + DeployName + "-ss-0:5672/"
 		sender, err = qeclients.NewSenderBuilder("sender", qeclients.Python, *ctx1, url).Content(MessageBody).Count(MessageCount).Build() //, MessageBody, MessageCount)
 		if err != nil {
 			panic(err)
