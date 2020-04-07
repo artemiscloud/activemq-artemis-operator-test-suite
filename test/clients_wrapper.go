@@ -38,22 +38,22 @@ func (srw SenderReceiverWrapper) WithContext(ctx1 *framework.ContextData) Sender
 	return srw
 }
 
-func (srw *SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
+func (srw SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
 	sender := srw.PrepareSender()
 	receiver := srw.PrepareReceiver()
 	return sender, receiver
 }
 
-func (srw *SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
-	sender, err := qeclients.NewSenderBuilder("sender", qeclients.Python, *srw.ctx1, srw.sendUrl).Content(srw.messageBody).Count(srw.messageCount).Build()
+func (srw SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
+	sender, err := qeclients.NewSenderBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).Content(srw.messageBody).Count(srw.messageCount).Build()
 	if err != nil {
 		panic(err)
 	}
 	return sender
 }
 
-func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
-	sender, err := qeclients.NewReceiverBuilder("sender", qeclients.Python, *srw.ctx1, srw.sendUrl).Build()
+func (srw SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
+	sender, err := qeclients.NewReceiverBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).Build()
 	if err != nil {
 		panic(err)
 	}

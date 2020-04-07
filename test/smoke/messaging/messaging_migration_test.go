@@ -5,7 +5,10 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	v1 "k8s.io/api/core/v1"
+	"strings"
 	"time"
 )
 
@@ -23,9 +26,12 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	const (
 		MessageBody  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount = 100
+		Port = "5672"
+		Domain = "svc.cluster.local"
+		SubdomainName="-hdls-svc"
 	)
 
-	// PrepareNamespace after framework has been created. Doesn'
+	// PrepareNamespace after framework has been created.
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
 		dw = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).
@@ -42,8 +48,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err := dw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		sendUrl := "amqp://" + DeployName + "-ss-1:5672/"
-		receiveUrl := "amqp://" + DeployName + "-ss-0:5672/"
+		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -70,16 +76,15 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		sendUrls := []string{"-ss-3:5672/", "-ss-2:5672/", "-ss-1:5672/", "-ss-0:5672/"}
-		receiveUrl := "amqp://" + DeployName + "-ss-0:5672/"
-
-		receiver = srw.
-			WithReceiveUrl(receiveUrl).
-			PrepareReceiver()
+		sendUrls := []string{"3", "2", "1", "0"}
+		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		srw.
+			WithReceiveUrl(receiveUrl)
+		receiver = srw.PrepareReceiver()
 
 		err := dw.DeployBrokers(4)
 		for _, url := range sendUrls {
-			sender = srw.WithSendUrl("amqp://" + DeployName + url).PrepareSender()
+			sender = srw.WithSendUrl(formUrl(url, SubdomainName, ctx1.Namespace, Domain, Port)).PrepareSender()
 			_ = sender.Deploy()
 			sender.Wait()
 		}
@@ -89,6 +94,25 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
+		podRemoved := false
+		Framework.RegisterDeletePodEventCallback(func (obj interface{}) {
+			podObj := obj.(v1.Pod)
+			if strings.Contains(podObj.Name, "drainer") {
+				podRemoved = true
+				log.Logf("Pod %s has been removed", podObj.Name)
+			}
+		})
+
+		for !podRemoved {
+			i:=0
+			log.Logf("Still not finished...")
+			time.Sleep(time.Second*5)
+			i++
+			if i>60 {
+				break
+			}
+		}
+
 		_ = receiver.Deploy()
 		receiver.Wait()
 		receiverResult := receiver.Result()
@@ -99,8 +123,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
-		sendUrl := "amqp://" + DeployName + "-ss-3:5672/"
-		receiveUrl := "amqp:/" + DeployName + "-ss-0:5672/"
+		sendUrl :=  formUrl("3", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).
@@ -114,6 +138,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		//Wait for a drainer pod to do its deed
 		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
+		// Kludge to wait for removal of the drainer pod
+		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 0, time.Second*10, time.Minute*5)
 		_ = receiver.Deploy()
 		receiver.Wait()
 		receiverResult := receiver.Result()
@@ -121,7 +147,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}
-
 	})
 
 })
+
+

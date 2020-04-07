@@ -6,6 +6,7 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp/qeclients"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
@@ -24,6 +25,9 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 	const (
 		MessageBody  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount = 100
+		Port = "5672"
+		Domain = "svc.cluster.local"
+		SubdomainName="-hdls-svc"
 	)
 
 	// PrepareNamespace after framework has been created
@@ -36,7 +40,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		url = "amqp://" + DeployName + "-ss-0:5672/"
+		url =  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 		sender, err = qeclients.NewSenderBuilder("sender", qeclients.Python, *ctx1, url).Content(MessageBody).Count(MessageCount).Build() //, MessageBody, MessageCount)
 		if err != nil {
 			panic(err)
@@ -48,25 +52,30 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 
 	})
 
-	ginkgo.It("Deploy single broker instance", func() {
+	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		err := dw.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
 		_ = sender.Deploy()
 		_ = receiver.Deploy()
+		log.Logf("Started (sync) deployment of clients")
 		sender.Wait()
 		receiver.Wait()
+		log.Logf("Wait finished")
 		senderResult := sender.Result()
 		receiverResult := receiver.Result()
+		log.Logf("Finished (sync) deployment")
 		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
 		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+
+		log.Logf("MessageCount is fine")
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}
 	})
 
-	ginkgo.It("Deploy double broker instances", func() {
+	ginkgo.It("Deploy double broker instances, send messages", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		err := dw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
