@@ -5,6 +5,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/events"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	v1 "k8s.io/api/core/v1"
@@ -24,11 +25,11 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	)
 
 	const (
-		MessageBody  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		MessageCount = 100
-		Port = "5672"
-		Domain = "svc.cluster.local"
-		SubdomainName="-hdls-svc"
+		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		MessageCount  = 100
+		Port          = "5672"
+		Domain        = "svc.cluster.local"
+		SubdomainName = "-hdls-svc"
 	)
 
 	// PrepareNamespace after framework has been created.
@@ -49,7 +50,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		gomega.Expect(err).To(gomega.BeNil())
 
 		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -77,7 +78,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		sendUrls := []string{"3", "2", "1", "0"}
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 		srw.
 			WithReceiveUrl(receiveUrl)
 		receiver = srw.PrepareReceiver()
@@ -95,8 +96,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
 		podRemoved := false
-		Framework.RegisterDeletePodEventCallback(func (obj interface{}) {
-			podObj := obj.(v1.Pod)
+		Framework.EventHandler.AddEventHandler(events.Pod, events.Delete, func(obj ...interface{}) {
+			podObj := obj[0].(v1.Pod)
 			if strings.Contains(podObj.Name, "drainer") {
 				podRemoved = true
 				log.Logf("Pod %s has been removed", podObj.Name)
@@ -104,11 +105,11 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		})
 
 		for !podRemoved {
-			i:=0
+			i := 0
 			log.Logf("Still not finished...")
-			time.Sleep(time.Second*5)
+			time.Sleep(time.Second * 5)
 			i++
-			if i>60 {
+			if i > 60 {
 				break
 			}
 		}
@@ -123,8 +124,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
-		sendUrl :=  formUrl("3", SubdomainName, ctx1.Namespace, Domain, Port)
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		sendUrl := formUrl("3", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).
@@ -150,5 +151,3 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 })
-
-
