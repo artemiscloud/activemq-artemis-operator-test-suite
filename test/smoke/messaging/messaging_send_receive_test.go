@@ -4,7 +4,6 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
-	"github.com/rh-messaging/shipshape/pkg/api/client/amqp/qeclients"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
@@ -18,8 +17,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		dw       test.DeploymentWrapper
 		sender   amqp.Client
 		receiver amqp.Client
-		url      string
-		err      error
+		//url      string
 	)
 
 	const (
@@ -40,15 +38,16 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		url =  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
-		sender, err = qeclients.NewSenderBuilder("sender", qeclients.Python, *ctx1, url).Content(MessageBody).Count(MessageCount).Build() //, MessageBody, MessageCount)
-		if err != nil {
-			panic(err)
-		}
-		receiver, err = qeclients.NewReceiverBuilder("receiver", qeclients.Python, *ctx1, url).Build()
-		if err != nil {
-			panic(err)
-		}
+		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		srw := test.SenderReceiverWrapper{}.WithContext(ctx1).
+			WithMessageBody(MessageBody).
+			WithMessageCount(MessageCount)
+
+		sender, receiver = srw.
+			WithReceiveUrl(receiveUrl).
+			WithSendUrl(sendUrl).
+			PrepareSenderReceiver()
 
 	})
 

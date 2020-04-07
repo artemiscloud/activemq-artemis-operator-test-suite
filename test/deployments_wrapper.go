@@ -25,7 +25,12 @@ type DeploymentWrapper struct {
 	migration    bool
 	persistence  bool
 	name         string
+	sslEnabled	 bool
 }
+
+const (
+	//amqpAcceptor =
+)
 
 // WithWait sets if shipshape would wait for completion
 func (dw DeploymentWrapper) WithWait(wait bool) DeploymentWrapper {
@@ -66,6 +71,33 @@ func (dw DeploymentWrapper) WithMigration(migration bool) DeploymentWrapper {
 func (dw DeploymentWrapper) WithPersistence(persistence bool) DeploymentWrapper {
 	dw.persistence = persistence
 	return dw
+}
+
+func (dw DeploymentWrapper) WithSsl(ssl bool) DeploymentWrapper {
+	dw.sslEnabled = ssl
+	return dw
+}
+
+func (dw DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
+	acceptor := &brokerapi.AcceptorType{
+		Name:                "amqp",
+		Port:                5672,
+		Protocols:           "amqp",
+		SSLEnabled:          false,
+		SSLSecret:           "",
+		EnabledCipherSuites: "",
+		EnabledProtocols:    "",
+		NeedClientAuth:      false,
+		WantClientAuth:      false,
+		VerifyHost:          false,
+		SSLProvider:         "JDK",
+		SNIHost:             "localhost",
+		Expose:              true,
+		AnycastPrefix:       "",
+		MulticastPrefix:     "",
+		ConnectionsAllowed:  0,
+	}
+	return acceptor
 }
 
 // Scale scales already deployed Broker
@@ -112,19 +144,19 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 		panic(err)
 	}
 	jsonBody, err := yaml.YAMLToJSON(body)
-	_ = json.Unmarshal(jsonBody, &artemis)
+	err = json.Unmarshal(jsonBody, &artemis)
 	if err != nil {
 		panic(err)
 	}
 
 	log.Logf("modifying acceptors")
 	artemis.Spec.DeploymentPlan.Size = int32(count)
-
+	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *dw.defaultAcceptor())
 	for num := range artemis.Spec.Acceptors {
-		artemis.Spec.Acceptors[num].SSLEnabled = false
+		artemis.Spec.Acceptors[num].SSLEnabled = dw.sslEnabled
 	}
 	for num := range artemis.Spec.Connectors {
-		artemis.Spec.Connectors[num].SSLEnabled = false
+		artemis.Spec.Connectors[num].SSLEnabled = dw.sslEnabled
 	}
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
