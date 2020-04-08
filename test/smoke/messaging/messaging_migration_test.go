@@ -5,11 +5,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/events"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-	v1 "k8s.io/api/core/v1"
-	"strings"
 	"time"
 )
 
@@ -43,6 +39,10 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
 
+	})
+
+	ginkgo.JustAfterEach(func() {
+		Framework.GetFirstContext().EventHandler.ClearCallbacks()
 	})
 
 	ginkgo.It("Deploy double broker instance, migrate to single", func() {
@@ -95,25 +95,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
-		podRemoved := false
-		Framework.EventHandler.AddEventHandler(events.Pod, events.Delete, func(obj ...interface{}) {
-			podObj := obj[0].(v1.Pod)
-			if strings.Contains(podObj.Name, "drainer") {
-				podRemoved = true
-				log.Logf("Pod %s has been removed", podObj.Name)
-			}
-		})
-
-		for !podRemoved {
-			i := 0
-			log.Logf("Still not finished...")
-			time.Sleep(time.Second * 5)
-			i++
-			if i > 60 {
-				break
-			}
-		}
-
+		WaitForDrainerRemoval(3)
 		_ = receiver.Deploy()
 		receiver.Wait()
 		receiverResult := receiver.Result()
@@ -136,12 +118,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		_ = sender.Deploy()
 		sender.Wait()
 		_ = dw.Scale(3)
-		//Wait for a drainer pod to do its deed
-		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
-		gomega.Expect(err).To(gomega.BeNil())
-		// Kludge to wait for removal of the drainer pod
-		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 0, time.Second*10, time.Minute*5)
-		_ = receiver.Deploy()
+		WaitForDrainerRemoval(1)
 		receiver.Wait()
 		receiverResult := receiver.Result()
 		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
