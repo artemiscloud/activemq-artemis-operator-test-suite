@@ -47,9 +47,9 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-	/*	if (test.Config.DebugRun) {
+	if (test.Config.DebugRun) {
 			log.Logf("Not removing namespace due to debug option")
 		} else {
 			Framework.AfterEach()
-		}*/
+		}
 })
