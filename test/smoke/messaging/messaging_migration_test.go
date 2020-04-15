@@ -26,6 +26,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		Port          = "5672"
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
+		AddressBit="someMigrationQueue"
 	)
 
 	// PrepareNamespace after framework has been created.
@@ -49,8 +50,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err := dw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
-		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -78,14 +79,14 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		sendUrls := []string{"3", "2", "1", "0"}
-		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		srw.
 			WithReceiveUrl(receiveUrl)
 		receiver = srw.PrepareReceiver()
 
 		err := dw.DeployBrokers(4)
 		for _, url := range sendUrls {
-			sender = srw.WithSendUrl(formUrl(url, SubdomainName, ctx1.Namespace, Domain, Port)).PrepareSender()
+			sender = srw.WithSendUrl(formUrl(url, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)).PrepareSender()
 			_ = sender.Deploy()
 			sender.Wait()
 		}
@@ -106,8 +107,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
-		sendUrl := formUrl("3", SubdomainName, ctx1.Namespace, Domain, Port)
-		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		sendUrl := formUrl("3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).

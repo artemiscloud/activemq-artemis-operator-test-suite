@@ -27,7 +27,7 @@ import (
 // is specified when running your test).
 
 var (
-	TestConfig = TestConfiguration{
+	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
 		"registry.redhat.io/amq7/amq-broker:latest",
 		"registry.redhat.io/amq7/amq-broker:7.5-4",
@@ -55,13 +55,13 @@ func init() {
 	// Needs authentication with registry.redhat.io!
 	loadConfig()
 	//  Default OperatorImage is provided by shipshape.
-	flag.StringVar(&TestConfig.OperatorImageName, "operator-image", TestConfig.OperatorImageName, "operator image url")
-	flag.StringVar(&TestConfig.BrokerImageName, "broker-image", TestConfig.BrokerImageName, "broker image url")
-	flag.StringVar(&TestConfig.BrokerVersion, "broker-version", TestConfig.BrokerVersion, "broker version string")
-	flag.StringVar(&TestConfig.BrokerVersionOld, "broker-version-old", TestConfig.BrokerVersionOld, "old broker version string")
-	flag.StringVar(&TestConfig.BrokerImageNameOld, "broker-image-old", TestConfig.BrokerImageNameOld, "old broker image to upgrade from/downgrade to")
-	flag.BoolVar(&TestConfig.DownstreamBuild, "downstream", TestConfig.DownstreamBuild, "downstream toggle")
-	flag.BoolVar(&TestConfig.DebugRun, "debug", TestConfig.DebugRun, "debug run toggle")
+	flag.StringVar(&Config.OperatorImageName, "operator-image", Config.OperatorImageName, "operator image url")
+	flag.StringVar(&Config.BrokerImageName, "broker-image", Config.BrokerImageName, "broker image url")
+	flag.StringVar(&Config.BrokerVersion, "broker-version", Config.BrokerVersion, "broker version string")
+	flag.StringVar(&Config.BrokerVersionOld, "broker-version-old", Config.BrokerVersionOld, "old broker version string")
+	flag.StringVar(&Config.BrokerImageNameOld, "broker-image-old", Config.BrokerImageNameOld, "old broker image to upgrade from/downgrade to")
+	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
+	flag.BoolVar(&Config.DebugRun, "debug", Config.DebugRun, "debug run toggle")
 }
 
 func loadConfig() {
@@ -71,7 +71,7 @@ func loadConfig() {
 	if err != nil {
 		log.Logf("yaml load err: #%v", err)
 	}
-	err = yaml.Unmarshal(yamlFile, TestConfig)
+	err = yaml.Unmarshal(yamlFile, Config)
 	if err != nil {
 		log.Logf("yaml parsing err: #%v", err)
 	}

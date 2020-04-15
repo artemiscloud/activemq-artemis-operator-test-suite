@@ -26,6 +26,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		Port = "5672"
 		Domain = "svc.cluster.local"
 		SubdomainName="-hdls-svc"
+		AddressBit="someQueue"
 	)
 
 	// PrepareNamespace after framework has been created
@@ -38,8 +39,8 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, Port)
+		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		srw := test.SenderReceiverWrapper{}.WithContext(ctx1).
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
@@ -65,6 +66,9 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		senderResult := sender.Result()
 		receiverResult := receiver.Result()
 		log.Logf("Finished (sync) deployment")
+		log.Logf("Count sent: %d", senderResult.Delivered)
+		log.Logf("Count received: %d", receiverResult.Delivered)
+		log.Logf("Len of received: %d", len(receiverResult.Messages))
 		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
 		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
 

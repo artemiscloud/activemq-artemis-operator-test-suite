@@ -45,7 +45,14 @@ func (srw SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClien
 }
 
 func (srw SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
-	sender, err := qeclients.NewSenderBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).Content(srw.messageBody).Count(srw.messageCount).Build()
+	sender, err := qeclients.NewSenderBuilder("sender",
+		qeclients.Java,
+		*srw.ctx1,
+		srw.sendUrl).
+		Content(srw.messageBody).
+		Count(srw.messageCount).
+		Timeout(20).
+		Build()
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +60,10 @@ func (srw SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
 }
 
 func (srw SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
-	sender, err := qeclients.NewReceiverBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).Build()
+	sender, err := qeclients.
+		NewReceiverBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).
+		Timeout(20).
+		Build()
 	if err != nil {
 		panic(err)
 	}
