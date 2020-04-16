@@ -22,11 +22,24 @@ type DeploymentWrapper struct {
 	brokerClient brokerclientset.Interface
 	ctx1         *framework.ContextData
 	customImage  string
+	migration    bool
+	persistence  bool
+	name         string
+	sslEnabled	 bool
 }
+
+const (
+	//amqpAcceptor =
+)
 
 // WithWait sets if shipshape would wait for completion
 func (dw DeploymentWrapper) WithWait(wait bool) DeploymentWrapper {
 	dw.wait = wait
+	return dw
+}
+
+func (dw DeploymentWrapper) WithName(name string) DeploymentWrapper {
+	dw.name = name
 	return dw
 }
 
@@ -48,28 +61,69 @@ func (dw DeploymentWrapper) WithCustomImage(image string) DeploymentWrapper {
 	return dw
 }
 
+// WithMigration Sets Migration parameter (controls message migration availability)
+func (dw DeploymentWrapper) WithMigration(migration bool) DeploymentWrapper {
+	dw.migration = migration
+	return dw
+}
+
+// WithPersistence Sets Persistence parameter (controls creationf of PVCs)
+func (dw DeploymentWrapper) WithPersistence(persistence bool) DeploymentWrapper {
+	dw.persistence = persistence
+	return dw
+}
+
+func (dw DeploymentWrapper) WithSsl(ssl bool) DeploymentWrapper {
+	dw.sslEnabled = ssl
+	return dw
+}
+
+func (dw DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
+	acceptor := &brokerapi.AcceptorType{
+		Name:                "amqp",
+		Port:                5672,
+		Protocols:           "amqp",
+		SSLEnabled:          false,
+		SSLSecret:           "",
+		EnabledCipherSuites: "",
+		EnabledProtocols:    "",
+		NeedClientAuth:      false,
+		WantClientAuth:      false,
+		VerifyHost:          false,
+		SSLProvider:         "JDK",
+		SNIHost:             "localhost",
+		Expose:              true,
+		AnycastPrefix:       "",
+		MulticastPrefix:     "",
+		ConnectionsAllowed:  0,
+	}
+	return acceptor
+}
+
 // Scale scales already deployed Broker
 func (dw DeploymentWrapper) Scale(result int) error {
 	resourceVersion := int64(0)
 	var err error
 	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
-	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get("ex-aao", v1.GetOptions{})
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
+	originalSize := artemisCreated.Spec.DeploymentPlan.Size
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
 	artemisCreated.Spec.DeploymentPlan.Size = int32(result)
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
-
+	artemisCreated.Spec.DeploymentPlan.MessageMigration = &dw.migration
+	artemisCreated.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
 	if dw.wait {
 		log.Logf("Waiting for exactly " + string(result) + " instances.\n")
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
-			"ex-aao-ss",
+			dw.name+"-ss",
 			result,
-			time.Second*10, time.Minute*time.Duration(5*result))
+			time.Second*10, time.Minute*time.Duration(5*max(result, int(originalSize))))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
@@ -90,24 +144,24 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 		panic(err)
 	}
 	jsonBody, err := yaml.YAMLToJSON(body)
-	_ = json.Unmarshal(jsonBody, &artemis)
+	err = json.Unmarshal(jsonBody, &artemis)
 	if err != nil {
 		panic(err)
 	}
 
 	log.Logf("modifying acceptors")
 	artemis.Spec.DeploymentPlan.Size = int32(count)
-
+	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *dw.defaultAcceptor())
 	for num := range artemis.Spec.Acceptors {
-		artemis.Spec.Acceptors[num].SSLEnabled = false
+		artemis.Spec.Acceptors[num].SSLEnabled = dw.sslEnabled
 	}
 	for num := range artemis.Spec.Connectors {
-		artemis.Spec.Connectors[num].SSLEnabled = false
+		artemis.Spec.Connectors[num].SSLEnabled = dw.sslEnabled
 	}
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
-	artemis.ObjectMeta.Name = "ex-aao"
+	artemis.ObjectMeta.Name = dw.name
 
 	//dw.ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
 
@@ -119,7 +173,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 		log.Logf("Waiting for exactly " + string(count) + " instances.\n")
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
-			"ex-aao-ss",
+			dw.name+"-ss",
 			count,
 			time.Second*10, time.Minute*time.Duration(5*count))
 		gomega.Expect(err).To(gomega.BeNil())
@@ -138,7 +192,7 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	var err error
 	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
-	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get("ex-aao", v1.GetOptions{})
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
@@ -150,11 +204,18 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	gomega.Expect(err).To(gomega.BeNil())
 	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 		dw.ctx1.Namespace,
-		"ex-aao-ss",
+		dw.name+"-aao-ss",
 		int(countExpected),
 		time.Second*10, time.Minute*time.Duration(5*countExpected))
 
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return err
+}
+
+func max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
 }

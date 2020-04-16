@@ -1,17 +1,22 @@
-package versions
+package messaging
 
 import (
+	"errors"
 	"github.com/onsi/ginkgo"
 	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/events"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/rh-messaging/shipshape/pkg/framework/operators"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	v1 "k8s.io/api/core/v1"
+	"strings"
+	"time"
 )
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "versions"
+	DeployName = "messaging"
 )
 
 var (
@@ -40,7 +45,6 @@ var _ = ginkgo.BeforeEach(func() {
 	brokerClient = brokerOperator.Interface().(brokerclientset.Interface)
 }, 60)
 
-// Deploy Interconnect
 var _ = ginkgo.JustBeforeEach(func() {
 
 })
@@ -48,9 +52,35 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-	if (test.Config.DebugRun) {
-			log.Logf("Not removing namespace due to debug option")
-		} else {
-			Framework.AfterEach()
-		}
+	if test.Config.DebugRun {
+		log.Logf("Not removing namespace due to debug option")
+	} else {
+		Framework.AfterEach()
+	}
 })
+
+func formUrl(number, subdomain, namespace, domain, address, port string) string {
+	return "amqp://" + DeployName + "-ss-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
+		"/" + address
+}
+
+func WaitForDrainerRemoval(count int) {
+	podsRemoved := 0
+	Framework.GetFirstContext().EventHandler.AddEventHandler(events.Pod, events.Delete, func(obj ...interface{}) {
+		podObj := obj[0].(v1.Pod)
+		if strings.Contains(podObj.Name, "drainer") {
+			podsRemoved += 1
+			log.Logf("Pod %s has completed draining", podObj.Name)
+		}
+	})
+	log.Logf("Waiting for drainer pods to execute")
+	for podsRemoved < count {
+		i := 0
+		time.Sleep(time.Second * 5)
+		i++
+		if i > 60 {
+			panic(errors.New("drainer pod failed to be created/removed over 5 minutes, exiting test"))
+		}
+	}
+
+}
