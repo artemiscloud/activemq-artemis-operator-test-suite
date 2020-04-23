@@ -31,7 +31,8 @@ var (
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
 		"registry.redhat.io/amq7/amq-broker:latest",
 		"registry.redhat.io/amq7/amq-broker:7.5-4",
-		"7.6.0", "7.5.0", true, false}
+		"7.6.0", "7.5.0", true,
+		false, "", false, false}
 )
 
 type TestConfiguration struct {
@@ -42,6 +43,9 @@ type TestConfiguration struct {
 	BrokerVersionOld   string
 	DownstreamBuild    bool
 	DebugRun           bool
+	RepositoryPath     string
+	AdminAvailable     bool
+	NeedsV2            bool
 }
 
 const (
@@ -49,6 +53,73 @@ const (
 	Password       = "admin"
 	ProjectRootDir = "msgqe/openshift-broker-suite-golang"
 )
+
+var MainCrds = []string{
+	"service_account.yaml",
+	"role.yaml",
+	"role_binding.yaml",
+	"operator.yaml",
+}
+
+var CrdsV1 = []string{
+	"crds/broker_v2alpha1_activemqartemis_crd.yaml",
+	"crds/broker_v2alpha1_activemqartemisaddress_crd.yaml",
+	"crds/broker_v2alpha1_activemqartemisscaledown_crd.yaml",
+}
+
+var CrdsV2 = []string{
+	"crds/broker_activemqartemis_crd.yaml",
+	"crds/broker_activemqartemisaddress_crd.yaml",
+	"crds/broker_activemqartemisscaledown_crd.yaml",
+}
+
+func loadFromSlice(slice []string, path string) ([][]byte, error) {
+	var result [][]byte
+
+	for _, item := range slice {
+		byteItem, err := ioutil.ReadFile(fmt.Sprint("%s/%s", path, item))
+		if err != nil {
+			return nil, err
+		} else {
+			result = append(result, byteItem)
+		}
+	}
+	return result, nil
+}
+
+func LoadYamls(path string) ([][]byte, error) {
+	//Load all the main stuff
+	var result [][]byte
+	loaded, err := loadFromSlice(MainCrds, path)
+	if err != nil {
+		return nil, err
+	} else {
+		for _, item := range loaded {
+			result = append(result, item)
+		}
+	}
+	//And all the other stuff.
+	if Config.NeedsV2 {
+		loaded, err := loadFromSlice(CrdsV2, path)
+		if err != nil {
+			return nil, err
+		} else {
+			for _, item := range loaded {
+				result = append(result, item)
+			}
+		}
+	} else {
+		loaded, err := loadFromSlice(CrdsV1, path)
+		if err != nil {
+			return nil, err
+		} else {
+			for _, item := range loaded {
+				result = append(result, item)
+			}
+		}
+	}
+	return result, nil
+}
 
 func init() {
 	// Defaulting to latest released broker image
@@ -62,6 +133,9 @@ func init() {
 	flag.StringVar(&Config.BrokerImageNameOld, "broker-image-old", Config.BrokerImageNameOld, "old broker image to upgrade from/downgrade to")
 	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
 	flag.BoolVar(&Config.DebugRun, "debug", Config.DebugRun, "debug run toggle")
+	flag.StringVar(&Config.RepositoryPath, "repository", "", "path to the amq operator deployment repository")
+	flag.BoolVar(&Config.AdminAvailable, "admin-available", true, "sets cluster-wide admin privileges availability")
+	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
 }
 
 func loadConfig() {
@@ -144,4 +218,8 @@ func getProjectRootPath() string {
 		}
 		cwd = cwd[0:lastSlashIndex]
 	}
+}
+
+func loadDeployConfiguration() {
+
 }

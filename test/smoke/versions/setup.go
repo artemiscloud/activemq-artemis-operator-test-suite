@@ -33,6 +33,21 @@ var _ = ginkgo.BeforeEach(func() {
 	if test.Config.DownstreamBuild {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 	}
+
+	if test.Config.RepositoryPath != "" {
+		// Try loading YAMLs from the repo.
+		yamls, err := test.LoadYamls(test.Config.RepositoryPath)
+		if err != nil {
+			panic(err)
+		} else {
+			builder.WithYamls(yamls)
+		}
+	}
+
+	if !test.Config.AdminAvailable {
+		builder.SetAdminUnavailable()
+	}
+
 	Framework = framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder).
 		Build()
@@ -48,9 +63,9 @@ var _ = ginkgo.JustBeforeEach(func() {
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.
 var _ = ginkgo.AfterEach(func() {
-	if (test.Config.DebugRun) {
-			log.Logf("Not removing namespace due to debug option")
-		} else {
-			Framework.AfterEach()
-		}
+	if test.Config.DebugRun {
+		log.Logf("Not removing namespace due to debug option")
+	} else {
+		Framework.AfterEach()
+	}
 })
