@@ -77,7 +77,7 @@ func loadFromSlice(slice []string, path string) ([][]byte, error) {
 	var result [][]byte
 
 	for _, item := range slice {
-		byteItem, err := ioutil.ReadFile(fmt.Sprint("%s/%s", path, item))
+		byteItem, err := ioutil.ReadFile(path + "/" + item)
 		if err != nil {
 			return nil, err
 		} else {
@@ -132,8 +132,8 @@ func init() {
 	flag.StringVar(&Config.BrokerVersionOld, "broker-version-old", Config.BrokerVersionOld, "old broker version string")
 	flag.StringVar(&Config.BrokerImageNameOld, "broker-image-old", Config.BrokerImageNameOld, "old broker image to upgrade from/downgrade to")
 	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
-	flag.BoolVar(&Config.DebugRun, "debug", Config.DebugRun, "debug run toggle")
-	flag.StringVar(&Config.RepositoryPath, "repository", "", "path to the amq operator deployment repository")
+	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
+	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
 	flag.BoolVar(&Config.AdminAvailable, "admin-available", true, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
 }

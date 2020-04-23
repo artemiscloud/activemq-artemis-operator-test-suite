@@ -25,11 +25,11 @@ type DeploymentWrapper struct {
 	migration    bool
 	persistence  bool
 	name         string
-	sslEnabled	 bool
+	sslEnabled   bool
 }
 
 const (
-	//amqpAcceptor =
+//amqpAcceptor =
 )
 
 // WithWait sets if shipshape would wait for completion
@@ -158,6 +158,9 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	for num := range artemis.Spec.Connectors {
 		artemis.Spec.Connectors[num].SSLEnabled = dw.sslEnabled
 	}
+
+	artemis.Spec.DeploymentPlan.MessageMigration = &dw.migration
+	artemis.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
