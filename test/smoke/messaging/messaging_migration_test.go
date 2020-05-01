@@ -25,8 +25,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		MessageCount  = 100
 		Port          = "5672"
 		Domain        = "svc.cluster.local"
-		SubdomainName = "-hdls-svc"
-		AddressBit="someMigrationQueue"
+		SubdomainName = "-svc-rte"
+		AddressBit    = "someQueue"
 	)
 
 	// PrepareNamespace after framework has been created.
@@ -65,7 +65,10 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		_ = dw.Scale(1)
 
 		//Wait for a drainer pod to do its deed
-		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
+		//err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
+
+		WaitForDrainerRemoval(1)
+
 		gomega.Expect(err).To(gomega.BeNil())
 		_ = receiver.Deploy()
 		receiver.Wait()
@@ -93,7 +96,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		//Scale to 1
 		err = dw.Scale(1)
 		gomega.Expect(err).To(gomega.BeNil())
-
+		WaitForDrainerRemoval(3)
 		err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
 		gomega.Expect(err).To(gomega.BeNil())
 		WaitForDrainerRemoval(3)
@@ -115,7 +118,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			PrepareSenderReceiver()
 		err := dw.DeployBrokers(4)
 		gomega.Expect(err).To(gomega.BeNil())
-
 		_ = sender.Deploy()
 		sender.Wait()
 		_ = dw.Scale(3)

@@ -53,7 +53,7 @@ var _ = ginkgo.AfterEach(func() {
 })
 
 func formUrl(number, subdomain, namespace, domain, address, port string) string {
-	return "amqp://" + DeployName + "-ss-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
+	return "amqp://" + DeployName + "-amqp-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
 		"/" + address
 }
 
@@ -61,7 +61,8 @@ func WaitForDrainerRemoval(count int) {
 	podsRemoved := 0
 	Framework.GetFirstContext().EventHandler.AddEventHandler(events.Pod, events.Delete, func(obj ...interface{}) {
 		podObj := obj[0].(v1.Pod)
-		if strings.Contains(podObj.Name, "drainer") {
+		log.Logf("Pod %s has been removed", podObj.Name)
+		if strings.Contains(podObj.Name, "ss") {
 			podsRemoved += 1
 			log.Logf("Pod %s has completed draining", podObj.Name)
 		}
