@@ -32,7 +32,7 @@ var (
 		"registry.redhat.io/amq7/amq-broker:latest",
 		"registry.redhat.io/amq7/amq-broker:7.5-4",
 		"7.6.0", "7.5.0", true,
-		false, "", false, false}
+		false, "", false, false, false}
 )
 
 type TestConfiguration struct {
@@ -46,6 +46,7 @@ type TestConfiguration struct {
 	RepositoryPath     string
 	AdminAvailable     bool
 	NeedsV2            bool
+	IBMz               bool
 }
 
 const (
@@ -136,6 +137,7 @@ func init() {
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
 	flag.BoolVar(&Config.AdminAvailable, "admin-available", true, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
+	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 }
 
 func loadConfig() {
@@ -144,10 +146,11 @@ func loadConfig() {
 	yamlFile, err := ioutil.ReadFile(cwd + "/" + "config.yaml")
 	if err != nil {
 		log.Logf("yaml load err: #%v", err)
-	}
-	err = yaml.Unmarshal(yamlFile, Config)
-	if err != nil {
-		log.Logf("yaml parsing err: #%v", err)
+	} else {
+		err = yaml.Unmarshal(yamlFile, Config)
+		if err != nil {
+			log.Logf("yaml parsing err: #%v", err)
+		}
 	}
 }
 
