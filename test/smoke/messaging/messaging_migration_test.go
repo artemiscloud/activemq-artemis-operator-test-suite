@@ -12,8 +12,7 @@ import (
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	var (
-		ctx1 *framework.ContextData
-		//brokerClient brokerclientset.Interface
+		ctx1     *framework.ContextData
 		dw       test.DeploymentWrapper
 		srw      test.SenderReceiverWrapper
 		sender   amqp.Client
@@ -25,7 +24,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		MessageCount  = 100
 		Port          = "5672"
 		Domain        = "svc.cluster.local"
-		SubdomainName = "-svc-rte"
+		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
 	)
 
@@ -64,9 +63,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
 		_ = dw.Scale(1)
 
-		//Wait for a drainer pod to do its deed
-		//err = framework.WaitForDeployment(ctx1.Clients.KubeClient, ctx1.Namespace, "drainer", 1, time.Second*10, time.Minute*5)
-
 		WaitForDrainerRemoval(1)
 
 		gomega.Expect(err).To(gomega.BeNil())
@@ -93,7 +89,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			_ = sender.Deploy()
 			sender.Wait()
 		}
-		//Scale to 1
 		err = dw.Scale(1)
 		gomega.Expect(err).To(gomega.BeNil())
 		WaitForDrainerRemoval(3)

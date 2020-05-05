@@ -240,7 +240,7 @@ func PrepareOperator() operators.OperatorSetupBuilder {
 	}
 
 	if Config.AdminAvailable {
-		builder.SetAdminUnavailable()
+		//builder.()
 	}
 	return builder
 }

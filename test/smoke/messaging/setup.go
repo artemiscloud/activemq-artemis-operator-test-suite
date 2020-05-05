@@ -53,7 +53,8 @@ var _ = ginkgo.AfterEach(func() {
 })
 
 func formUrl(number, subdomain, namespace, domain, address, port string) string {
-	return "amqp://" + DeployName + "-amqp-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
+	//messaging-ss-0.messaging-hdls-svc.e2e-tests-broker-framework-msp9m.svc.cluster.local
+	return "amqp://" + DeployName + "-ss-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
 		"/" + address
 }
 

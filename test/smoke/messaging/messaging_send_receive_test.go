@@ -26,7 +26,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		MessageCount  = 100
 		Port          = "5672"
 		Domain        = "svc.cluster.local"
-		SubdomainName = "-svc-rte"
+		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
 	)
 
@@ -41,7 +41,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithName(DeployName)
 
 		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		srw := test.SenderReceiverWrapper{}.WithContext(ctx1).
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
