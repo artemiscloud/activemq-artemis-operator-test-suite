@@ -45,8 +45,12 @@ func (srw SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClien
 }
 
 func (srw SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
+	clientVer := qeclients.Java
+	if Config.IBMz {
+		clientVer = qeclients.JavaIBMZ
+	}
 	sender, err := qeclients.NewSenderBuilder("sender",
-		qeclients.Java,
+		clientVer,
 		*srw.ctx1,
 		srw.sendUrl).
 		Content(srw.messageBody).
@@ -60,8 +64,12 @@ func (srw SenderReceiverWrapper) PrepareSender() *qeclients.AmqpQEClientCommon {
 }
 
 func (srw SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
+	clientVer := qeclients.Java
+	if Config.IBMz {
+		clientVer = qeclients.JavaIBMZ
+	}
 	sender, err := qeclients.
-		NewReceiverBuilder("sender", qeclients.Java, *srw.ctx1, srw.sendUrl).
+		NewReceiverBuilder("sender", clientVer, *srw.ctx1, srw.sendUrl).
 		Timeout(20).
 		Build()
 	if err != nil {

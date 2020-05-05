@@ -25,25 +25,14 @@ var (
 // Create the Framework instance to be used oneinterior test
 var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
-	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
-	//Set image to parameter if one is supplied, otherwise use default from shipshape.
-	if len(test.Config.OperatorImageName) != 0 {
-		builder.WithImage(test.Config.OperatorImageName)
-	}
-	if test.Config.DownstreamBuild {
-		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
-	}
+	builder := test.PrepareOperator()
+
 	Framework = framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder).
 		Build()
 	brokerOperator = Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
 	brokerClient = brokerOperator.Interface().(brokerclientset.Interface)
 }, 60)
-
-// Deploy Interconnect
-var _ = ginkgo.JustBeforeEach(func() {
-
-})
 
 // After each test completes, run cleanup actions to save resources (otherwise resources will remain till
 // all specs from this suite are done.

@@ -9,6 +9,7 @@ import (
 	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"github.com/rh-messaging/shipshape/pkg/framework/operators"
 	"io/ioutil"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/http"
@@ -25,11 +26,11 @@ type DeploymentWrapper struct {
 	migration    bool
 	persistence  bool
 	name         string
-	sslEnabled	 bool
+	sslEnabled   bool
 }
 
 const (
-	//amqpAcceptor =
+//amqpAcceptor =
 )
 
 // WithWait sets if shipshape would wait for completion
@@ -158,6 +159,9 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	for num := range artemis.Spec.Connectors {
 		artemis.Spec.Connectors[num].SSLEnabled = dw.sslEnabled
 	}
+
+	artemis.Spec.DeploymentPlan.MessageMigration = &dw.migration
+	artemis.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
@@ -211,6 +215,34 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return err
+}
+
+func PrepareOperator() operators.OperatorSetupBuilder {
+	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
+
+	//Set image to parameter if one is supplied, otherwise use default from shipshape.
+	if len(Config.OperatorImageName) != 0 {
+		builder.WithImage(Config.OperatorImageName)
+	}
+	if Config.DownstreamBuild {
+		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
+		builder.WithOperatorName("amq-broker-operator")
+	}
+
+	if Config.RepositoryPath != "" {
+		// Try loading YAMLs from the repo.
+		yamls, err := LoadYamls(Config.RepositoryPath)
+		if err != nil {
+			panic(err)
+		} else {
+			builder.WithYamls(yamls)
+		}
+	}
+
+	if Config.AdminAvailable {
+		//builder.()
+	}
+	return builder
 }
 
 func max(x, y int) int {

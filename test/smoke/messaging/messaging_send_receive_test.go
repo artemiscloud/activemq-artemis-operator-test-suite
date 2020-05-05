@@ -20,13 +20,14 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		//url      string
 	)
 
+	// URL example: https://ex-aao-amqp-0-svc-rte-broker-operator-nd-ssl.apps.ocp43-released.broker-rvais-stable.fw.rhcloud.com
 	const (
-		MessageBody  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		MessageCount = 100
-		Port = "5672"
-		Domain = "svc.cluster.local"
-		SubdomainName="-hdls-svc"
-		AddressBit="someQueue"
+		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		MessageCount  = 100
+		Port          = "5672"
+		Domain        = "svc.cluster.local"
+		SubdomainName = "-hdls-svc"
+		AddressBit    = "someQueue"
 	)
 
 	// PrepareNamespace after framework has been created
@@ -40,7 +41,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithName(DeployName)
 
 		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		receiveUrl :=  formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		srw := test.SenderReceiverWrapper{}.WithContext(ctx1).
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
@@ -99,7 +100,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy broker with persistence but without migration", func() {
-		err := dw.WithPersistence(true).WithMigration(false).DeployBrokers(2)
+		err := dw.WithPersistence(false).WithMigration(false).DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
