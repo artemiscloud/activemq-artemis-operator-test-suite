@@ -2,19 +2,17 @@ package versions
 
 import (
 	"github.com/onsi/ginkgo"
-	"github.com/rh-messaging/shipshape/pkg/framework"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
 var _ = ginkgo.Describe("VersionsUrlTests", func() {
-
+/*
 	var (
 		ctx1 *framework.ContextData
 		dw   test.DeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
-	ginkgo.JustBeforeEach(func() {
+	/*ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
 		dw = test.DeploymentWrapper{}.
 			WithWait(true).
