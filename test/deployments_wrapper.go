@@ -208,7 +208,7 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	gomega.Expect(err).To(gomega.BeNil())
 	err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 		dw.ctx1.Namespace,
-		dw.name+"-aao-ss",
+		dw.name+"-ss",
 		int(countExpected),
 		time.Second*10, time.Minute*time.Duration(5*countExpected))
 
