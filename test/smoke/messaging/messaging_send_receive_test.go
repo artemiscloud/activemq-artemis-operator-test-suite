@@ -100,8 +100,10 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy broker with persistence but without migration", func() {
-		err := dw.WithPersistence(false).WithMigration(false).DeployBrokers(2)
-		gomega.Expect(err).To(gomega.BeNil())
+		if !test.Config.IBMz {
+			err := dw.WithPersistence(true).WithMigration(false).DeployBrokers(2)
+			gomega.Expect(err).To(gomega.BeNil())
+		}
 	})
 
 })
