@@ -7,7 +7,7 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
+var _ = ginkgo.Describe("VersionsTests", func() {
 
 	var (
 		ctx1 *framework.ContextData

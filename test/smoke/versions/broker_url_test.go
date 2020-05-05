@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
+var _ = ginkgo.Describe("VersionsUrlTests", func() {
 
 	var (
 		ctx1 *framework.ContextData
