@@ -201,6 +201,9 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
 	countExpected := artemisCreated.Spec.DeploymentPlan.Size
+	if countExpected == 0 {
+		countExpected = 1
+	}
 	artemisCreated.Spec.DeploymentPlan.Image = dw.customImage
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 
