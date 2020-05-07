@@ -65,5 +65,3 @@ require (
 
 // For local override of dependencies, use following:
 replace github.com/rh-messaging/activemq-artemis-operator v0.0.0 => ../../../github.com/rh-messaging/activemq-artemis-operator
-
-replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
