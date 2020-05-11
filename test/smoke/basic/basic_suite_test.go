@@ -1,14 +1,16 @@
 package basic
 
 import (
-	"github.com/onsi/gomega"
-	"github.com/rh-messaging/shipshape/pkg/framework/ginkgowrapper"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"testing"
+
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
 func TestBasic(t *testing.T) {
-
-	gomega.RegisterFailHandler(ginkgowrapper.Fail)
+	//gomega.RegisterFailHandler(ginkgowrapper.Fail)
 	test.PrepareNamespace(t, "basic", "Basic Suite")
+}
+
+func TestMain(m *testing.M) {
+	test.Initialize(m)
 }

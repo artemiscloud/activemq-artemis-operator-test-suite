@@ -3,6 +3,12 @@ package test
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
+	"testing"
+
 	"github.com/ghodss/yaml"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/config"
@@ -11,12 +17,7 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/ginkgowrapper"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"io/ioutil"
 	"k8s.io/klog"
-	"os"
-	"path"
-	"strings"
-	"testing"
 )
 
 // PrepareNamespace once this file is imported, the "init()" method will be called automatically
@@ -122,7 +123,8 @@ func LoadYamls(path string) ([][]byte, error) {
 	return result, nil
 }
 
-func init() {
+//func init() {
+func RegisterFlags() {
 	// Defaulting to latest released broker image
 	// Needs authentication with registry.redhat.io!
 	loadConfig()
@@ -154,10 +156,15 @@ func loadConfig() {
 	}
 }
 
-func PrepareNamespace(t *testing.T, uniqueId string, description string) {
-	framework.HandleFlags()
+func Initialize(m *testing.M) {
+	framework.RegisterFlags()
+	RegisterFlags()
+	flag.Parse()
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
+	os.Exit(m.Run())
+}
 
+func PrepareNamespace(t *testing.T, uniqueId string, description string) {
 	// If any ginkgoReporter has been defined, use them.
 	if framework.TestContext.ReportDir != "" {
 		ginkgo.RunSpecsWithDefaultAndCustomReporters(t, description, generateReporter(uniqueId))
