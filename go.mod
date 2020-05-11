@@ -28,8 +28,8 @@ require (
 	github.com/mailru/easyjson v0.7.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 	github.com/modern-go/reflect2 v1.0.1
-	github.com/onsi/ginkgo v1.11.0
-	github.com/onsi/gomega v1.8.1
+	github.com/onsi/ginkgo v1.12.0
+	github.com/onsi/gomega v1.9.0
 	github.com/openshift/api v0.0.0-20180801171038-322a19404e37
 	github.com/openshift/client-go v0.0.0-20190412095722-0255926f5393
 	github.com/pborman/uuid v1.2.0
