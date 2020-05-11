@@ -7,8 +7,7 @@ import (
 )
 
 func TestVersions(t *testing.T) {
-	//gomega.RegisterFailHandler(ginkgowrapper.Fail)
-	test.PrepareNamespace(t, "messaging", "Messaging Suite")
+	test.PrepareNamespace(t, "versions", "Versions Suite")
 }
 
 func TestMain(m *testing.M) {

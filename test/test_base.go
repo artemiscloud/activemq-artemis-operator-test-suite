@@ -171,7 +171,6 @@ func PrepareNamespace(t *testing.T, uniqueId string, description string) {
 	} else {
 		ginkgo.RunSpecs(t, description)
 	}
-
 }
 
 // generateReporter returns a slice of ginkgo.Reporter if reportDir has been provided

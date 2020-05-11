@@ -42,8 +42,4 @@ var _ = ginkgo.Describe("VersionsTests", func() {
 		podLog, _ = ctx1.GetLogs(DeployName + "-ss-0")
 		gomega.Expect(podLog).To(gomega.ContainSubstring(test.Config.BrokerVersion))
 	})
-
-	ginkgo.It("Deploy broker and upgrade it to another version", func() {
-
-	})
 })
