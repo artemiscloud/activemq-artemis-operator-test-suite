@@ -7,7 +7,6 @@ import (
 )
 
 func TestMessaging(t *testing.T) {
-	//gomega.RegisterFailHandler(ginkgowrapper.Fail)
 	test.PrepareNamespace(t, "messaging", "Messaging Suite")
 }
 

@@ -7,7 +7,6 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	//gomega.RegisterFailHandler(ginkgowrapper.Fail)
 	test.PrepareNamespace(t, "basic", "Basic Suite")
 }
 
