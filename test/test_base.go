@@ -45,7 +45,7 @@ type TestConfiguration struct {
 	DownstreamBuild    bool
 	DebugRun           bool
 	RepositoryPath     string
-	AdminAvailable     bool
+	AdminUnavailable   bool
 	NeedsV2            bool
 	IBMz               bool
 }
@@ -137,7 +137,7 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
 	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
-	flag.BoolVar(&Config.AdminAvailable, "admin-available", true, "sets cluster-wide admin privileges availability")
+	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", true, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 }

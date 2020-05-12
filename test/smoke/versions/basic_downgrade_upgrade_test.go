@@ -11,14 +11,13 @@ var _ = ginkgo.Describe("VersionsTests", func() {
 
 	var (
 		ctx1 *framework.ContextData
-		dw   = test.DeploymentWrapper{}.WithWait(true).WithBrokerClient(brokerClient).WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName)
+		dw   = &test.DeploymentWrapper{}
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
 		dw = &test.DeploymentWrapper{}
-
 		dw.WithWait(true).
 			WithBrokerClient(brokerClient).
 			WithContext(ctx1).

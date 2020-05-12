@@ -308,8 +308,8 @@ func PrepareOperator() operators.OperatorSetupBuilder {
 		}
 	}
 
-	if Config.AdminAvailable {
-		//builder.()
+	if Config.AdminUnavailable {
+		builder.SetAdminUnavailable()
 	}
 	return builder
 }
