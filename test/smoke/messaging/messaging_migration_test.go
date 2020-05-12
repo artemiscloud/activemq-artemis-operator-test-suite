@@ -26,6 +26,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
+		Protocol      = "amqp"
 	)
 
 	// PrepareNamespace after framework has been created.
@@ -54,8 +55,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			err := dw.DeployBrokers(2)
 			gomega.Expect(err).To(gomega.BeNil())
 
-			sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
 			sender, receiver = srw.
 				WithReceiveUrl(receiveUrl).
@@ -89,7 +90,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			err := dw.DeployBrokers(4)
 			gomega.Expect(err).To(gomega.BeNil())
 			for _, number := range podNumbers {
-				url := formUrl(number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+				url := formUrl(Protocol, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 				sender = srw.WithSendUrl(url).PrepareNamedSender("sender-" + string(number))
 				_ = sender.Deploy()
 				sender.Wait()
@@ -98,7 +99,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			gomega.Expect(err).To(gomega.BeNil())
 			drainerCompleted := WaitForDrainerRemoval(3)
 			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			receiver = srw.
 				WithReceiveUrl(receiveUrl).
 				WithReceiverCount(len(podNumbers) * MessageCount).
@@ -116,8 +117,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
 		if !test.Config.IBMz {
-			sendUrl := formUrl("3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			sendUrl := formUrl(Protocol, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			sender, receiver = srw.
 				WithReceiveUrl(receiveUrl).
 				WithSendUrl(sendUrl).
@@ -140,8 +141,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.It("Mass migration of messages", func() {
 		if !test.Config.IBMz {
-			sendUrl := formUrl("1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			sendUrl := formUrl(Protocol, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			BigMultiplier := 10000
 			srw.WithMessageCount(BigMultiplier * MessageCount)
 			sender, receiver = srw.
