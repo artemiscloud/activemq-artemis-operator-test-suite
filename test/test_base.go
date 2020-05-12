@@ -207,8 +207,10 @@ var _ = ginkgo.SynchronizedAfterSuite(func() {
 	// All nodes tear down
 }, func() {
 	// Node1 only tear down
-	framework.RunCleanupActions(framework.AfterEach)
-	framework.RunCleanupActions(framework.AfterSuite)
+	if !Config.DebugRun {
+		framework.RunCleanupActions(framework.AfterEach)
+		framework.RunCleanupActions(framework.AfterSuite)
+	}
 }, 10)
 
 func getProjectRootPath() string {

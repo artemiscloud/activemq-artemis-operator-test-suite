@@ -11,13 +11,14 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 
 	var (
 		ctx1 *framework.ContextData
-		dw   test.DeploymentWrapper
+		dw   *test.DeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
-		dw = test.DeploymentWrapper{}.
+		dw = &test.DeploymentWrapper{}
+		dw.
 			WithWait(true).
 			WithBrokerClient(brokerClient).
 			WithContext(ctx1).
