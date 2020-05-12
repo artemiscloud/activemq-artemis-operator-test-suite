@@ -14,7 +14,7 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		dw       test.DeploymentWrapper
+		dw       *test.DeploymentWrapper
 		sender   amqp.Client
 		receiver amqp.Client
 		//url      string
@@ -33,8 +33,8 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = Framework.GetFirstContext()
-		dw = test.DeploymentWrapper{}.
-			WithWait(true).
+		dw = &test.DeploymentWrapper{}
+		dw.WithWait(true).
 			WithBrokerClient(brokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
@@ -42,7 +42,8 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 
 		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		srw := test.SenderReceiverWrapper{}.WithContext(ctx1).
+		srw := &test.SenderReceiverWrapper{}
+		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
 

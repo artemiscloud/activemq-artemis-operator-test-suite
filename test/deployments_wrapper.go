@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// DeploymentWrapper takes care of deployment of Broker
+// *DeploymentWrapper takes care of deployment of Broker
 type DeploymentWrapper struct {
 	wait         bool
 	brokerClient brokerclientset.Interface
@@ -34,52 +34,52 @@ const (
 )
 
 // WithWait sets if shipshape would wait for completion
-func (dw DeploymentWrapper) WithWait(wait bool) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithWait(wait bool) *DeploymentWrapper {
 	dw.wait = wait
 	return dw
 }
 
-func (dw DeploymentWrapper) WithName(name string) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithName(name string) *DeploymentWrapper {
 	dw.name = name
 	return dw
 }
 
 // WithBrokerClient sets broker kubernetes client to use
-func (dw DeploymentWrapper) WithBrokerClient(brokerClient brokerclientset.Interface) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithBrokerClient(brokerClient brokerclientset.Interface) *DeploymentWrapper {
 	dw.brokerClient = brokerClient
 	return dw
 }
 
 // WithContext sets shipshape context
-func (dw DeploymentWrapper) WithContext(ctx1 *framework.ContextData) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithContext(ctx1 *framework.ContextData) *DeploymentWrapper {
 	dw.ctx1 = ctx1
 	return dw
 }
 
 // WithCustomImage wets Broker Image to be used
-func (dw DeploymentWrapper) WithCustomImage(image string) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithCustomImage(image string) *DeploymentWrapper {
 	dw.customImage = image
 	return dw
 }
 
 // WithMigration Sets Migration parameter (controls message migration availability)
-func (dw DeploymentWrapper) WithMigration(migration bool) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithMigration(migration bool) *DeploymentWrapper {
 	dw.migration = migration
 	return dw
 }
 
 // WithPersistence Sets Persistence parameter (controls creationf of PVCs)
-func (dw DeploymentWrapper) WithPersistence(persistence bool) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithPersistence(persistence bool) *DeploymentWrapper {
 	dw.persistence = persistence
 	return dw
 }
 
-func (dw DeploymentWrapper) WithSsl(ssl bool) DeploymentWrapper {
+func (dw *DeploymentWrapper) WithSsl(ssl bool) *DeploymentWrapper {
 	dw.sslEnabled = ssl
 	return dw
 }
 
-func (dw DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
+func (dw *DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
 	acceptor := &brokerapi.AcceptorType{
 		Name:                "amqp",
 		Port:                5672,
@@ -102,10 +102,10 @@ func (dw DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
 }
 
 // Scale scales already deployed Broker
-func (dw DeploymentWrapper) Scale(result int) error {
+func (dw *DeploymentWrapper) Scale(result int) error {
 	resourceVersion := int64(0)
+
 	var err error
-	resourceVersion = resourceVersion + 5
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
@@ -116,10 +116,11 @@ func (dw DeploymentWrapper) Scale(result int) error {
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 	artemisCreated.Spec.DeploymentPlan.MessageMigration = &dw.migration
 	artemisCreated.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
+	artemisCreated.Spec.Console.Expose = true
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
 	if dw.wait {
-		log.Logf("Waiting for exactly " + string(result) + " instances.\n")
+		log.Logf("Waiting for exactly %d instances.\n", result)
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
 			dw.name+"-ss",
@@ -133,7 +134,7 @@ func (dw DeploymentWrapper) Scale(result int) error {
 }
 
 // DeployBrokers actually deploys brokers defined by dw
-func (dw DeploymentWrapper) DeployBrokers(count int) error {
+func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 	artemis := brokerapi.ActiveMQArtemis{}
 	resp, err := http.Get("https://raw.githubusercontent.com/rh-messaging/activemq-artemis-operator/master/deploy/crs/broker_v2alpha1_activemqartemis_cr.yaml") //load yaml body from url
 	if err != nil {
@@ -167,6 +168,8 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
 	artemis.ObjectMeta.Name = dw.name
 
+	artemis.Spec.Console.Expose = true
+
 	//dw.ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
 
 	//ctx1.Clients.KubeClient.AppsV1().StatefulSets(ctx1.Namespace).Create(&artemis)
@@ -174,7 +177,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 	gomega.Expect(err).To(gomega.BeNil())
 
 	if dw.wait {
-		log.Logf("Waiting for exactly " + string(count) + " instances.\n")
+		log.Logf("Waiting for exactly %d instances.\n", count)
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
 			dw.ctx1.Namespace,
 			dw.name+"-ss",
@@ -191,7 +194,7 @@ func (dw DeploymentWrapper) DeployBrokers(count int) error {
 }
 
 // ChangeImage changes image used in Broker instance to a new one
-func (dw DeploymentWrapper) ChangeImage() error {
+func (dw *DeploymentWrapper) ChangeImage() error {
 	resourceVersion := int64(0)
 	var err error
 	resourceVersion = resourceVersion + 5
@@ -206,6 +209,7 @@ func (dw DeploymentWrapper) ChangeImage() error {
 	}
 	artemisCreated.Spec.DeploymentPlan.Image = dw.customImage
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
+	artemisCreated.Spec.Console.Expose = true
 
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Update(artemisCreated)
 	gomega.Expect(err).To(gomega.BeNil())
