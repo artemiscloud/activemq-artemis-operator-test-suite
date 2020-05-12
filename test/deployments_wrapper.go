@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// *DeploymentWrapper takes care of deployment of Broker
+// DeploymentWrapper takes care of deployment of Broker
 type DeploymentWrapper struct {
 	wait         bool
 	brokerClient brokerclientset.Interface
@@ -101,6 +101,88 @@ func (dw *DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
 	return acceptor
 }
 
+func getAcceptor(
+	name string,
+	port int32,
+	protocols string,
+	sslEnabled bool,
+	sslSecret string,
+	enabledCipherSuites string,
+	enabledProtocols string,
+	needsClientAuth bool,
+	wantClientAuth bool,
+	verifyHost bool,
+	sslProvider string,
+	sniHost string,
+	expose bool,
+	anycastPrefix string,
+	multicastPrefix string,
+	connectionsAllowed int) *brokerapi.AcceptorType {
+	acceptor := &brokerapi.AcceptorType{
+		Name:                name,
+		Port:                port,
+		Protocols:           protocols,
+		SSLEnabled:          sslEnabled,
+		SSLSecret:           sslSecret,
+		EnabledCipherSuites: enabledCipherSuites,
+		EnabledProtocols:    enabledProtocols,
+		NeedClientAuth:      needsClientAuth,
+		WantClientAuth:      wantClientAuth,
+		VerifyHost:          verifyHost,
+		SSLProvider:         sslProvider,
+		SNIHost:             sniHost,
+		Expose:              expose,
+		AnycastPrefix:       anycastPrefix,
+		MulticastPrefix:     multicastPrefix,
+		ConnectionsAllowed:  connectionsAllowed,
+	}
+	return acceptor
+}
+
+
+
+func defaultAcceptor(protocol string, port int32) *brokerapi.AcceptorType {
+	return getAcceptor(protocol,
+		port,
+		protocol,
+		false,
+		"",
+		"",
+		"",
+		false,
+		false,
+		false,
+		"JDK",
+		"localhost",
+		true,
+		"",
+		"",
+		0)
+}
+
+type AcceptorType int
+
+const (
+	amqpAcceptor AcceptorType = iota
+	coreAcceptor
+	openwireAcceptor
+	multiAcceptor
+)
+
+var (
+	acceptorPorts = map[AcceptorType]int32{
+		amqpAcceptor:     5672,
+		openwireAcceptor: 61616,
+		coreAcceptor:     61613,
+	}
+	acceptors = map[AcceptorType]*brokerapi.AcceptorType{
+		amqpAcceptor:     defaultAcceptor("amqp", acceptorPorts[amqpAcceptor]),
+		openwireAcceptor: defaultAcceptor("openwire", acceptorPorts[openwireAcceptor]),
+		coreAcceptor:     defaultAcceptor("core", acceptorPorts[coreAcceptor]),
+		multiAcceptor:    defaultAcceptor("core,openwire,amqp", acceptorPorts[coreAcceptor]),
+	}
+)
+
 // Scale scales already deployed Broker
 func (dw *DeploymentWrapper) Scale(result int) error {
 	resourceVersion := int64(0)
@@ -153,7 +235,7 @@ func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 
 	log.Logf("modifying acceptors")
 	artemis.Spec.DeploymentPlan.Size = int32(count)
-	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *dw.defaultAcceptor())
+	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *acceptors[amqpAcceptor])
 	for num := range artemis.Spec.Acceptors {
 		artemis.Spec.Acceptors[num].SSLEnabled = dw.sslEnabled
 	}
