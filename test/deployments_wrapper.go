@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// *DeploymentWrapper takes care of deployment of Broker
+// DeploymentWrapper takes care of deployment of Broker
 type DeploymentWrapper struct {
 	wait         bool
 	brokerClient brokerclientset.Interface
@@ -30,7 +30,7 @@ type DeploymentWrapper struct {
 }
 
 const (
-//amqpAcceptor =
+//AmqpAcceptor =
 )
 
 // WithWait sets if shipshape would wait for completion
@@ -79,27 +79,85 @@ func (dw *DeploymentWrapper) WithSsl(ssl bool) *DeploymentWrapper {
 	return dw
 }
 
-func (dw *DeploymentWrapper) defaultAcceptor() *brokerapi.AcceptorType {
+func getAcceptor(
+	name string,
+	port int32,
+	protocols string,
+	sslEnabled bool,
+	sslSecret string,
+	enabledCipherSuites string,
+	enabledProtocols string,
+	needsClientAuth bool,
+	wantClientAuth bool,
+	verifyHost bool,
+	sslProvider string,
+	sniHost string,
+	expose bool,
+	anycastPrefix string,
+	multicastPrefix string,
+	connectionsAllowed int) *brokerapi.AcceptorType {
 	acceptor := &brokerapi.AcceptorType{
-		Name:                "amqp",
-		Port:                5672,
-		Protocols:           "amqp",
-		SSLEnabled:          false,
-		SSLSecret:           "",
-		EnabledCipherSuites: "",
-		EnabledProtocols:    "",
-		NeedClientAuth:      false,
-		WantClientAuth:      false,
-		VerifyHost:          false,
-		SSLProvider:         "JDK",
-		SNIHost:             "localhost",
-		Expose:              true,
-		AnycastPrefix:       "",
-		MulticastPrefix:     "",
-		ConnectionsAllowed:  0,
+		Name:                name,
+		Port:                port,
+		Protocols:           protocols,
+		SSLEnabled:          sslEnabled,
+		SSLSecret:           sslSecret,
+		EnabledCipherSuites: enabledCipherSuites,
+		EnabledProtocols:    enabledProtocols,
+		NeedClientAuth:      needsClientAuth,
+		WantClientAuth:      wantClientAuth,
+		VerifyHost:          verifyHost,
+		SSLProvider:         sslProvider,
+		SNIHost:             sniHost,
+		Expose:              expose,
+		AnycastPrefix:       anycastPrefix,
+		MulticastPrefix:     multicastPrefix,
+		ConnectionsAllowed:  connectionsAllowed,
 	}
 	return acceptor
 }
+
+func defaultAcceptor(protocol string, port int32) *brokerapi.AcceptorType {
+	return getAcceptor(protocol,
+		port,
+		protocol,
+		false,
+		"",
+		"",
+		"",
+		false,
+		false,
+		false,
+		"JDK",
+		"localhost",
+		true,
+		"",
+		"",
+		0)
+}
+
+type AcceptorType int
+
+const (
+	AmqpAcceptor AcceptorType = iota
+	CoreAcceptor
+	OpenwireAcceptor
+	MultiAcceptor
+)
+
+var (
+	AcceptorPorts = map[AcceptorType]int32{
+		AmqpAcceptor:     5672,
+		OpenwireAcceptor: 61613,
+		CoreAcceptor:     61616,
+	}
+	acceptors = map[AcceptorType]*brokerapi.AcceptorType{
+		AmqpAcceptor:     defaultAcceptor("amqp", AcceptorPorts[AmqpAcceptor]),
+		OpenwireAcceptor: defaultAcceptor("openwire", AcceptorPorts[OpenwireAcceptor]),
+		CoreAcceptor:     defaultAcceptor("core", AcceptorPorts[CoreAcceptor]),
+		MultiAcceptor:    defaultAcceptor("core,openwire,amqp", AcceptorPorts[CoreAcceptor]),
+	}
+)
 
 // Scale scales already deployed Broker
 func (dw *DeploymentWrapper) Scale(result int) error {
@@ -108,6 +166,7 @@ func (dw *DeploymentWrapper) Scale(result int) error {
 	var err error
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
+
 	gomega.Expect(err).To(gomega.BeNil())
 	originalSize := artemisCreated.Spec.DeploymentPlan.Size
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
@@ -133,8 +192,7 @@ func (dw *DeploymentWrapper) Scale(result int) error {
 	return err
 }
 
-// DeployBrokers actually deploys brokers defined by dw
-func (dw *DeploymentWrapper) DeployBrokers(count int) error {
+func (dw *DeploymentWrapper) DeployBrokersWithAcceptor(count int, acceptorType AcceptorType) error {
 	artemis := brokerapi.ActiveMQArtemis{}
 	resp, err := http.Get("https://raw.githubusercontent.com/rh-messaging/activemq-artemis-operator/master/deploy/crs/broker_v2alpha1_activemqartemis_cr.yaml") //load yaml body from url
 	if err != nil {
@@ -153,7 +211,7 @@ func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 
 	log.Logf("modifying acceptors")
 	artemis.Spec.DeploymentPlan.Size = int32(count)
-	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *dw.defaultAcceptor())
+	artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *acceptors[acceptorType])
 	for num := range artemis.Spec.Acceptors {
 		artemis.Spec.Acceptors[num].SSLEnabled = dw.sslEnabled
 	}
@@ -191,6 +249,11 @@ func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 	time.Sleep(time.Duration(5) * time.Second)
 	fmt.Print("Done waiting\n")
 	return err
+}
+
+// DeployBrokers actually deploys brokers defined by dw
+func (dw *DeploymentWrapper) DeployBrokers(count int) error {
+	return dw.DeployBrokersWithAcceptor(count, AmqpAcceptor)
 }
 
 // ChangeImage changes image used in Broker instance to a new one
@@ -246,8 +309,8 @@ func PrepareOperator() operators.OperatorSetupBuilder {
 		}
 	}
 
-	if Config.AdminAvailable {
-		//builder.()
+	if Config.AdminUnavailable {
+		builder.SetAdminUnavailable()
 	}
 	return builder
 }

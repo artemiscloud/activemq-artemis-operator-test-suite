@@ -52,8 +52,8 @@ var _ = ginkgo.AfterEach(func() {
 	}
 })
 
-func formUrl(number, subdomain, namespace, domain, address, port string) string {
-	return "amqp://" + DeployName + "-ss-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
+func formUrl(protocol, number, subdomain, namespace, domain, address, port string) string {
+	return protocol + "://" + DeployName + "-ss-" + number + "." + DeployName + subdomain + "." + namespace + "." + domain + ":" + port +
 		"/" + address
 }
 

@@ -7,9 +7,10 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"strconv"
 )
 
-var _ = ginkgo.Describe("MessagingBasicTests", func() {
+var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 
 	var (
 		ctx1 *framework.ContextData
@@ -18,16 +19,18 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 		sender   amqp.Client
 		receiver amqp.Client
 		//url      string
+		srw *test.SenderReceiverWrapper
 	)
 
 	// URL example: https://ex-aao-amqp-0-svc-rte-broker-operator-nd-ssl.apps.ocp43-released.broker-rvais-stable.fw.rhcloud.com
-	const (
+	var (
 		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount  = 100
-		Port          = "5672"
+		Port          = int64(test.AcceptorPorts[test.AmqpAcceptor])
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
+		Protocol      = "amqp"
 	)
 
 	// PrepareNamespace after framework has been created
@@ -40,9 +43,9 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		sendUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		receiveUrl := formUrl("0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		srw := &test.SenderReceiverWrapper{}
+		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
 			WithMessageCount(MessageCount)
@@ -82,29 +85,26 @@ var _ = ginkgo.Describe("MessagingBasicTests", func() {
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := dw.DeployBrokers(2)
-		gomega.Expect(err).To(gomega.BeNil())
-		_ = sender.Deploy()
-		_ = receiver.Deploy()
-		sender.Wait()
-		receiver.Wait()
-
-		senderResult := sender.Result()
-		receiverResult := receiver.Result()
-
-		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
-		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
-
-		for _, msg := range receiverResult.Messages {
-			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-		}
+		testBaseSendReceiveSingleBroker(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
 	})
 
-	ginkgo.It("Deploy broker with persistence but without migration", func() {
-		if !test.Config.IBMz {
-			err := dw.WithPersistence(true).WithMigration(false).DeployBrokers(2)
-			gomega.Expect(err).To(gomega.BeNil())
-		}
+	ginkgo.It("Deploy single broker instances, send messages", func() {
+		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
+		testBaseSendReceiveSingleBroker(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
+	})
+	//this test is too slow atm
+	/*
+		ginkgo.It("Deploy single broker, Send 1k of 1MB messages", func() {
+			testSizedMessage(srw, dw, receiver, 1024*1024, 1024)
+		}) */
+
+	/*ginkgo.It("Deploy single broker, send 100 of 10MB messages", func() {
+		testSizedMessage(srw, dw, receiver, 10*1024*1024, 100)
 	})
 
+	ginkgo.It("Deploy single broker, send 1000000 of 1kb messages", func() {
+		testSizedMessage(srw, dw, receiver, 1024, 1024*1024)
+	})*/
+
+	// TODO: Messaging with persistence without MM - deploy, send, scaledown, scaleup, expect messages to be on target Pods
 })
