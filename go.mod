@@ -9,7 +9,7 @@ require (
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.10.0
-	github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible
+	github.com/rh-messaging/activemq-artemis-operator v0.0.0-20200513181202-cf8d43d5056b
 	github.com/rh-messaging/shipshape v0.1.4
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
@@ -21,6 +21,6 @@ require (
 )
 
 // For local override of dependencies, use following:
-replace github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible => ../../../github.com/rh-messaging/activemq-artemis-operator
+// replace github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible => ../../../github.com/rh-messaging/activemq-artemis-operator
 
 //replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
