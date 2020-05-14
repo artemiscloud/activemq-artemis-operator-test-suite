@@ -11,10 +11,10 @@ import (
 func testBaseSendReceiveSingleBroker(dw *test.DeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
-	acceptorType test.AcceptorType, BrokerCount int) {
+	acceptorType test.AcceptorType, BrokerCount int, protocol string) {
 	err := dw.DeployBrokersWithAcceptor(BrokerCount, acceptorType)
 	gomega.Expect(err).To(gomega.BeNil())
-	sender, receiver := srw.PrepareSenderReceiver()
+	sender, receiver := srw.PrepareSenderReceiverWithProtocol(protocol)
 	_ = sender.Deploy()
 	_ = receiver.Deploy()
 	log.Logf("Started (sync) deployment of clients")

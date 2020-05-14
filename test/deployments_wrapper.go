@@ -146,16 +146,16 @@ const (
 )
 
 var (
-	acceptorPorts = map[AcceptorType]int32{
+	AcceptorPorts = map[AcceptorType]int32{
 		AmqpAcceptor:     5672,
-		OpenwireAcceptor: 61616,
-		CoreAcceptor:     61613,
+		OpenwireAcceptor: 61613,
+		CoreAcceptor:     61616,
 	}
 	acceptors = map[AcceptorType]*brokerapi.AcceptorType{
-		AmqpAcceptor:     defaultAcceptor("amqp", acceptorPorts[AmqpAcceptor]),
-		OpenwireAcceptor: defaultAcceptor("openwire", acceptorPorts[OpenwireAcceptor]),
-		CoreAcceptor:     defaultAcceptor("core", acceptorPorts[CoreAcceptor]),
-		MultiAcceptor:    defaultAcceptor("core,openwire,amqp", acceptorPorts[CoreAcceptor]),
+		AmqpAcceptor:     defaultAcceptor("amqp", AcceptorPorts[AmqpAcceptor]),
+		OpenwireAcceptor: defaultAcceptor("openwire", AcceptorPorts[OpenwireAcceptor]),
+		CoreAcceptor:     defaultAcceptor("core", AcceptorPorts[CoreAcceptor]),
+		MultiAcceptor:    defaultAcceptor("core,openwire,amqp", AcceptorPorts[CoreAcceptor]),
 	}
 )
 
@@ -166,6 +166,7 @@ func (dw *DeploymentWrapper) Scale(result int) error {
 	var err error
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
+
 	gomega.Expect(err).To(gomega.BeNil())
 	originalSize := artemisCreated.Spec.DeploymentPlan.Size
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)

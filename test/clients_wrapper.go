@@ -40,24 +40,41 @@ func (srw *SenderReceiverWrapper) WithContext(ctx1 *framework.ContextData) *Send
 }
 
 func (srw *SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
-	sender := srw.PrepareSender()
-	receiver := srw.PrepareReceiver()
+	return srw.PrepareSenderReceiverWithProtocol("amqp")
+}
+
+func (srw *SenderReceiverWrapper) PrepareSenderReceiverWithProtocol(protocol string) (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
+	sender := srw.PrepareNamedSenderWithProtocol("sender", protocol)
+	receiver := srw.PrepareReceiverWithProtocol(protocol)
 	return sender, receiver
 }
 
 func (srw *SenderReceiverWrapper) PrepareNamedSender(name string) *qeclients.AmqpQEClientCommon {
+	return srw.PrepareNamedSenderWithProtocol(name, "amqp")
+}
+
+func (srw *SenderReceiverWrapper) PrepareNamedSenderWithProtocol(name string, protocol string) *qeclients.AmqpQEClientCommon {
 	clientVer := qeclients.Java
 	if Config.IBMz {
 		clientVer = qeclients.JavaIBMZ
 	}
-	sender, err := qeclients.NewSenderBuilder(name,
+	senderBuilder := qeclients.NewSenderBuilder(name,
 		clientVer,
 		*srw.ctx1,
 		srw.sendUrl).
 		Content(srw.messageBody).
 		Count(srw.messageCount).
-		Timeout(20).
-		Build()
+		Timeout(20)
+
+	if protocol == "amqp" {
+		senderBuilder.WithCustomCommand("cli-qpid-sender")
+	} else if protocol == "core" {
+		senderBuilder.WithCustomCommand("cli-artemis-sender")
+	} else if protocol == "openwire" {
+		senderBuilder.WithCustomCommand("cli-activemq-sender")
+	}
+
+	sender, err := senderBuilder.Build()
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +90,7 @@ func (srw *SenderReceiverWrapper) WithReceiverCount(count int) *SenderReceiverWr
 	return srw
 }
 
-func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
+func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *qeclients.AmqpQEClientCommon {
 	clientVer := qeclients.Java
 	if Config.IBMz {
 		clientVer = qeclients.JavaIBMZ
@@ -81,13 +98,24 @@ func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommo
 	if srw.receiverCount == 0 {
 		srw.receiverCount = srw.messageCount
 	}
-	receiver, err := qeclients.
+	receiverBuilder := qeclients.
 		NewReceiverBuilder("receiver", clientVer, *srw.ctx1, srw.receiveUrl).
 		Timeout(20).
-		WithCount(srw.receiverCount).
-		Build()
+		WithCount(srw.receiverCount)
+	if protocol == "amqp" {
+		receiverBuilder.WithCustomCommand("cli-qpid-receiver")
+	} else if protocol == "core" {
+		receiverBuilder.WithCustomCommand("cli-artemis-receiver")
+	} else if protocol == "openwire" {
+		receiverBuilder.WithCustomCommand("cli-activemq-receiver")
+	}
+
+	receiver, err := receiverBuilder.Build()
 	if err != nil {
 		panic(err)
 	}
 	return receiver
+}
+func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
+	return srw.PrepareReceiverWithProtocol("aqmp")
 }
