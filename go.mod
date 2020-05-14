@@ -10,7 +10,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.10.0
 	github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible
-	github.com/rh-messaging/shipshape v0.0.0
+	github.com/rh-messaging/shipshape v0.1.4
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
 	golang.org/x/tools v0.0.0-20200331025713-a30bf2db82d4 // indirect
@@ -23,4 +23,4 @@ require (
 // For local override of dependencies, use following:
 replace github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible => ../../../github.com/rh-messaging/activemq-artemis-operator
 
-replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
+//replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
