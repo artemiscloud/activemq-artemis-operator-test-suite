@@ -130,6 +130,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			_ = dw.Scale(3)
 			drainerCompleted := WaitForDrainerRemoval(1)
 			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+			_ = receiver.Deploy()
 			receiver.Wait()
 			receiverResult := receiver.Result()
 			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
