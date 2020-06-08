@@ -5,8 +5,8 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-	"time"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
@@ -31,117 +31,113 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	// PrepareNamespace after framework has been created.
 	ginkgo.JustBeforeEach(func() {
-		if !test.Config.IBMz {
-			ctx1 = Framework.GetFirstContext()
-			dw = &test.DeploymentWrapper{}
-			dw.WithWait(true).WithBrokerClient(brokerClient).
-				WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
-				WithPersistence(true).WithMigration(true).
-				WithName(DeployName)
-			srw = &test.SenderReceiverWrapper{}
-			srw.WithContext(ctx1).
-				WithMessageBody(MessageBody).
-				WithMessageCount(MessageCount)
-
-		}
+		ctx1 = Framework.GetFirstContext()
+		dw = &test.DeploymentWrapper{}
+		dw.WithWait(true).WithBrokerClient(brokerClient).
+			WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
+			WithPersistence(true).WithMigration(true).
+			WithName(DeployName)
+		srw = &test.SenderReceiverWrapper{}
+		srw.WithContext(ctx1).
+			WithMessageBody(MessageBody).
+			WithMessageCount(MessageCount)
 	})
 
 	ginkgo.JustAfterEach(func() {
+		log.Logf("Test failures in this suite might be related to ENTMQBR-3597")
 		Framework.GetFirstContext().EventHandler.ClearCallbacks()
 	})
 
+	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy double broker instance, migrate to single", func() {
-		if !test.Config.IBMz {
-			err := dw.DeployBrokers(2)
-			gomega.Expect(err).To(gomega.BeNil())
+		err := dw.DeployBrokers(2)
+		gomega.Expect(err).To(gomega.BeNil())
 
-			sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
-			sender, receiver = srw.
-				WithReceiveUrl(receiveUrl).
-				WithSendUrl(sendUrl).
-				PrepareSenderReceiver()
-			_ = sender.Deploy()
-			sender.Wait()
+		sender, receiver = srw.
+			WithReceiveUrl(receiveUrl).
+			WithSendUrl(sendUrl).
+			PrepareSenderReceiver()
+		_ = sender.Deploy()
+		sender.Wait()
 
-			senderResult := sender.Result()
-			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
-			_ = dw.Scale(1)
+		senderResult := sender.Result()
+		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
+		_ = dw.Scale(1)
 
-			drainerCompleted := WaitForDrainerRemoval(1)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			gomega.Expect(err).To(gomega.BeNil())
-			_ = receiver.Deploy()
-			receiver.Wait()
-			receiverResult := receiver.Result()
-			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
-			for _, msg := range receiverResult.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-			}
+		drainerCompleted := WaitForDrainerRemoval(1)
+		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		gomega.Expect(err).To(gomega.BeNil())
+		_ = receiver.Deploy()
+		receiver.Wait()
+		receiverResult := receiver.Result()
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+		for _, msg := range receiverResult.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}
+
 	})
 
+	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		if !test.Config.IBMz {
-			podNumbers := []string{"3", "2", "1"}
+		podNumbers := []string{"3", "2", "1"}
 
-			err := dw.DeployBrokers(4)
-			gomega.Expect(err).To(gomega.BeNil())
-			for _, number := range podNumbers {
-				url := formUrl(Protocol, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-				sender = srw.WithSendUrl(url).PrepareNamedSender("sender-" + string(number))
-				_ = sender.Deploy()
-				sender.Wait()
-			}
-			err = dw.Scale(1)
-			gomega.Expect(err).To(gomega.BeNil())
-			drainerCompleted := WaitForDrainerRemoval(3)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiver = srw.
-				WithReceiveUrl(receiveUrl).
-				WithReceiverCount(len(podNumbers) * MessageCount).
-				PrepareReceiver()
-
-			_ = receiver.Deploy()
-			receiver.Wait()
-			receiverResult := receiver.Result()
-			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount * len(podNumbers)))
-			for _, msg := range receiverResult.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-			}
-		}
-	})
-
-	ginkgo.It("Deploy 4 brokers, migrate last one ", func() {
-		if !test.Config.IBMz {
-			sendUrl := formUrl(Protocol, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			sender, receiver = srw.
-				WithReceiveUrl(receiveUrl).
-				WithSendUrl(sendUrl).
-				PrepareSenderReceiver()
-			err := dw.DeployBrokers(4)
-			gomega.Expect(err).To(gomega.BeNil())
+		err := dw.DeployBrokers(4)
+		gomega.Expect(err).To(gomega.BeNil())
+		for _, number := range podNumbers {
+			url := formUrl(Protocol, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			sender = srw.WithSendUrl(url).PrepareNamedSender("sender-" + string(number))
 			_ = sender.Deploy()
 			sender.Wait()
-			_ = dw.Scale(3)
-			drainerCompleted := WaitForDrainerRemoval(1)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			_ = receiver.Deploy()
-			receiver.Wait()
-			receiverResult := receiver.Result()
-			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
-			for _, msg := range receiverResult.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-			}
+		}
+		err = dw.Scale(1)
+		gomega.Expect(err).To(gomega.BeNil())
+		drainerCompleted := WaitForDrainerRemoval(3)
+		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiver = srw.
+			WithReceiveUrl(receiveUrl).
+			WithReceiverCount(len(podNumbers) * MessageCount).
+			PrepareReceiver()
+
+		_ = receiver.Deploy()
+		receiver.Wait()
+		receiverResult := receiver.Result()
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount * len(podNumbers)))
+		for _, msg := range receiverResult.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}
 	})
 
-	ginkgo.It("Mass migration of messages", func() {
-		if !test.Config.IBMz {
+	// This test might fail due to ENTMQBR-3597
+	ginkgo.It("Deploy 4 brokers, migrate last one", func() {
+		sendUrl := formUrl(Protocol, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sender, receiver = srw.
+			WithReceiveUrl(receiveUrl).
+			WithSendUrl(sendUrl).
+			PrepareSenderReceiver()
+		err := dw.DeployBrokers(4)
+		gomega.Expect(err).To(gomega.BeNil())
+		_ = sender.Deploy()
+		sender.Wait()
+		_ = dw.Scale(3)
+		drainerCompleted := WaitForDrainerRemoval(1)
+		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		_ = receiver.Deploy()
+		receiver.Wait()
+		receiverResult := receiver.Result()
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+		for _, msg := range receiverResult.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+		}
+	})
+
+	// This test is experiencing performance issues on x86, expected to be reenabled later.
+	/*ginkgo.It("Mass migration of messages", func() {
 			sendUrl := formUrl(Protocol, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			BigMultiplier := 10000
@@ -164,6 +160,5 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			for _, msg := range receiverResult.Messages {
 				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 			}
-		}
-	})
+	})*/
 })
