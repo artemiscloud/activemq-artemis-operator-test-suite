@@ -33,7 +33,7 @@ var (
 		"registry.redhat.io/amq7/amq-broker:latest",
 		"registry.redhat.io/amq7/amq-broker:7.5-4",
 		"7.6.0", "7.5.0", true,
-		false, "", false, false, false}
+		false, "", false, false, false, false}
 )
 
 type TestConfiguration struct {
@@ -48,6 +48,7 @@ type TestConfiguration struct {
 	AdminUnavailable   bool
 	NeedsV2            bool
 	IBMz               bool
+	Openshift          bool
 }
 
 const (
@@ -140,6 +141,8 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", false, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
+	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
+
 }
 
 func loadConfig() {

@@ -31,9 +31,15 @@ var (
 var _ = ginkgo.BeforeEach(func() {
 	// Setup the topology
 	builder := test.PrepareOperator()
-	Framework = framework.NewFrameworkBuilder("broker-framework").
-		WithBuilders(builder).
-		Build()
+	frBuilder:= framework.NewFrameworkBuilder("broker-framework").
+		WithBuilders(builder)
+	if test.Config.Openshift {
+		log.Logf("Setting openshift to true")
+		frBuilder = frBuilder.IsOpenshift(true)
+	} else {
+		log.Logf("Openshift is false")
+	}
+	Framework = frBuilder.Build()
 	brokerOperator = Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
 	brokerClient = brokerOperator.Interface().(brokerclientset.Interface)
 }, 60)
