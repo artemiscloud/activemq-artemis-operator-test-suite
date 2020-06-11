@@ -34,10 +34,9 @@ var _ = ginkgo.BeforeEach(func() {
 	frBuilder:= framework.NewFrameworkBuilder("broker-framework").
 		WithBuilders(builder)
 	if test.Config.Openshift {
-		log.Logf("Setting openshift to true")
 		frBuilder = frBuilder.IsOpenshift(true)
 	} else {
-		log.Logf("Openshift is false")
+		log.Logf("Would be using namespaces")
 	}
 	Framework = frBuilder.Build()
 	brokerOperator = Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
