@@ -109,7 +109,6 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 	} else if protocol == "openwire" {
 		receiverBuilder.WithCustomCommand("cli-activemq-receiver")
 	}
-
 	receiver, err := receiverBuilder.Build()
 	if err != nil {
 		panic(err)
@@ -117,5 +116,5 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 	return receiver
 }
 func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
-	return srw.PrepareReceiverWithProtocol("aqmp")
+	return srw.PrepareReceiverWithProtocol("amqp")
 }
