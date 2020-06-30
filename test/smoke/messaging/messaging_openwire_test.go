@@ -28,7 +28,7 @@ var _ = ginkgo.Describe("MessagingOpenwireBasicTests", func() {
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
 		Protocol      = "tcp"
-		ProtocolName  = "openwire"
+		ProtocolName  = test.OPENWIRE
 	)
 
 	// PrepareNamespace after framework has been created
@@ -54,12 +54,11 @@ var _ = ginkgo.Describe("MessagingOpenwireBasicTests", func() {
 
 	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-
-		testBaseSendReceiveSingleBroker(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
+		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
 
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		testBaseSendReceiveSingleBroker(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 2, ProtocolName)
+		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 2, ProtocolName)
 	})
 })
