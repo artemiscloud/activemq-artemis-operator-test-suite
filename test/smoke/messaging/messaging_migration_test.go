@@ -136,29 +136,5 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-	// This test is experiencing performance issues on x86, expected to be reenabled later.
-	/*ginkgo.It("Mass migration of messages", func() {
-			sendUrl := formUrl(Protocol, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			BigMultiplier := 10000
-			srw.WithMessageCount(BigMultiplier * MessageCount)
-			sender, receiver = srw.
-				WithReceiveUrl(receiveUrl).
-				WithSendUrl(sendUrl).
-				PrepareSenderReceiver()
-			err := dw.DeployBrokers(2)
-			gomega.Expect(err).To(gomega.BeNil())
-			_ = sender.Deploy()
-			sender.Wait()
-			_ = dw.Scale(1)
-			drainerCompleted := WaitForDrainerRemovalSlow(1, time.Second*time.Duration(10), 1000)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			_ = receiver.Deploy()
-			receiver.Wait()
-			receiverResult := receiver.Result()
-			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(BigMultiplier * MessageCount))
-			for _, msg := range receiverResult.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-			}
-	})*/
+	// TODO: redesign mass migration test to be actually able to run it with giant message sizes and message quantities
 })

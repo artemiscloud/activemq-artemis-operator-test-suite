@@ -53,19 +53,15 @@ var _ = ginkgo.Describe("MessagingCoreBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.CoreAcceptor, 1, ProtocolName)
 
 	})
 
 	ginkgo.It("Deploy single amqp broker instance and send/receive core messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, ProtocolName)
 	})
 
 	ginkgo.It("Deploy single openwire broker instance and send/receive core messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
 
 	})

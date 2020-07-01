@@ -53,9 +53,7 @@ var _ = ginkgo.Describe("MessagingOpenwireBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
-
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {

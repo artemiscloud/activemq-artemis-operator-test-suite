@@ -18,7 +18,6 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 		srw *test.SenderReceiverWrapper
 	)
 
-	// URL example: https://ex-aao-amqp-0-svc-rte-broker-operator-nd-ssl.apps.ocp43-released.broker-rvais-stable.fw.rhcloud.com
 	var (
 		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount  = 100
@@ -50,12 +49,10 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
 	})
 
 	ginkgo.It("Deploy single broker instances, send messages", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
 	})
 
