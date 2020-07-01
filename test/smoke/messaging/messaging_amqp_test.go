@@ -3,7 +3,6 @@ package messaging
 import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
-	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"strconv"
@@ -14,9 +13,7 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		dw       *test.DeploymentWrapper
-		sender   amqp.Client
-		receiver amqp.Client
+		dw *test.DeploymentWrapper
 		//url      string
 		srw *test.SenderReceiverWrapper
 	)
@@ -47,13 +44,9 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
-			WithMessageCount(MessageCount)
-
-		sender, receiver = srw.
-			WithReceiveUrl(receiveUrl).
+			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
-			PrepareSenderReceiver()
-
+			WithReceiveUrl(receiveUrl)
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
@@ -65,8 +58,6 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
 	})
-
-	// TODO: Messaging with persistence without MM - deploy, send, scaledown, scaleup, expect messages to be on target Pods
 
 	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
 		dw.WithPersistence(true).WithMigration(false)
