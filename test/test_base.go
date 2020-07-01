@@ -30,13 +30,14 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest", true,
+		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest", true,
 		false, "", false, false, false, false}
 )
 
 type TestConfiguration struct {
 	OperatorImageName string
 	BrokerImageName   string
+	BrokerImageOther  string
 	DownstreamBuild   bool
 	DebugRun          bool
 	RepositoryPath    string
@@ -127,6 +128,7 @@ func RegisterFlags() {
 	//  Default OperatorImage is provided by shipshape.
 	flag.StringVar(&Config.OperatorImageName, "operator-image", Config.OperatorImageName, "operator image url")
 	flag.StringVar(&Config.BrokerImageName, "broker-image", Config.BrokerImageName, "broker image url")
+	flag.StringVar(&Config.BrokerImageOther, "broker-image-second", Config.BrokerImageOther, "broker image url to update to")
 	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
 	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")

@@ -251,6 +251,15 @@ func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 	return dw.DeployBrokersWithAcceptor(count, AmqpAcceptor)
 }
 
+func (dw *DeploymentWrapper) VerifyImage(target string) error {
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	gomega.Expect(artemisCreated.Spec.DeploymentPlan.Image).To(gomega.Equal(target))
+	return nil
+}
+
 // ChangeImage changes image used in Broker instance to a new one
 func (dw *DeploymentWrapper) ChangeImage() error {
 	resourceVersion := int64(0)
@@ -262,9 +271,6 @@ func (dw *DeploymentWrapper) ChangeImage() error {
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
 	countExpected := artemisCreated.Spec.DeploymentPlan.Size
-	if countExpected == 0 {
-		countExpected = 1
-	}
 	artemisCreated.Spec.DeploymentPlan.Image = dw.customImage
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 	artemisCreated.Spec.Console.Expose = true
