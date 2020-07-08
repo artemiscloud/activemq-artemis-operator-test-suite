@@ -152,10 +152,10 @@ var (
 		CoreAcceptor:     61616,
 	}
 	acceptors = map[AcceptorType]*brokerapi.AcceptorType{
-		AmqpAcceptor:     defaultAcceptor("amqp", AcceptorPorts[AmqpAcceptor]),
-		OpenwireAcceptor: defaultAcceptor("openwire", AcceptorPorts[OpenwireAcceptor]),
-		CoreAcceptor:     defaultAcceptor("core", AcceptorPorts[CoreAcceptor]),
-		MultiAcceptor:    defaultAcceptor("core,openwire,amqp", AcceptorPorts[CoreAcceptor]),
+		AmqpAcceptor:     defaultAcceptor(AMQP, AcceptorPorts[AmqpAcceptor]),
+		OpenwireAcceptor: defaultAcceptor(OPENWIRE, AcceptorPorts[OpenwireAcceptor]),
+		CoreAcceptor:     defaultAcceptor(CORE, AcceptorPorts[CoreAcceptor]),
+		MultiAcceptor:    defaultAcceptor(fmt.Sprintf("%s,%s,%s", AMQP, OPENWIRE, CORE), AcceptorPorts[CoreAcceptor]),
 	}
 )
 
@@ -218,22 +218,17 @@ func (dw *DeploymentWrapper) DeployBrokersWithAcceptor(count int, acceptorType A
 	for num := range artemis.Spec.Connectors {
 		artemis.Spec.Connectors[num].SSLEnabled = dw.sslEnabled
 	}
-
 	artemis.Spec.DeploymentPlan.MessageMigration = &dw.migration
 	artemis.Spec.DeploymentPlan.PersistenceEnabled = dw.persistence
 	artemis.Spec.AdminUser = Username
 	artemis.Spec.AdminPassword = Password
 	artemis.Spec.DeploymentPlan.Image = dw.customImage
 	artemis.ObjectMeta.Name = dw.name
-
 	artemis.Spec.Console.Expose = true
-
 	//dw.ctx1.Clients.ExtClient.ApiextensionsV1beta1().CustomResourceDefinitions()
-
 	//ctx1.Clients.KubeClient.AppsV1().StatefulSets(ctx1.Namespace).Create(&artemis)
 	_, err = dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Create(&artemis)
 	gomega.Expect(err).To(gomega.BeNil())
-
 	if dw.wait {
 		log.Logf("Waiting for exactly %d instances.\n", count)
 		err = framework.WaitForStatefulSet(dw.ctx1.Clients.KubeClient,
@@ -256,6 +251,15 @@ func (dw *DeploymentWrapper) DeployBrokers(count int) error {
 	return dw.DeployBrokersWithAcceptor(count, AmqpAcceptor)
 }
 
+func (dw *DeploymentWrapper) VerifyImage(target string) error {
+	artemisCreated, err := dw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(dw.ctx1.Namespace).Get(dw.name, v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	gomega.Expect(artemisCreated.Spec.DeploymentPlan.Image).To(gomega.Equal(target))
+	return nil
+}
+
 // ChangeImage changes image used in Broker instance to a new one
 func (dw *DeploymentWrapper) ChangeImage() error {
 	resourceVersion := int64(0)
@@ -267,9 +271,6 @@ func (dw *DeploymentWrapper) ChangeImage() error {
 	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
 	gomega.Expect(err).To(gomega.BeNil())
 	countExpected := artemisCreated.Spec.DeploymentPlan.Size
-	if countExpected == 0 {
-		countExpected = 1
-	}
 	artemisCreated.Spec.DeploymentPlan.Image = dw.customImage
 	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 	artemisCreated.Spec.Console.Expose = true
@@ -289,7 +290,6 @@ func (dw *DeploymentWrapper) ChangeImage() error {
 
 func PrepareOperator() operators.OperatorSetupBuilder {
 	builder := operators.SupportedOperators[operators.OperatorTypeBroker]
-
 	//Set image to parameter if one is supplied, otherwise use default from shipshape.
 	if len(Config.OperatorImageName) != 0 {
 		builder.WithImage(Config.OperatorImageName)
@@ -298,7 +298,6 @@ func PrepareOperator() operators.OperatorSetupBuilder {
 		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
 		builder.WithOperatorName("amq-broker-operator")
 	}
-
 	if Config.RepositoryPath != "" {
 		// Try loading YAMLs from the repo.
 		yamls, err := LoadYamls(Config.RepositoryPath)
@@ -308,7 +307,6 @@ func PrepareOperator() operators.OperatorSetupBuilder {
 			builder.WithYamls(yamls)
 		}
 	}
-
 	if Config.AdminUnavailable {
 		builder.SetAdminUnavailable()
 	}

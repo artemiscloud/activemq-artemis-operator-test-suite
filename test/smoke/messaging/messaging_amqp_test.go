@@ -2,33 +2,30 @@ package messaging
 
 import (
 	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"strconv"
 )
 
-var _ = ginkgo.Describe("MessagingOpenwireBasicTests", func() {
+var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
 		dw *test.DeploymentWrapper
-		//	sender   amqp.Client
-		//	receiver amqp.Client
 		//url      string
 		srw *test.SenderReceiverWrapper
 	)
 
-	// URL example: https://ex-aao-amqp-0-svc-rte-broker-operator-nd-ssl.apps.ocp43-released.broker-rvais-stable.fw.rhcloud.com
 	var (
 		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount  = 100
-		Port          = int64(test.AcceptorPorts[test.OpenwireAcceptor])
+		Port          = int64(test.AcceptorPorts[test.AmqpAcceptor])
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
-		Protocol      = "tcp"
-		ProtocolName  = test.OPENWIRE
+		Protocol      = test.AMQP
 	)
 
 	// PrepareNamespace after framework has been created
@@ -49,14 +46,30 @@ var _ = ginkgo.Describe("MessagingOpenwireBasicTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
-
-	})
-
-	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 2, ProtocolName)
+		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
+	})
+
+	ginkgo.It("Deploy single broker instances, send messages", func() {
+		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
+	})
+
+	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
+		dw.WithPersistence(true).WithMigration(false)
+		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
+	})
+
+	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
+		dw.WithPersistence(true).WithMigration(false)
+		callback := func() (interface{}, error) {
+			err := dw.Scale(1)
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			err = dw.Scale(2)
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			return nil, nil
+		}
+		testBaseSendReceiveMessagesWithCallback(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol, callback)
 	})
 })

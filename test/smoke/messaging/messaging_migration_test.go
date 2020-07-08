@@ -26,7 +26,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
-		Protocol      = "amqp"
+		Protocol      = test.AMQP
 	)
 
 	// PrepareNamespace after framework has been created.
@@ -56,24 +56,24 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
-		sender, receiver = srw.
+		sender, receiver := srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).
-			PrepareSenderReceiver()
-		_ = sender.Deploy()
-		sender.Wait()
+			PrepareSenderReceiverWithProtocol(test.AMQP)
 
-		senderResult := sender.Result()
-		gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
-		_ = dw.Scale(1)
-
-		drainerCompleted := WaitForDrainerRemoval(1)
-		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		callback := func() (interface{}, error) {
+			senderResult := sender.Result()
+			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
+			_ = dw.Scale(1)
+			drainerCompleted := WaitForDrainerRemoval(1)
+			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+			return drainerCompleted, nil
+		}
+		_, err = test.SendReceiveMessages(sender, receiver, callback)
 		gomega.Expect(err).To(gomega.BeNil())
-		_ = receiver.Deploy()
-		receiver.Wait()
+
 		receiverResult := receiver.Result()
-		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}
@@ -136,29 +136,5 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-	// This test is experiencing performance issues on x86, expected to be reenabled later.
-	/*ginkgo.It("Mass migration of messages", func() {
-			sendUrl := formUrl(Protocol, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-			BigMultiplier := 10000
-			srw.WithMessageCount(BigMultiplier * MessageCount)
-			sender, receiver = srw.
-				WithReceiveUrl(receiveUrl).
-				WithSendUrl(sendUrl).
-				PrepareSenderReceiver()
-			err := dw.DeployBrokers(2)
-			gomega.Expect(err).To(gomega.BeNil())
-			_ = sender.Deploy()
-			sender.Wait()
-			_ = dw.Scale(1)
-			drainerCompleted := WaitForDrainerRemovalSlow(1, time.Second*time.Duration(10), 1000)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-			_ = receiver.Deploy()
-			receiver.Wait()
-			receiverResult := receiver.Result()
-			gomega.Expect(receiverResult.Delivered).To(gomega.Equal(BigMultiplier * MessageCount))
-			for _, msg := range receiverResult.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
-			}
-	})*/
+	// TODO: redesign mass migration test to be actually able to run it with giant message sizes and message quantities
 })

@@ -30,25 +30,21 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest",
-		"registry.redhat.io/amq7/amq-broker:7.5-4",
-		"7.6.0", "7.5.0", true,
+		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest", true,
 		false, "", false, false, false, false}
 )
 
 type TestConfiguration struct {
-	OperatorImageName  string
-	BrokerImageName    string
-	BrokerImageNameOld string
-	BrokerVersion      string
-	BrokerVersionOld   string
-	DownstreamBuild    bool
-	DebugRun           bool
-	RepositoryPath     string
-	AdminUnavailable   bool
-	NeedsV2            bool
-	IBMz               bool
-	Openshift          bool
+	OperatorImageName string
+	BrokerImageName   string
+	BrokerImageOther  string
+	DownstreamBuild   bool
+	DebugRun          bool
+	RepositoryPath    string
+	AdminUnavailable  bool
+	NeedsV2           bool
+	IBMz              bool
+	Openshift         bool
 }
 
 const (
@@ -132,9 +128,7 @@ func RegisterFlags() {
 	//  Default OperatorImage is provided by shipshape.
 	flag.StringVar(&Config.OperatorImageName, "operator-image", Config.OperatorImageName, "operator image url")
 	flag.StringVar(&Config.BrokerImageName, "broker-image", Config.BrokerImageName, "broker image url")
-	flag.StringVar(&Config.BrokerVersion, "broker-version", Config.BrokerVersion, "broker version string")
-	flag.StringVar(&Config.BrokerVersionOld, "broker-version-old", Config.BrokerVersionOld, "old broker version string")
-	flag.StringVar(&Config.BrokerImageNameOld, "broker-image-old", Config.BrokerImageNameOld, "old broker image to upgrade from/downgrade to")
+	flag.StringVar(&Config.BrokerImageOther, "broker-image-second", Config.BrokerImageOther, "broker image url to update to")
 	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
 	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
@@ -179,7 +173,6 @@ func PrepareNamespace(t *testing.T, uniqueId string, description string) {
 // generateReporter returns a slice of ginkgo.Reporter if reportDir has been provided
 func generateReporter(uniqueId string) []ginkgo.Reporter {
 	var ginkgoReporters []ginkgo.Reporter
-
 	// If report dir specified, create it
 	if framework.TestContext.ReportDir != "" {
 		if err := os.MkdirAll(framework.TestContext.ReportDir, 0755); err != nil {

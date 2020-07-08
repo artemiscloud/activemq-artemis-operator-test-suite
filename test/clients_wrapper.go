@@ -1,8 +1,10 @@
 package test
 
 import (
+	"fmt"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp/qeclients"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 type SenderReceiverWrapper struct {
@@ -13,6 +15,20 @@ type SenderReceiverWrapper struct {
 	sendUrl       string
 	receiveUrl    string
 }
+
+const AMQP = "amqp"
+const OPENWIRE = "openwire"
+const CORE = "core"
+
+var (
+	clientProtocolMap = map[string]string{
+		AMQP:     "cli-qpid-%s",
+		CORE:     "cli-artemis-%s",
+		OPENWIRE: "cli-activemq-%s",
+	}
+)
+
+type SenderReceiverCallback func() (interface{}, error)
 
 func (srw *SenderReceiverWrapper) WithMessageBody(body string) *SenderReceiverWrapper {
 	srw.messageBody = body
@@ -40,7 +56,7 @@ func (srw *SenderReceiverWrapper) WithContext(ctx1 *framework.ContextData) *Send
 }
 
 func (srw *SenderReceiverWrapper) PrepareSenderReceiver() (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
-	return srw.PrepareSenderReceiverWithProtocol("amqp")
+	return srw.PrepareSenderReceiverWithProtocol(AMQP)
 }
 
 func (srw *SenderReceiverWrapper) PrepareSenderReceiverWithProtocol(protocol string) (*qeclients.AmqpQEClientCommon, *qeclients.AmqpQEClientCommon) {
@@ -50,7 +66,7 @@ func (srw *SenderReceiverWrapper) PrepareSenderReceiverWithProtocol(protocol str
 }
 
 func (srw *SenderReceiverWrapper) PrepareNamedSender(name string) *qeclients.AmqpQEClientCommon {
-	return srw.PrepareNamedSenderWithProtocol(name, "amqp")
+	return srw.PrepareNamedSenderWithProtocol(name, AMQP)
 }
 
 func (srw *SenderReceiverWrapper) PrepareNamedSenderWithProtocol(name string, protocol string) *qeclients.AmqpQEClientCommon {
@@ -66,13 +82,7 @@ func (srw *SenderReceiverWrapper) PrepareNamedSenderWithProtocol(name string, pr
 		Count(srw.messageCount).
 		Timeout(20)
 
-	if protocol == "amqp" {
-		senderBuilder.WithCustomCommand("cli-qpid-sender")
-	} else if protocol == "core" {
-		senderBuilder.WithCustomCommand("cli-artemis-sender")
-	} else if protocol == "openwire" {
-		senderBuilder.WithCustomCommand("cli-activemq-sender")
-	}
+	senderBuilder.WithCustomCommand(fmt.Sprintf(clientProtocolMap[protocol], "sender"))
 
 	sender, err := senderBuilder.Build()
 	if err != nil {
@@ -102,13 +112,8 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 		NewReceiverBuilder("receiver", clientVer, *srw.ctx1, srw.receiveUrl).
 		Timeout(20).
 		WithCount(srw.receiverCount)
-	if protocol == "amqp" {
-		receiverBuilder.WithCustomCommand("cli-qpid-receiver")
-	} else if protocol == "core" {
-		receiverBuilder.WithCustomCommand("cli-artemis-receiver")
-	} else if protocol == "openwire" {
-		receiverBuilder.WithCustomCommand("cli-activemq-receiver")
-	}
+	receiverBuilder.WithCustomCommand(fmt.Sprintf(clientProtocolMap[protocol], "receiver"))
+
 	receiver, err := receiverBuilder.Build()
 	if err != nil {
 		panic(err)
@@ -116,5 +121,28 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 	return receiver
 }
 func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommon {
-	return srw.PrepareReceiverWithProtocol("amqp")
+	return srw.PrepareReceiverWithProtocol(AMQP)
+}
+
+func SendReceiveMessages(sender *qeclients.AmqpQEClientCommon, receiver *qeclients.AmqpQEClientCommon, callback SenderReceiverCallback) (interface{}, error) {
+	log.Logf("Started (sync) deployment of sender")
+	err := sender.Deploy()
+	sender.Wait()
+	if err != nil {
+		return nil, err
+	}
+	var result interface{}
+	if callback != nil {
+		result, err = callback()
+		if err != nil {
+			return nil, err
+		}
+	}
+	log.Logf("Started (sync) deployment of receiver")
+	err = receiver.Deploy()
+	if err != nil {
+		return nil, err
+	}
+	receiver.Wait()
+	return result, nil
 }
