@@ -1,4 +1,4 @@
-package messaging
+package configuration
 
 import (
 	"github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "messaging"
+	DeployName = "configuration"
 	BaseName   = "broker-framework"
 )
 
@@ -15,7 +15,7 @@ var (
 	sw *test.SetupWrapper
 )
 
-// Create the Framework instance to be used oneinterior test
+// This needs to be configured on per-test basis
 var _ = ginkgo.BeforeEach(func() {
 	sw = &test.SetupWrapper{}
 	sw.WithBaseName(BaseName).WithDeployName(DeployName)

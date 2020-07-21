@@ -12,7 +12,7 @@ var _ = ginkgo.Describe("MessagingCoreBasicTests", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		dw *test.DeploymentWrapper
+		bdw *test.BrokerDeploymentWrapper
 		//	sender   amqp.Client
 		//	receiver amqp.Client
 		//url      string
@@ -33,16 +33,16 @@ var _ = ginkgo.Describe("MessagingCoreBasicTests", func() {
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
-		ctx1 = Framework.GetFirstContext()
-		dw = &test.DeploymentWrapper{}
-		dw.WithWait(true).
-			WithBrokerClient(brokerClient).
+		ctx1 = sw.Framework.GetFirstContext()
+		bdw = &test.BrokerDeploymentWrapper{}
+		bdw.WithWait(true).
+			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
-		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
@@ -53,20 +53,20 @@ var _ = ginkgo.Describe("MessagingCoreBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.CoreAcceptor, 1, ProtocolName)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.CoreAcceptor, 1, ProtocolName)
 
 	})
 
 	ginkgo.It("Deploy single amqp broker instance and send/receive core messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, ProtocolName)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, ProtocolName)
 	})
 
 	ginkgo.It("Deploy single openwire broker instance and send/receive core messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.OpenwireAcceptor, 1, ProtocolName)
 
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.CoreAcceptor, 2, ProtocolName)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.CoreAcceptor, 2, ProtocolName)
 	})
 })

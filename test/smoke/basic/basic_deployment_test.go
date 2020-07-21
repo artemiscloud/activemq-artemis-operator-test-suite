@@ -12,15 +12,15 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		dw *test.DeploymentWrapper
+		bdw *test.BrokerDeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
-		ctx1 = Framework.GetFirstContext()
-		dw = &test.DeploymentWrapper{}
-		dw.WithWait(true).
-			WithBrokerClient(brokerClient).
+		ctx1 = sw.Framework.GetFirstContext()
+		bdw = &test.BrokerDeploymentWrapper{}
+		bdw.WithWait(true).
+			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
@@ -28,13 +28,13 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 
 	ginkgo.It("Deploy single broker instance", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := dw.DeployBrokers(1)
+		err := bdw.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
 	ginkgo.It("Deploy double broker instances", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := dw.DeployBrokers(2)
+		err := bdw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 

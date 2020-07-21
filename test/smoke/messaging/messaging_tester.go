@@ -6,18 +6,18 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-func testBaseSendReceiveMessages(dw *test.DeploymentWrapper,
+func testBaseSendReceiveMessages(bdw *test.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	acceptorType test.AcceptorType, BrokerCount int, protocol string) {
-	testBaseSendReceiveMessagesWithCallback(dw, srw, MessageCount, MessageBody, acceptorType, BrokerCount, protocol, nil)
+	testBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, acceptorType, BrokerCount, protocol, nil)
 }
 
-func testBaseSendReceiveMessagesWithCallback(dw *test.DeploymentWrapper,
+func testBaseSendReceiveMessagesWithCallback(bdw *test.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	acceptorType test.AcceptorType, BrokerCount int, protocol string, callback test.SenderReceiverCallback) {
-	err := dw.DeployBrokersWithAcceptor(BrokerCount, acceptorType)
+	err := bdw.DeployBrokersWithAcceptor(BrokerCount, acceptorType)
 	gomega.Expect(err).To(gomega.BeNil())
 	sender, receiver := srw.PrepareSenderReceiverWithProtocol(protocol)
 	_, err = test.SendReceiveMessages(sender, receiver, callback)

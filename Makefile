@@ -5,3 +5,6 @@ run:
 		-broker-image-old registry.redhat.io/amq7/amq-broker:7.5-4 \
 		-broker-version 7.6.0 -broker-version-old 7.5.0 \
 		-downstream -debug-run
+
+build:
+	go build ./test/...
