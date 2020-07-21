@@ -13,7 +13,7 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		dw *test.DeploymentWrapper
+		bdw *test.BrokerDeploymentWrapper
 		//url      string
 		srw *test.SenderReceiverWrapper
 	)
@@ -30,16 +30,16 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
-		ctx1 = Framework.GetFirstContext()
-		dw = &test.DeploymentWrapper{}
-		dw.WithWait(true).
-			WithBrokerClient(brokerClient).
+		ctx1 = sw.Framework.GetFirstContext()
+		bdw = &test.BrokerDeploymentWrapper{}
+		bdw.WithWait(true).
+			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName)
 
-		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
-		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
@@ -49,27 +49,27 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
 	})
 
 	ginkgo.It("Deploy single broker instances, send messages", func() {
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 1, Protocol)
 	})
 
 	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
-		dw.WithPersistence(true).WithMigration(false)
-		testBaseSendReceiveMessages(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
+		bdw.WithPersistence(true).WithMigration(false)
+		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol)
 	})
 
 	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
-		dw.WithPersistence(true).WithMigration(false)
+		bdw.WithPersistence(true).WithMigration(false)
 		callback := func() (interface{}, error) {
-			err := dw.Scale(1)
+			err := bdw.Scale(1)
 			gomega.Expect(err).ToNot(gomega.HaveOccurred())
-			err = dw.Scale(2)
+			err = bdw.Scale(2)
 			gomega.Expect(err).ToNot(gomega.HaveOccurred())
 			return nil, nil
 		}
-		testBaseSendReceiveMessagesWithCallback(dw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol, callback)
+		testBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, test.AmqpAcceptor, 2, Protocol, callback)
 	})
 })

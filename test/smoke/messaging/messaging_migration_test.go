@@ -13,7 +13,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	var (
 		ctx1     *framework.ContextData
-		dw       *test.DeploymentWrapper
+		bdw      *test.BrokerDeploymentWrapper
 		srw      *test.SenderReceiverWrapper
 		sender   amqp.Client
 		receiver amqp.Client
@@ -31,9 +31,9 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	// PrepareNamespace after framework has been created.
 	ginkgo.JustBeforeEach(func() {
-		ctx1 = Framework.GetFirstContext()
-		dw = &test.DeploymentWrapper{}
-		dw.WithWait(true).WithBrokerClient(brokerClient).
+		ctx1 = sw.Framework.GetFirstContext()
+		bdw = &test.BrokerDeploymentWrapper{}
+		bdw.WithWait(true).WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
 			WithPersistence(true).WithMigration(true).
 			WithName(DeployName)
@@ -45,16 +45,16 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.JustAfterEach(func() {
 		log.Logf("Test failures in this suite might be related to ENTMQBR-3597")
-		Framework.GetFirstContext().EventHandler.ClearCallbacks()
+		sw.Framework.GetFirstContext().EventHandler.ClearCallbacks()
 	})
 
 	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy double broker instance, migrate to single", func() {
-		err := dw.DeployBrokers(2)
+		err := bdw.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		sendUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
 		sender, receiver := srw.
 			WithReceiveUrl(receiveUrl).
@@ -64,8 +64,8 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		callback := func() (interface{}, error) {
 			senderResult := sender.Result()
 			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
-			_ = dw.Scale(1)
-			drainerCompleted := WaitForDrainerRemoval(1)
+			_ = bdw.Scale(1)
+			drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
 			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
 			return drainerCompleted, nil
 		}
@@ -85,19 +85,19 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		podNumbers := []string{"3", "2", "1"}
 
-		err := dw.DeployBrokers(4)
+		err := bdw.DeployBrokers(4)
 		gomega.Expect(err).To(gomega.BeNil())
 		for _, number := range podNumbers {
-			url := formUrl(Protocol, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+			url := test.FormUrl(Protocol, DeployName, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			sender = srw.WithSendUrl(url).PrepareNamedSender("sender-" + string(number))
 			_ = sender.Deploy()
 			sender.Wait()
 		}
-		err = dw.Scale(1)
+		err = bdw.Scale(1)
 		gomega.Expect(err).To(gomega.BeNil())
-		drainerCompleted := WaitForDrainerRemoval(3)
+		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
 		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
-		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithReceiverCount(len(podNumbers) * MessageCount).
@@ -114,18 +114,18 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy 4 brokers, migrate last one", func() {
-		sendUrl := formUrl(Protocol, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-		receiveUrl := formUrl(Protocol, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sendUrl := test.FormUrl(Protocol, DeployName, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).
 			PrepareSenderReceiver()
-		err := dw.DeployBrokers(4)
+		err := bdw.DeployBrokers(4)
 		gomega.Expect(err).To(gomega.BeNil())
 		_ = sender.Deploy()
 		sender.Wait()
-		_ = dw.Scale(3)
-		drainerCompleted := WaitForDrainerRemoval(1)
+		_ = bdw.Scale(3)
+		drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
 		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
 		_ = receiver.Deploy()
 		receiver.Wait()

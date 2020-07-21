@@ -19,6 +19,8 @@ type SenderReceiverWrapper struct {
 const AMQP = "amqp"
 const OPENWIRE = "openwire"
 const CORE = "core"
+const HTTP = "http"
+const HTTPS = "https"
 
 var (
 	clientProtocolMap = map[string]string{
