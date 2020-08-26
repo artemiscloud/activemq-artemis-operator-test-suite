@@ -59,6 +59,7 @@ const (
 	CoreAcceptor
 	OpenwireAcceptor
 	MultiAcceptor
+	AllAcceptor
 )
 
 var (
@@ -66,12 +67,15 @@ var (
 		AmqpAcceptor:     5672,
 		OpenwireAcceptor: 61613,
 		CoreAcceptor:     61616,
+		MultiAcceptor:    5672,
+		AllAcceptor:      5672,
 	}
 	acceptors = map[AcceptorType]*brokerapi.AcceptorType{
 		AmqpAcceptor:     defaultAcceptor(AMQP, AcceptorPorts[AmqpAcceptor]),
 		OpenwireAcceptor: defaultAcceptor(OPENWIRE, AcceptorPorts[OpenwireAcceptor]),
 		CoreAcceptor:     defaultAcceptor(CORE, AcceptorPorts[CoreAcceptor]),
-		MultiAcceptor:    defaultAcceptor(fmt.Sprintf("%s,%s,%s", AMQP, OPENWIRE, CORE), AcceptorPorts[CoreAcceptor]),
+		MultiAcceptor:    defaultAcceptor(fmt.Sprintf("%s,%s,%s", AMQP, OPENWIRE, CORE), AcceptorPorts[MultiAcceptor]),
+		AllAcceptor:      defaultAcceptor("all", AcceptorPorts[AllAcceptor]),
 	}
 )
 
