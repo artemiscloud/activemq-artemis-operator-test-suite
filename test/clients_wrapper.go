@@ -126,7 +126,7 @@ func (srw *SenderReceiverWrapper) PrepareReceiver() *qeclients.AmqpQEClientCommo
 	return srw.PrepareReceiverWithProtocol(AMQP)
 }
 
-func SendReceiveMessages(sender *qeclients.AmqpQEClientCommon, receiver *qeclients.AmqpQEClientCommon, callback SenderReceiverCallback) (interface{}, error) {
+func SendMessages(sender *qeclients.AmqpQEClientCommon, callback SenderReceiverCallback) (interface{}, error) {
 	log.Logf("Started (sync) deployment of sender")
 	err := sender.Deploy()
 	sender.Wait()
@@ -140,11 +140,24 @@ func SendReceiveMessages(sender *qeclients.AmqpQEClientCommon, receiver *qeclien
 			return nil, err
 		}
 	}
+	return result, nil
+}
+
+func ReceiveMessages(receiver *qeclients.AmqpQEClientCommon) error {
 	log.Logf("Started (sync) deployment of receiver")
-	err = receiver.Deploy()
+	err := receiver.Deploy()
+	if err != nil {
+		return err
+	}
+	receiver.Wait()
+	return nil
+}
+
+func SendReceiveMessages(sender *qeclients.AmqpQEClientCommon, receiver *qeclients.AmqpQEClientCommon, callback SenderReceiverCallback) (interface{}, error) {
+	result, err := SendMessages(sender, callback)
+	err = ReceiveMessages(receiver)
 	if err != nil {
 		return nil, err
 	}
-	receiver.Wait()
 	return result, nil
 }
