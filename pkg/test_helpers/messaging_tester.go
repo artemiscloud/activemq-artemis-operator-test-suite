@@ -1,4 +1,4 @@
-package messaging
+package test_helpers
 
 import (
 	"github.com/onsi/gomega"
@@ -7,14 +7,14 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-func testBaseSendReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
+func TestBaseSendReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	acceptorType bdw.AcceptorType, BrokerCount int, protocol string) {
-	testBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, acceptorType, BrokerCount, protocol, nil)
+	TestBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, acceptorType, BrokerCount, protocol, nil)
 }
 
-func testBaseSendReceiveMessagesWithCallback(bdw *bdw.BrokerDeploymentWrapper,
+func TestBaseSendReceiveMessagesWithCallback(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	acceptorType bdw.AcceptorType, BrokerCount int, protocol string, callback test.SenderReceiverCallback) {
@@ -34,7 +34,7 @@ func testBaseSendReceiveMessagesWithCallback(bdw *bdw.BrokerDeploymentWrapper,
 	}
 }
 
-func testBaseSendMessages(bdw *bdw.BrokerDeploymentWrapper,
+func TestBaseSendMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	acceptorType bdw.AcceptorType, BrokerCount int, protocol, senderName string, callback test.SenderReceiverCallback) {
@@ -48,7 +48,7 @@ func testBaseSendMessages(bdw *bdw.BrokerDeploymentWrapper,
 	log.Logf("MessageCount is fine")
 }
 
-func testBaseReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
+func TestBaseReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	protocol string) {

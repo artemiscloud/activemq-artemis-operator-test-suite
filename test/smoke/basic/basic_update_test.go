@@ -25,7 +25,7 @@ var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 	})
 
 	ginkgo.It("Deploy single broker, replace image with new one", func() {

@@ -1,4 +1,4 @@
-package messaging
+package persistence
 
 import (
 	"github.com/onsi/ginkgo"
@@ -6,7 +6,7 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
@@ -38,7 +38,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
 			WithPersistence(true).WithMigration(true).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
@@ -84,7 +84,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
-		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		podNumbers := []string{"3", "2", "1"}
 
 		err := brokerDeployer.DeployBrokers(4)
@@ -95,6 +94,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			_ = sender.Deploy()
 			sender.Wait()
 		}
+
 		err = brokerDeployer.Scale(1)
 		gomega.Expect(err).To(gomega.BeNil())
 		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
@@ -118,21 +118,25 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	ginkgo.It("Deploy 4 brokers, migrate last one", func() {
 		sendUrl := test.FormUrl(Protocol, DeployName, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+
 		sender, receiver = srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).
 			PrepareSenderReceiver()
 		err := brokerDeployer.DeployBrokers(4)
+
 		gomega.Expect(err).To(gomega.BeNil())
 		_ = sender.Deploy()
 		sender.Wait()
 		_ = brokerDeployer.Scale(3)
 		drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
 		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+
 		_ = receiver.Deploy()
 		receiver.Wait()
 		receiverResult := receiver.Result()
 		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
 		}

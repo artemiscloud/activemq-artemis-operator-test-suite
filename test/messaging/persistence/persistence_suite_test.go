@@ -1,4 +1,4 @@
-package configuration
+package persistence
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-func TestConfiguration(t *testing.T) {
-	test.PrepareNamespace(t, "configuration", "Configuration Suite")
+func TestMessaging(t *testing.T) {
+	test.PrepareNamespace(t, "messaging", "Messaging Suite")
 }
 
 func TestMain(m *testing.M) {

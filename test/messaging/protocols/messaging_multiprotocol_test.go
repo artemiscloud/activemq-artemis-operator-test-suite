@@ -1,9 +1,10 @@
-package messaging
+package protocols
 
 import (
 	"github.com/onsi/ginkgo"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"strconv"
 )
@@ -44,7 +45,7 @@ var _ = ginkgo.Describe("MessagingMultiTests", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 
 		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
@@ -58,7 +59,7 @@ var _ = ginkgo.Describe("MessagingMultiTests", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages through openwire", func() {
-		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameOpenwire)
+		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameOpenwire)
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages through amqp", func() {
@@ -70,7 +71,7 @@ var _ = ginkgo.Describe("MessagingMultiTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
-		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameAmqp)
+		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameAmqp)
 	})
 
 	ginkgo.It("Deploy single broker instance and send/receive messages through core", func() {
@@ -82,7 +83,7 @@ var _ = ginkgo.Describe("MessagingMultiTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
-		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameCore)
+		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameCore)
 	})
 
 	ginkgo.It("Deploy single broker instance and send messages through openwire, receive through amqp", func() {
@@ -95,7 +96,7 @@ var _ = ginkgo.Describe("MessagingMultiTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
-		testBaseSendMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameOpenwire, "sender-openwire", nil)
-		testBaseReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, ProtocolNameAmqp)
+		test_helpers.TestBaseSendMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.MultiAcceptor, 1, ProtocolNameOpenwire, "sender-openwire", nil)
+		test_helpers.TestBaseReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, ProtocolNameAmqp)
 	})
 })

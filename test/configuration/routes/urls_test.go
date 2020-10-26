@@ -1,4 +1,4 @@
-package configuration
+package routes
 
 import (
 	"github.com/onsi/ginkgo"
@@ -31,7 +31,7 @@ var _ = ginkgo.Describe("RouteTests", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 	})
 	//
 

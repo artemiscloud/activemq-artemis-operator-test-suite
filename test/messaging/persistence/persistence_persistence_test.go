@@ -1,7 +1,8 @@
-package messaging
+package persistence
 
 import (
 	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
@@ -50,7 +51,20 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 			WithReceiveUrl(receiveUrl)
 	})
 
-	ginkgo.It("Deploy single broker instances, send messages", func() {
-		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
+	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false)
+		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
+	})
+
+	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false)
+		callback := func() (interface{}, error) {
+			err := brokerDeployer.Scale(1)
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			err = brokerDeployer.Scale(2)
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			return nil, nil
+		}
+		test_helpers.TestBaseSendReceiveMessagesWithCallback(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol, callback)
 	})
 })

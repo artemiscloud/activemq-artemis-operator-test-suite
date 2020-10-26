@@ -1,4 +1,4 @@
-package configuration
+package statistics
 
 import (
 	"fmt"
@@ -60,7 +60,7 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 	})
 
 	ginkgo.BeforeEach(func() {}, 10)

@@ -1,4 +1,4 @@
-package messaging
+package protocols
 
 import (
 	"github.com/onsi/ginkgo"
@@ -50,7 +50,8 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 			WithReceiveUrl(receiveUrl)
 	})
 
-	ginkgo.It("Deploy single broker instances, send messages", func() {
-		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
+	ginkgo.It("Deploy double broker instances, send messages", func() {
+		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
 	})
+
 })

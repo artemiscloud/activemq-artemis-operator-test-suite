@@ -8,7 +8,7 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
+var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 
 	var (
 		ctx1 *framework.ContextData
@@ -25,7 +25,7 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsV2)
+			WithLts(!test.Config.NeedsLatestCR)
 	})
 
 	ginkgo.It("Deploy single broker instance", func() {
