@@ -4,7 +4,7 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"strconv"
 )
@@ -14,7 +14,7 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		bdw *bdw2.BrokerDeploymentWrapper
+		brokerDeployer *bdw.BrokerDeploymentWrapper
 		//url      string
 		srw *test.SenderReceiverWrapper
 	)
@@ -22,7 +22,7 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	var (
 		MessageBody   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		MessageCount  = 100
-		Port          = int64(bdw2.AcceptorPorts[bdw2.AmqpAcceptor])
+		Port          = int64(bdw.AcceptorPorts[bdw.AmqpAcceptor])
 		Domain        = "svc.cluster.local"
 		SubdomainName = "-hdls-svc"
 		AddressBit    = "someQueue"
@@ -32,8 +32,8 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &bdw2.BrokerDeploymentWrapper{}
-		bdw.WithWait(true).
+		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
+		brokerDeployer.WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
@@ -51,27 +51,27 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy double broker instances, send messages", func() {
-		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, bdw2.AmqpAcceptor, 2, Protocol)
+		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
 	})
 
 	ginkgo.It("Deploy single broker instances, send messages", func() {
-		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, bdw2.AmqpAcceptor, 1, Protocol)
+		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
 	})
 
 	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
-		bdw.WithPersistence(true).WithMigration(false)
-		testBaseSendReceiveMessages(bdw, srw, MessageCount, MessageBody, bdw2.AmqpAcceptor, 2, Protocol)
+		brokerDeployer.WithPersistence(true).WithMigration(false)
+		testBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
 	})
 
 	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
-		bdw.WithPersistence(true).WithMigration(false)
+		brokerDeployer.WithPersistence(true).WithMigration(false)
 		callback := func() (interface{}, error) {
-			err := bdw.Scale(1)
+			err := brokerDeployer.Scale(1)
 			gomega.Expect(err).ToNot(gomega.HaveOccurred())
-			err = bdw.Scale(2)
+			err = brokerDeployer.Scale(2)
 			gomega.Expect(err).ToNot(gomega.HaveOccurred())
 			return nil, nil
 		}
-		testBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, bdw2.AmqpAcceptor, 2, Protocol, callback)
+		testBaseSendReceiveMessagesWithCallback(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol, callback)
 	})
 })

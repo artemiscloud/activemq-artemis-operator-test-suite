@@ -6,7 +6,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"io/ioutil"
 	"net/http"
@@ -14,8 +14,8 @@ import (
 
 var _ = ginkgo.Describe("MetricsTest", func() {
 	var (
-		ctx1 *framework.ContextData
-		bdw  *bdw2.BrokerDeploymentWrapper
+		ctx1           *framework.ContextData
+		brokerDeployer *bdw.BrokerDeploymentWrapper
 	)
 	//Uncomfortable bringing this to wider scope then usual.
 	const (
@@ -30,12 +30,12 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 
 	//Really don't like the way its done here, but exposing this to an external wrapper isn't good either.
 	testStatistics := func() {
-		gomega.Expect(bdw.DeployBrokers(1)).To(gomega.BeNil())
-		bdw.SetEnvVariable(VarName, VarValue)
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		brokerDeployer.SetEnvVariable(VarName, VarValue)
 		log.Logf("Waiting for re-rollout of broker with updated environment")
-		bdw.WaitForBrokerSet(1, 1)
+		brokerDeployer.WaitForBrokerSet(1, 1)
 		//url := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port) //nope.
-		urls, err := bdw.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		// there should be only single url in return in this case.
 		url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
@@ -53,8 +53,8 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &bdw2.BrokerDeploymentWrapper{}
-		bdw.
+		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
+		brokerDeployer.
 			WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
@@ -66,19 +66,19 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 	ginkgo.BeforeEach(func() {}, 10)
 
 	ginkgo.It("Deploy a broker instance and check that statistics endpoint works", func() {
-		bdw.WithConsoleExposure(true)
+		brokerDeployer.WithConsoleExposure(true)
 		testStatistics()
 	})
 
 	ginkgo.It("Deploy a broker with console disabled and check that statistics endpoint works", func() {
-		bdw.WithConsoleExposure(false)
+		brokerDeployer.WithConsoleExposure(false)
 		testStatistics()
 	})
 
 	ginkgo.It("Deploy a broker. By-default, statistics should be disabled.", func() {
-		bdw.WithConsoleExposure(true)
-		bdw.DeployBrokers(1)
-		urls, err := bdw.GetExternalUrls(ExpectedUrl, 0)
+		brokerDeployer.WithConsoleExposure(true)
+		brokerDeployer.DeployBrokers(1)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		// there should be only single url in return in this case.
 		url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)

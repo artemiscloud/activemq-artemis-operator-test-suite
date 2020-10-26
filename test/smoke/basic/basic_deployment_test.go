@@ -4,7 +4,7 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
@@ -13,14 +13,14 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 	var (
 		ctx1 *framework.ContextData
 		//brokerClient brokerclientset.Interface
-		bdw *bdw2.BrokerDeploymentWrapper
+		brokerDeployer *bdw.BrokerDeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &bdw2.BrokerDeploymentWrapper{}
-		bdw.WithWait(true).
+		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
+		brokerDeployer.WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
@@ -30,13 +30,13 @@ var _ = ginkgo.Describe("DeploymentSingleBroker", func() {
 
 	ginkgo.It("Deploy single broker instance", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := bdw.DeployBrokers(1)
+		err := brokerDeployer.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
 	ginkgo.It("Deploy double broker instances", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
-		err := bdw.DeployBrokers(2)
+		err := brokerDeployer.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 

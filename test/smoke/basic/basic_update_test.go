@@ -4,22 +4,22 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
+	bdw "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
 var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
 
 	var (
-		ctx1 *framework.ContextData
-		bdw  *bdw2.BrokerDeploymentWrapper
+		ctx1           *framework.ContextData
+		brokerDeployer *bdw.BrokerDeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &bdw2.BrokerDeploymentWrapper{}
-		bdw.
+		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
+		brokerDeployer.
 			WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
@@ -29,18 +29,18 @@ var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
 	})
 
 	ginkgo.It("Deploy single broker, replace image with new one", func() {
-		gomega.Expect(bdw.DeployBrokers(1)).To(gomega.BeNil())
-		bdw.WithCustomImage(test.Config.BrokerImageOther)
-		gomega.Expect(bdw.ChangeImage()).To(gomega.BeNil())
-		gomega.Expect(bdw.VerifyImage(test.Config.BrokerImageOther)).NotTo(gomega.HaveOccurred())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		brokerDeployer.WithCustomImage(test.Config.BrokerImageOther)
+		gomega.Expect(brokerDeployer.ChangeImage()).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.VerifyImage(test.Config.BrokerImageOther)).NotTo(gomega.HaveOccurred())
 	})
 
 	ginkgo.It("Deploy single broker, scale down, replace image with new one, scale up", func() {
-		gomega.Expect(bdw.DeployBrokers(1)).To(gomega.BeNil())
-		gomega.Expect(bdw.Scale(0)).To(gomega.BeNil())
-		bdw.WithCustomImage(test.Config.BrokerImageOther)
-		gomega.Expect(bdw.ChangeImage()).To(gomega.BeNil())
-		gomega.Expect(bdw.Scale(1)).To(gomega.BeNil())
-		gomega.Expect(bdw.VerifyImage(test.Config.BrokerImageOther)).NotTo(gomega.HaveOccurred())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.Scale(0)).To(gomega.BeNil())
+		brokerDeployer.WithCustomImage(test.Config.BrokerImageOther)
+		gomega.Expect(brokerDeployer.ChangeImage()).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.Scale(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.VerifyImage(test.Config.BrokerImageOther)).NotTo(gomega.HaveOccurred())
 	})
 })
