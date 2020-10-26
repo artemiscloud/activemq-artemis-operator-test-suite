@@ -1,7 +1,7 @@
 package test
 
 import (
-	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
+	brokerclientset "github.com/artemiscloud/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/rh-messaging/shipshape/pkg/framework/operators"

@@ -6,6 +6,7 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
@@ -13,7 +14,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	var (
 		ctx1     *framework.ContextData
-		bdw      *test.BrokerDeploymentWrapper
+		bdw      *bdw2.BrokerDeploymentWrapper
 		srw      *test.SenderReceiverWrapper
 		sender   amqp.Client
 		receiver amqp.Client
@@ -32,11 +33,12 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	// PrepareNamespace after framework has been created.
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &test.BrokerDeploymentWrapper{}
+		bdw = &bdw2.BrokerDeploymentWrapper{}
 		bdw.WithWait(true).WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
 			WithPersistence(true).WithMigration(true).
-			WithName(DeployName)
+			WithName(DeployName).
+			WithLts(!test.Config.NeedsV2)
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).

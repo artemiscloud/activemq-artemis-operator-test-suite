@@ -4,6 +4,7 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
@@ -11,19 +12,20 @@ var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
 
 	var (
 		ctx1 *framework.ContextData
-		bdw  *test.BrokerDeploymentWrapper
+		bdw  *bdw2.BrokerDeploymentWrapper
 	)
 
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &test.BrokerDeploymentWrapper{}
+		bdw = &bdw2.BrokerDeploymentWrapper{}
 		bdw.
 			WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName)
+			WithName(DeployName).
+			WithLts(!test.Config.NeedsV2)
 	})
 
 	ginkgo.It("Deploy single broker, replace image with new one", func() {

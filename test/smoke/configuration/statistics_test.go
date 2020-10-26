@@ -6,6 +6,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	bdw2 "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"io/ioutil"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 var _ = ginkgo.Describe("MetricsTest", func() {
 	var (
 		ctx1 *framework.ContextData
-		bdw  *test.BrokerDeploymentWrapper
+		bdw  *bdw2.BrokerDeploymentWrapper
 	)
 	//Uncomfortable bringing this to wider scope then usual.
 	const (
@@ -52,29 +53,30 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
-		bdw = &test.BrokerDeploymentWrapper{}
+		bdw = &bdw2.BrokerDeploymentWrapper{}
 		bdw.
 			WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName)
+			WithName(DeployName).
+			WithLts(!test.Config.NeedsV2)
 	})
 
 	ginkgo.BeforeEach(func() {}, 10)
 
 	ginkgo.It("Deploy a broker instance and check that statistics endpoint works", func() {
-		bdw.SetConsoleExposure(true)
+		bdw.WithConsoleExposure(true)
 		testStatistics()
 	})
 
 	ginkgo.It("Deploy a broker with console disabled and check that statistics endpoint works", func() {
-		bdw.SetConsoleExposure(false)
+		bdw.WithConsoleExposure(false)
 		testStatistics()
 	})
 
 	ginkgo.It("Deploy a broker. By-default, statistics should be disabled.", func() {
-		bdw.SetConsoleExposure(true)
+		bdw.WithConsoleExposure(true)
 		bdw.DeployBrokers(1)
 		urls, err := bdw.GetExternalUrls(ExpectedUrl, 0)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())

@@ -3,20 +3,21 @@ package messaging
 import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-func testBaseSendReceiveMessages(bdw *test.BrokerDeploymentWrapper,
+func testBaseSendReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
-	acceptorType test.AcceptorType, BrokerCount int, protocol string) {
+	acceptorType bdw.AcceptorType, BrokerCount int, protocol string) {
 	testBaseSendReceiveMessagesWithCallback(bdw, srw, MessageCount, MessageBody, acceptorType, BrokerCount, protocol, nil)
 }
 
-func testBaseSendReceiveMessagesWithCallback(bdw *test.BrokerDeploymentWrapper,
+func testBaseSendReceiveMessagesWithCallback(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
-	acceptorType test.AcceptorType, BrokerCount int, protocol string, callback test.SenderReceiverCallback) {
+	acceptorType bdw.AcceptorType, BrokerCount int, protocol string, callback test.SenderReceiverCallback) {
 	err := bdw.DeployBrokersWithAcceptor(BrokerCount, acceptorType)
 	gomega.Expect(err).To(gomega.BeNil())
 	sender, receiver := srw.PrepareSenderReceiverWithProtocol(protocol)
@@ -33,10 +34,10 @@ func testBaseSendReceiveMessagesWithCallback(bdw *test.BrokerDeploymentWrapper,
 	}
 }
 
-func testBaseSendMessages(bdw *test.BrokerDeploymentWrapper,
+func testBaseSendMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
-	acceptorType test.AcceptorType, BrokerCount int, protocol, senderName string, callback test.SenderReceiverCallback) {
+	acceptorType bdw.AcceptorType, BrokerCount int, protocol, senderName string, callback test.SenderReceiverCallback) {
 	err := bdw.DeployBrokersWithAcceptor(BrokerCount, acceptorType)
 	gomega.Expect(err).To(gomega.BeNil())
 	sender := srw.PrepareNamedSenderWithProtocol(senderName, protocol)
@@ -47,7 +48,7 @@ func testBaseSendMessages(bdw *test.BrokerDeploymentWrapper,
 	log.Logf("MessageCount is fine")
 }
 
-func testBaseReceiveMessages(bdw *test.BrokerDeploymentWrapper,
+func testBaseReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
 	srw *test.SenderReceiverWrapper,
 	MessageCount int, MessageBody string,
 	protocol string) {
