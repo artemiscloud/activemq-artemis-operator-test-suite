@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-var _ = ginkgo.Describe("MetricsTest", func() {
+var _ = ginkgo.Describe("StatisticsTest", func() {
 	var (
 		ctx1           *framework.ContextData
 		brokerDeployer *bdw.BrokerDeploymentWrapper
@@ -62,8 +62,6 @@ var _ = ginkgo.Describe("MetricsTest", func() {
 			WithName(DeployName).
 			WithLts(!test.Config.NeedsLatestCR)
 	})
-
-	ginkgo.BeforeEach(func() {}, 10)
 
 	ginkgo.It("Deploy a broker instance and check that statistics endpoint works", func() {
 		brokerDeployer.WithConsoleExposure(true)

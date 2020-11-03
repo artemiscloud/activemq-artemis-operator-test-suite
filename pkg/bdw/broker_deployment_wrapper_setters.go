@@ -1,4 +1,5 @@
 package bdw
+
 /* This file contains configuration setter methods for BrokerDeploymentWrapper
  */
 
@@ -63,3 +64,37 @@ func (bdw *BrokerDeploymentWrapper) WithLts(lts bool) *BrokerDeploymentWrapper {
 	return bdw
 }
 
+func (bdw *BrokerDeploymentWrapper) WithStorageSize(storage string) *BrokerDeploymentWrapper {
+	bdw.storageSize = storage
+	return bdw
+}
+
+func (bdw *BrokerDeploymentWrapper) addKnownAddress(addressName string) {
+	if bdw.knownAddresses == nil {
+		bdw.knownAddresses = []string{}
+	}
+	bdw.knownAddresses = append(bdw.knownAddresses, addressName)
+}
+
+func (bdw *BrokerDeploymentWrapper) WithAddressSize(addressName, maxSizeBytes string) *BrokerDeploymentWrapper {
+	if bdw.maxSizeBytes == nil {
+		bdw.maxSizeBytes = map[string]string{}
+	}
+	bdw.addKnownAddress(addressName)
+	bdw.maxSizeBytes[addressName] = maxSizeBytes
+	return bdw
+}
+
+func (bdw *BrokerDeploymentWrapper) PurgeAddressSettings() {
+	bdw.knownAddresses = []string{}
+	bdw.maxSizeBytes = map[string]string{}
+	bdw.addressFullPolicy = map[string]AddressFullPolicy{}
+}
+
+func (bdw *BrokerDeploymentWrapper) WithAddressPolicy(addressName string, policy AddressFullPolicy) *BrokerDeploymentWrapper {
+	if bdw.addressFullPolicy == nil {
+		bdw.addressFullPolicy = map[string]AddressFullPolicy{}
+	}
+	bdw.addressFullPolicy[addressName] = policy
+	return bdw
+}

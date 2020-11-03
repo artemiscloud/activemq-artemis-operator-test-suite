@@ -1,4 +1,4 @@
-package persistence
+package addresssettings
 
 import (
 	"github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "persistence"
+	DeployName = "addresssetting"
 	BaseName   = "broker-framework"
 )
 
@@ -20,6 +20,9 @@ var (
 var _ = ginkgo.BeforeEach(func() {
 	sw = &test.SetupWrapper{}
 	sw.WithBaseName(BaseName).WithDeployName(DeployName)
+	if !test.Config.NeedsLatestCR {
+		ginkgo.Skip("Not supported on pre-0.17 operator")
+	}
 	sw.BeforeEach()
 }, 60)
 

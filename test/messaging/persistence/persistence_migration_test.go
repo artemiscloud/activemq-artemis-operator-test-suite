@@ -57,7 +57,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
-
 		sender, receiver := srw.
 			WithReceiveUrl(receiveUrl).
 			WithSendUrl(sendUrl).

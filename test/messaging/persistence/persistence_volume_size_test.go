@@ -2,16 +2,14 @@ package persistence
 
 import (
 	"github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	"strconv"
 )
 
-var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
+var _ = ginkgo.Describe("PersistenceVolumeSizeTest", func() {
 
 	var (
 		ctx1 *framework.ContextData
@@ -30,12 +28,12 @@ var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
 		AddressBit    = "someQueue"
 		Protocol      = test.AMQP
 	)
-
+	ginkgo.BeforeEach(func() {
+	})
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		log.Logf("Value is: %v", test.Config.NeedsLatestCR)
 		brokerDeployer.WithWait(true).
 			WithBrokerClient(sw.BrokerClient).
 			WithContext(ctx1).
@@ -51,22 +49,39 @@ var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
+
 	})
 
-	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
-		brokerDeployer.WithPersistence(true).WithMigration(false)
-		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
-	})
-
-	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
-		brokerDeployer.WithPersistence(true).WithMigration(false)
-		callback := func() (interface{}, error) {
-			err := brokerDeployer.Scale(1)
-			gomega.Expect(err).ToNot(gomega.HaveOccurred())
-			err = brokerDeployer.Scale(2)
-			gomega.Expect(err).ToNot(gomega.HaveOccurred())
-			return nil, nil
+	ginkgo.It("Deploy with smaller PVC", func() {
+		if !test.Config.NeedsLatestCR {
+			ginkgo.Skip("Not supported on pre-0.17 operator")
 		}
-		test_helpers.TestBaseSendReceiveMessagesWithCallback(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol, callback)
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1Gi")
+		test_helpers.CheckVolumeSize(ctx1, "1Gi")
 	})
+
+	ginkgo.It("Deploy with smallest PVC", func() {
+		if !test.Config.NeedsLatestCR {
+			ginkgo.Skip("Not supported on pre-0.17 operator")
+		}
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1")
+		test_helpers.CheckVolumeSize(ctx1, "1Gi")
+	})
+
+	ginkgo.It("Deploy with default PVC", func() {
+		if !test.Config.NeedsLatestCR {
+			ginkgo.Skip("Not supported on pre-0.17 operator")
+		}
+		brokerDeployer.WithPersistence(true).WithMigration(false)
+		test_helpers.CheckVolumeSize(ctx1, "2Gi")
+	})
+
+	ginkgo.It("Deploy with bigger PVC", func() {
+		if !test.Config.NeedsLatestCR {
+			ginkgo.Skip("Not supported on pre-0.17 operator")
+		}
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("3Gi")
+		test_helpers.CheckVolumeSize(ctx1, "3Gi")
+	})
+
 })

@@ -136,7 +136,6 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.NeedsLatestCR, "v2", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
-
 }
 
 func loadConfig() {
@@ -146,7 +145,7 @@ func loadConfig() {
 	if err != nil {
 		log.Logf("yaml load err: #%v", err)
 	} else {
-		err = yaml.Unmarshal(yamlFile, Config)
+		err = yaml.Unmarshal(yamlFile, &Config)
 		if err != nil {
 			log.Logf("yaml parsing err: #%v", err)
 		}
@@ -154,11 +153,15 @@ func loadConfig() {
 }
 
 func Initialize(m *testing.M) {
+	log.Logf("Initializeing")
 	framework.RegisterFlags()
 	RegisterFlags()
 	flag.Parse()
+	log.Logf("Value: %v", Config.NeedsLatestCR)
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
-	os.Exit(m.Run())
+	if m != nil {
+		m.Run()
+	}
 }
 
 func PrepareNamespace(t *testing.T, uniqueId string, description string) {
