@@ -74,11 +74,11 @@ type AddressSettings struct {
 	autoDeleteCreatedQueues            map[string]bool
 	autoDeleteQueuesDelay              map[string]int32
 	audoDeleteQueuesMessageCount       map[string]int32
-	configDeleteQueues                 map[string]ConfigDeleteQueues
+	configDeleteQueues                 map[string]ConfigDelete
 	autoCreateAddresses                map[string]bool
 	audoDeleteAddresses                map[string]bool
 	autoDeleteAddressesDelay           map[string]int32
-	configDeleteAddresses              map[string]ConfigDeleteAddresses
+	configDeleteAddresses              map[string]ConfigDelete
 	managementBrowsePageSize           map[string]int32
 	defaultPurgeOnNoConsumers          map[string]bool
 	defaultMaxConsumers                map[string]int32
@@ -92,8 +92,7 @@ type AddressSettings struct {
 }
 
 type RoutingType int
-type ConfigDeleteAddresses int
-type ConfigDeleteQueues int
+type ConfigDelete int
 type SlowConsumerPolicy int //TODO
 type AddressFullPolicy int
 
@@ -102,26 +101,46 @@ const (
 	FAIL  = "FAIL"
 	PAGE  = "PAGE"
 	BLOCK = "BLOCK"
+	OFF = "OFF"
+	FORCE = "FORCE"
+	NOTIFY = "NOTIFY"
+	KILL = "KILL"
+	ANYCAST = "ANYCAST"
+	MULTICAST = "MULTICAST"
 
 	DropPolicy AddressFullPolicy = iota
 	FailPolicy
 	PagePolicy
 	BlockPolicy
+
+	Off ConfigDelete = iota
+	Force
+
+	Kill SlowConsumerPolicy = iota
+	Notify
+
+	Anycast RoutingType = iota
+	Multicast
 )
 
-func (a ConfigDeleteQueues) String() string {
-	return "unkwnown"
+func (a ConfigDelete) String() string {
+	if a == Force {
+		return FORCE
+	}
+	return OFF
 }
-func (a ConfigDeleteAddresses) String() string {
-	return "unkwnown"
-}
-
 func (a SlowConsumerPolicy) String() string {
-	return "unknown"
+	if a == Kill {
+		return KILL
+	}
+	return NOTIFY
 }
 
 func (a RoutingType) String() string {
-	return "unknown"
+	if a == Anycast {
+		return ANYCAST
+	}
+	return MULTICAST
 }
 
 func (a AddressFullPolicy) String() string {
@@ -135,5 +154,5 @@ func (a AddressFullPolicy) String() string {
 	case BlockPolicy:
 		return BLOCK
 	}
-	return "unknown"
+	return PAGE
 }

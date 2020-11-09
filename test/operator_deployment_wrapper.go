@@ -34,11 +34,5 @@ func (odw *OperatorDeploymentWrapper) PrepareOperator() operators.OperatorSetupB
 		builder.SetAdminUnavailable()
 	}
 
-	/*	if len(odw.EnvVariables) > 0 {
-			for name, value := range odw.EnvVariables {
-	                builder.AddEnvVariable(name, value)
-			}
-		} */
-
 	return builder
 }

@@ -54,6 +54,8 @@ var _ = ginkgo.Describe("AddressSettingsSizeTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
+            
+        brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 
 	})
 

@@ -426,9 +426,9 @@ func (bdw *BrokerDeploymentWrapper) WithAudoDeleteQueuesMessageCount(addressName
 	return bdw
 }
 
-func (bdw *BrokerDeploymentWrapper) WithConfigDeleteQueues(addressName string, configDeleteQueues ConfigDeleteQueues) *BrokerDeploymentWrapper {
+func (bdw *BrokerDeploymentWrapper) WithConfigDeleteQueues(addressName string, configDeleteQueues ConfigDelete) *BrokerDeploymentWrapper {
 	if bdw.configDeleteQueues == nil {
-		bdw.configDeleteQueues = map[string]ConfigDeleteQueues{}
+		bdw.configDeleteQueues = map[string]ConfigDelete{}
 	}
 	bdw.addKnownAddress(addressName)
 	bdw.configDeleteQueues[addressName] = configDeleteQueues
@@ -462,9 +462,9 @@ func (bdw *BrokerDeploymentWrapper) WithAutoDeleteAddressesDelay(addressName str
 	return bdw
 }
 
-func (bdw *BrokerDeploymentWrapper) WithConfigDeleteAddresses(addressName string, configDeleteAddresses ConfigDeleteAddresses) *BrokerDeploymentWrapper {
+func (bdw *BrokerDeploymentWrapper) WithConfigDeleteAddresses(addressName string, configDeleteAddresses ConfigDelete) *BrokerDeploymentWrapper {
 	if bdw.configDeleteAddresses == nil {
-		bdw.configDeleteAddresses = map[string]ConfigDeleteAddresses{}
+		bdw.configDeleteAddresses = map[string]ConfigDelete{}
 	}
 	bdw.addKnownAddress(addressName)
 	bdw.configDeleteAddresses[addressName] = configDeleteAddresses

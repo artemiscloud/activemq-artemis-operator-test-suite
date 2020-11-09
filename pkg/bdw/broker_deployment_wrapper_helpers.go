@@ -10,7 +10,7 @@ import (
 	brokerv1 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/onsi/gomega"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	//"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -91,7 +91,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	dlqPrefix := bdw.dlqPrefix[addressName]
 	dlqSuffix := bdw.dlqSuffix[addressName]
 	expiryAddress := bdw.expiryAddress[addressName]
-	autoCreateExpiryResources := bdw.autoCreateDeadLetterResources[addressName]
+	//autoCreateExpiryResources := bdw.autoCreateDeadLetterResources[addressName]
 	expiryPrefix := bdw.expiryPrefix[addressName]
 	expirySuffix := bdw.expirySuffix[addressName]
 	expiryDelay := bdw.expiryDelay[addressName]
@@ -103,7 +103,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	redeliveryDelayMult := bdw.redeliveryDelayMult[addressName]
 	redeliveryDelayAvoidance := bdw.redeliveryCollisionsAvoidance[addressName]
 	maxRejectThreshold := bdw.maxSizeBytesRejectThreshold[addressName]
-	pageSizeBytes := bdw.pageSizeBytes[addressName]
+	//pageSizeBytes := bdw.pageSizeBytes[addressName]
 	pageMaxCacheSize := bdw.pageMaxCacheSize[addressName]
 	addressFullPolicy := bdw.addressFullPolicy[addressName].String()
 	messageCounterHistoryLimit := bdw.messageCounterHistoryDayLimit[addressName]
@@ -113,7 +113,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	defaultNonDestructive := bdw.defaultNonDestructive[addressName]
 	defaultExclusiveQueue := bdw.defaultExclusiveQueue[addressName]
 	defaultGroupRebalance := bdw.defaultGroupRebalance[addressName]
-	defaultGroupRebalancePause := bdw.defaultGroupRebalancePauseDispatch[addressName]
+	//defaultGroupRebalancePause := bdw.defaultGroupRebalancePauseDispatch[addressName]
 	defaultGroupBuckets := bdw.defaultGroupBuckets[addressName]
 	defaultGroupFirstKey := bdw.defaultGroupFirstKey[addressName]
 	defaultConsumerBeforeDispatch := bdw.defaultConsumerBeforeDispatch[addressName]
@@ -123,20 +123,20 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	slowConsumerThreshold := bdw.slowConsumerThreshold[addressName]
 	slowConsumerPolicy := bdw.slowConsumerPolicy[addressName].String()
 	slowConsumerCheckPeriod := bdw.slowConsumerCheckPeriod[addressName]
-	autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
-	autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
-	autoDeleteJmsQueues := bdw.autoDeleteJmsQueues[addressName]
-	autoDeleteJmsTopics := bdw.autoDeleteJmsTopics[addressName]
-	autoCreateQueues := bdw.autoCreateQueues[addressName]
-	autoDeleteQueues := bdw.autoDeleteQueues[addressName]
-	autoDeleteCreatedQueues := bdw.autoDeleteCreatedQueues[addressName]
-	autoDeleteQueuesDelay := bdw.autoDeleteQueuesDelay[addressName]
-	autoDeleteQueuesMessageCount := bdw.audoDeleteQueuesMessageCount[addressName]
-	configDeleteQueues := bdw.configDeleteQueues[addressName].String()
-	configDeleteAddresses := bdw.configDeleteAddresses[addressName].String()
-	autoDeleteAddresses := bdw.autoDeleteAddresses[addressName]
-	autoDeleteAddressDelay := bdw.autoDeleteAddressesDelay[addressName]
-	autoCreateAddresses := bdw.autoCreateAddresses[addressName]
+	//autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
+	//autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
+	//autoDeleteJmsQueues := bdw.autoDeleteJmsQueues[addressName]
+	//autoDeleteJmsTopics := bdw.autoDeleteJmsTopics[addressName]
+	//autoCreateQueues := bdw.autoCreateQueues[addressName]
+	//autoDeleteQueues := bdw.autoDeleteQueues[addressName]
+	//autoDeleteCreatedQueues := bdw.autoDeleteCreatedQueues[addressName]
+	//autoDeleteQueuesDelay := bdw.autoDeleteQueuesDelay[addressName]
+	//autoDeleteQueuesMessageCount := bdw.audoDeleteQueuesMessageCount[addressName]
+	//configDeleteQueues := bdw.configDeleteQueues[addressName].String()
+	//configDeleteAddresses := bdw.configDeleteAddresses[addressName].String()
+	//autoDeleteAddresses := bdw.autoDeleteAddresses[addressName]
+	//autoDeleteAddressDelay := bdw.autoDeleteAddressesDelay[addressName]
+	//autoCreateAddresses := bdw.autoCreateAddresses[addressName]
 	managementBrowsePageSize := bdw.managementBrowsePageSize[addressName]
 	defaultPurgeOnNoConsumers := bdw.defaultPurgeOnNoConsumers[addressName]
 	defaultMaxConsumers := bdw.defaultMaxConsumers[addressName]
@@ -147,14 +147,13 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	retroactiveMessageCount := bdw.defaultRetroMessageCount[addressName]
 	enableMetrics := bdw.enableMetrics[addressName]
 
-	log.Logf("max size: %s", maxSizeBytes)
 	return brokerv3.AddressSettingType{
 		DeadLetterAddress:                  &deadLetterAddress,
 		AutoCreateDeadLetterResources:      &autoCreateDeadResources,
 		DeadLetterQueuePrefix:              &dlqPrefix,
 		DeadLetterQueueSuffix:              &dlqSuffix,
 		ExpiryAddress:                      &expiryAddress,
-		AutoCreateExpiryResources:          &autoCreateExpiryResources,
+		//AutoCreateExpiryResources:          &autoCreateExpiryResources,
 		ExpiryQueuePrefix:                  &expiryPrefix,
 		ExpiryQueueSuffix:                  &expirySuffix,
 		ExpiryDelay:                        &expiryDelay,
@@ -167,7 +166,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		MaxDeliveryAttempts:                &redeliveryAttemptsMax,
 		MaxSizeBytes:                       &maxSizeBytes,
 		MaxSizeBytesRejectThreshold:        &maxRejectThreshold,
-		PageSizeBytes:                      &pageSizeBytes,
+		//PageSizeBytes:                      &pageSizeBytes, //TODO: this is bugged in operator/crd
 		PageMaxCacheSize:                   &pageMaxCacheSize,
 		AddressFullPolicy:                  &addressFullPolicy,
 		MessageCounterHistoryDayLimit:      &messageCounterHistoryLimit,
@@ -177,7 +176,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		DefaultNonDestructive:              &defaultNonDestructive,
 		DefaultExclusiveQueue:              &defaultExclusiveQueue,
 		DefaultGroupRebalance:              &defaultGroupRebalance,
-		DefaultGroupRebalancePauseDispatch: &defaultGroupRebalancePause,
+		//DefaultGroupRebalancePauseDispatch: &defaultGroupRebalancePause,
 		DefaultGroupBuckets:                &defaultGroupBuckets,
 		DefaultGroupFirstKey:               &defaultGroupFirstKey,
 		DefaultConsumersBeforeDispatch:     &defaultConsumerBeforeDispatch,
@@ -187,20 +186,20 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		SlowConsumerThreshold:              &slowConsumerThreshold,
 		SlowConsumerPolicy:                 &slowConsumerPolicy,
 		SlowConsumerCheckPeriod:            &slowConsumerCheckPeriod,
-		AutoCreateJmsQueues:                &autoCreateJMSQueues,
-		AutoDeleteJmsQueues:                &autoDeleteJmsQueues,
-		AutoCreateJmsTopics:                &autoCreateJmsTopics,
-		AutoDeleteJmsTopics:                &autoDeleteJmsTopics,
-		AutoCreateQueues:                   &autoCreateQueues,
-		AutoDeleteQueues:                   &autoDeleteQueues,
-		AutoDeleteCreatedQueues:            &autoDeleteCreatedQueues,
-		AutoDeleteQueuesDelay:              &autoDeleteQueuesDelay,
-		AutoDeleteQueuesMessageCount:       &autoDeleteQueuesMessageCount,
-		ConfigDeleteQueues:                 &configDeleteQueues,
-		AutoCreateAddresses:                &autoCreateAddresses,
-		AutoDeleteAddresses:                &autoDeleteAddresses,
-		AutoDeleteAddressesDelay:           &autoDeleteAddressDelay,
-		ConfigDeleteAddresses:              &configDeleteAddresses,
+		//AutoCreateJmsQueues:                &autoCreateJMSQueues,
+		//AutoDeleteJmsQueues:                &autoDeleteJmsQueues,
+		//AutoCreateJmsTopics:                &autoCreateJmsTopics,
+		//AutoDeleteJmsTopics:                &autoDeleteJmsTopics,
+		//AutoCreateQueues:                   &autoCreateQueues,
+		//AutoDeleteQueues:                   &autoDeleteQueues,
+		//AutoDeleteCreatedQueues:            &autoDeleteCreatedQueues,
+		//AutoDeleteQueuesDelay:              &autoDeleteQueuesDelay,
+		//AutoDeleteQueuesMessageCount:       &autoDeleteQueuesMessageCount,
+		//ConfigDeleteQueues:                 &configDeleteQueues,
+		//AutoCreateAddresses:                &autoCreateAddresses,
+		//AutoDeleteAddresses:                &autoDeleteAddresses,
+		//AutoDeleteAddressesDelay:           &autoDeleteAddressDelay,
+		//ConfigDeleteAddresses:              nil,
 		ManagementBrowsePageSize:           &managementBrowsePageSize,
 		DefaultPurgeOnNoConsumers:          &defaultPurgeOnNoConsumers,
 		DefaultMaxConsumers:                &defaultMaxConsumers,
@@ -213,6 +212,87 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		Match:                              addressName,
 	}
 }
+
+func (bdw *BrokerDeploymentWrapper) SetUpDefaultAddressSettings(addressName string) *BrokerDeploymentWrapper {
+        bdw.WithAddressFullPolicy(addressName, FailPolicy).
+        WithAddressPolicy(addressName, FailPolicy).
+        WithAddressSize(addressName, DEFAULT_SIZE_BIG).
+        WithAudoDeleteAddresses(addressName, false).
+        WithAudoDeleteQueuesMessageCount(addressName, DEFAULT_COUNT).
+        WithAutoCreateAddresses(addressName, true).
+        WithAutoCreateDeadLetterResources(addressName, true).
+        WithAutoCreateExpiryResources(addressName, true).
+        WithAutoCreateJmsQueues(addressName, true).
+        WithAutoCreateJmsTopics(addressName, true).
+        WithAutoCreateQueues(addressName, true).
+        WithAutoDeleteAddressesDelay(addressName, DEFAULT_DELAY).
+        WithAutoDeleteCreatedQueues(addressName, false).
+        WithAutoDeleteJmsQueues(addressName, false).
+        WithAutoDeleteJmsTopics(addressName, false).
+        WithAutoDeleteQueues(addressName, false).
+        WithAutoDeleteQueuesDelay(addressName, DEFAULT_DELAY).
+        WithConfigDeleteAddresses(addressName, Off).
+        WithConfigDeleteQueues(addressName, Off).
+        WithDeadLetterAddress(addressName, DEFAULT_DEAD_ADDRESS).
+        WithDefaultAddressRoutingType(addressName, Multicast).
+        WithDefaultConsumerBeforeDispatch(addressName, DEFAULT_COUNT).
+        WithDefaultConsumerWindowSize(addressName, DEFAULT_COUNT).
+        WithDefaultDelayBeforeDispatch(addressName, DEFAULT_DELAY).
+        WithDefaultExclusiveQueue(addressName, false).
+        WithDefaultGroupBuckets(addressName, DEFAULT_COUNT).
+        WithDefaultGroupFirstKey(addressName, DEFAULT_KEY).
+        WithDefaultGroupRebalance(addressName, false).
+        WithDefaultGroupRebalancePauseDispatch(addressName, true).
+        WithDefaultLastValueKey(addressName, DEFAULT_KEY).
+        WithDefaultLastValueQueue(addressName, false).
+        WithDefaultMaxConsumers(addressName, DEFAULT_COUNT).
+        WithDefaultNonDestructive(addressName, true).
+        WithDefaultPurgeOnNoConsumers(addressName, false).
+        WithDefaultQueueRoutingType(addressName, Multicast).
+        WithDefaultRetroMessageCount(addressName, DEFAULT_COUNT).
+        WithDefaultRingSize(addressName, DEFAULT_COUNT).
+        WithDlqPrefix(addressName, DEFAULT_PREFIX).
+        WithDlqSuffix(addressName, DEFAULT_SUFFIX).
+        WithEnableMetrics(addressName, false).
+        WithExpiryAddress(addressName, DEFAULT_EXPIRY_ADDRESS).
+        WithExpiryPrefix(addressName, DEFAULT_PREFIX).
+        WithExpirySuffix(addressName, DEFAULT_SUFFIX).
+        WithLastValueQueue(addressName, true).
+        WithManagementBrowsePageSize(addressName, 1000).
+        WithMaxExpiryDelay(addressName, DEFAULT_DELAY).
+        WithMaxRedeliveryAttempts(addressName, DEFAULT_COUNT).
+        WithMaxRedeliveryDelay(addressName, DEFAULT_DELAY).
+        WithMaxSizeBytes(addressName, DEFAULT_SIZE_SMALL).
+        WithMaxSizeBytesRejectThreshold(addressName, 10000).
+        WithMessageCounterHistoryDayLimit(addressName, DEFAULT_COUNT).
+        WithMinExpiryDelay(addressName, DEFAULT_DELAY).
+        WithPageMaxCacheSize(addressName, 20000000).
+        WithPageSizeBytes(addressName, DEFAULT_SIZE_SMALL).
+        WithRedeliveryCollisionsAvoidance(addressName, DEFAULT_COUNT).
+        WithRedeliveryDelay(addressName, DEFAULT_DELAY).
+        WithRedeliveryDelayMult(addressName, 2).
+        WithRedistributionDelay(addressName, DEFAULT_DELAY).
+        WithSendToDLAOnNoRoute(addressName, false).
+        WithSlowConsumerCheckPeriod(addressName, DEFAULT_PERIOD).
+        WithSlowConsumerPolicy(addressName, Notify).
+        WithSlowConsumerThreshold(addressName, DEFAULT_DELAY)
+        
+        return bdw
+}
+
+
+const (
+    DEFAULT_DELAY = 1000
+    DEFAULT_COUNT = 100
+    DEFAULT_SIZE_BIG = "2G"
+    DEFAULT_SIZE_SMALL = "10K"
+    DEFAULT_DEAD_ADDRESS = "DLQ"
+    DEFAULT_EXPIRY_ADDRESS = "expiry"
+    DEFAULT_KEY = "abc"
+    DEFAULT_SUFFIX = "suffix"
+    DEFAULT_PREFIX = "prefix"
+    DEFAULT_PERIOD = DEFAULT_DELAY
+)
 
 func (bdw *BrokerDeploymentWrapper) ConvertToV1(artemisOriginal *brokerv3.ActiveMQArtemis) *brokerv1.ActiveMQArtemis {
 	artemisResult := &brokerv1.ActiveMQArtemis{}
