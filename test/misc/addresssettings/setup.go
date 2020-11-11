@@ -1,6 +1,7 @@
 package addresssettings
 
 import (
+    "fmt"
     "strings"
     "strconv"
     "encoding/json"
@@ -62,7 +63,7 @@ func verifyAddressSettingsInt(address, AddressBit, itemName string,
 	var item map[string]map[string]string
 	json.Unmarshal([]byte(result), &item)
 	brokerValue := item["value"][itemName]
-	gomega.Expect(brokerValue).To(gomega.Equal(string(value)))
+	gomega.Expect(brokerValue).To(gomega.Equal(fmt.Sprintf("%d",value)))
 
 }
 

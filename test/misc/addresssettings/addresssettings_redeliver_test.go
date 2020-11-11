@@ -1,15 +1,12 @@
 package addresssettings
 
 import (
-	"encoding/json"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-	"strings"
 )
 
 var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
@@ -50,7 +47,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		gomega.Expect(err).To(gomega.BeNil())
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-        verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor",1.0f, hw)
+        verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor",1.0, hw)
 	})
     
    
@@ -60,7 +57,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
         
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-        verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier",1.0f, hw)
+        verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier",1.0, hw)
 	})
 
 	ginkgo.It("RedeliveryDelay check", func() {
