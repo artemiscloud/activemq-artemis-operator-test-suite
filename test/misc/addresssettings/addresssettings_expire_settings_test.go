@@ -78,5 +78,21 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		address := urls[0]
         verifyAddressSettingsString(address, AddressBit, "expiryQueueSuffix","suffix", hw)
 	})
+    
+    ginkgo.It("MinExpiryDelay check", func() {
+		err := brokerDeployer.WithMinExpiryDelay(AddressBit, 101).DeployBrokers(1)
+		gomega.Expect(err).To(gomega.BeNil())
 
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		address := urls[0]
+        verifyAddressSettingsInt(address, AddressBit, "minExpiryDelay",101, hw)
+	})
+    ginkgo.It("MaxExpiryDelay check", func() {
+		err := brokerDeployer.WithMaxExpiryDelay(AddressBit, 101).DeployBrokers(1)
+		gomega.Expect(err).To(gomega.BeNil())
+
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		address := urls[0]
+        verifyAddressSettingsInt(address, AddressBit, "maxExpiryDelay",101, hw)
+	})
 })

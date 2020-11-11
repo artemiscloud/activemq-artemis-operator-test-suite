@@ -48,7 +48,6 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 	ginkgo.It("CollisionAvoidance check", func() {
 		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
         verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor",1.0f, hw)
