@@ -103,7 +103,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	dlqPrefix := bdw.dlqPrefix[addressName]
 	dlqSuffix := bdw.dlqSuffix[addressName]
 	expiryAddress := bdw.expiryAddress[addressName]
-	//autoCreateExpiryResources := bdw.autoCreateDeadLetterResources[addressName]
+	autoCreateExpiryResources := bdw.autoCreateDeadLetterResources[addressName]
 	expiryPrefix := bdw.expiryPrefix[addressName]
 	expirySuffix := bdw.expirySuffix[addressName]
 	expiryDelay := bdw.expiryDelay[addressName]
@@ -125,7 +125,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	defaultNonDestructive := bdw.defaultNonDestructive[addressName]
 	defaultExclusiveQueue := bdw.defaultExclusiveQueue[addressName]
 	defaultGroupRebalance := bdw.defaultGroupRebalance[addressName]
-	//defaultGroupRebalancePause := bdw.defaultGroupRebalancePauseDispatch[addressName]
+	defaultGroupRebalancePause := bdw.defaultGroupRebalancePauseDispatch[addressName]
 	defaultGroupBuckets := bdw.defaultGroupBuckets[addressName]
 	defaultGroupFirstKey := bdw.defaultGroupFirstKey[addressName]
 	defaultConsumerBeforeDispatch := bdw.defaultConsumerBeforeDispatch[addressName]
@@ -135,20 +135,20 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	slowConsumerThreshold := bdw.slowConsumerThreshold[addressName]
 	slowConsumerPolicy := bdw.slowConsumerPolicy[addressName].String()
 	slowConsumerCheckPeriod := bdw.slowConsumerCheckPeriod[addressName]
-	//autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
-	//autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
-	//autoDeleteJmsQueues := bdw.autoDeleteJmsQueues[addressName]
-	//autoDeleteJmsTopics := bdw.autoDeleteJmsTopics[addressName]
-	//autoCreateQueues := bdw.autoCreateQueues[addressName]
-	//autoDeleteQueues := bdw.autoDeleteQueues[addressName]
-	//autoDeleteCreatedQueues := bdw.autoDeleteCreatedQueues[addressName]
-	//autoDeleteQueuesDelay := bdw.autoDeleteQueuesDelay[addressName]
-	//autoDeleteQueuesMessageCount := bdw.audoDeleteQueuesMessageCount[addressName]
-	//configDeleteQueues := bdw.configDeleteQueues[addressName].String()
+	autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
+	autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
+	autoDeleteJmsQueues := bdw.autoDeleteJmsQueues[addressName]
+	autoDeleteJmsTopics := bdw.autoDeleteJmsTopics[addressName]
+	autoCreateQueues := bdw.autoCreateQueues[addressName]
+	autoDeleteQueues := bdw.autoDeleteQueues[addressName]
+	autoDeleteCreatedQueues := bdw.autoDeleteCreatedQueues[addressName]
+	autoDeleteQueuesDelay := bdw.autoDeleteQueuesDelay[addressName]
+	autoDeleteQueuesMessageCount := bdw.audoDeleteQueuesMessageCount[addressName]
+	configDeleteQueues := bdw.configDeleteQueues[addressName].String()
 	//configDeleteAddresses := bdw.configDeleteAddresses[addressName].String()
-	//autoDeleteAddresses := bdw.autoDeleteAddresses[addressName]
-	//autoDeleteAddressDelay := bdw.autoDeleteAddressesDelay[addressName]
-	//autoCreateAddresses := bdw.autoCreateAddresses[addressName]
+	autoDeleteAddresses := bdw.autoDeleteAddresses[addressName]
+	autoDeleteAddressDelay := bdw.autoDeleteAddressesDelay[addressName]
+	autoCreateAddresses := bdw.autoCreateAddresses[addressName]
 	managementBrowsePageSize := bdw.managementBrowsePageSize[addressName]
 	defaultPurgeOnNoConsumers := bdw.defaultPurgeOnNoConsumers[addressName]
 	defaultMaxConsumers := bdw.defaultMaxConsumers[addressName]
@@ -165,7 +165,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		DeadLetterQueuePrefix:              &dlqPrefix,
 		DeadLetterQueueSuffix:              &dlqSuffix,
 		ExpiryAddress:                      &expiryAddress,
-		//AutoCreateExpiryResources:          &autoCreateExpiryResources,
+		AutoCreateExpiryResources:          &autoCreateExpiryResources,
 		ExpiryQueuePrefix:                  &expiryPrefix,
 		ExpiryQueueSuffix:                  &expirySuffix,
 		ExpiryDelay:                        &expiryDelay,
@@ -188,7 +188,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		DefaultNonDestructive:              &defaultNonDestructive,
 		DefaultExclusiveQueue:              &defaultExclusiveQueue,
 		DefaultGroupRebalance:              &defaultGroupRebalance,
-		//DefaultGroupRebalancePauseDispatch: &defaultGroupRebalancePause,
+		DefaultGroupRebalancePauseDispatch: &defaultGroupRebalancePause,
 		DefaultGroupBuckets:                &defaultGroupBuckets,
 		DefaultGroupFirstKey:               &defaultGroupFirstKey,
 		DefaultConsumersBeforeDispatch:     &defaultConsumerBeforeDispatch,
@@ -198,20 +198,20 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 		SlowConsumerThreshold:              &slowConsumerThreshold,
 		SlowConsumerPolicy:                 &slowConsumerPolicy,
 		SlowConsumerCheckPeriod:            &slowConsumerCheckPeriod,
-		//AutoCreateJmsQueues:                &autoCreateJMSQueues,
-		//AutoDeleteJmsQueues:                &autoDeleteJmsQueues,
-		//AutoCreateJmsTopics:                &autoCreateJmsTopics,
-		//AutoDeleteJmsTopics:                &autoDeleteJmsTopics,
-		//AutoCreateQueues:                   &autoCreateQueues,
-		//AutoDeleteQueues:                   &autoDeleteQueues,
-		//AutoDeleteCreatedQueues:            &autoDeleteCreatedQueues,
-		//AutoDeleteQueuesDelay:              &autoDeleteQueuesDelay,
-		//AutoDeleteQueuesMessageCount:       &autoDeleteQueuesMessageCount,
-		//ConfigDeleteQueues:                 &configDeleteQueues,
-		//AutoCreateAddresses:                &autoCreateAddresses,
-		//AutoDeleteAddresses:                &autoDeleteAddresses,
-		//AutoDeleteAddressesDelay:           &autoDeleteAddressDelay,
-		//ConfigDeleteAddresses:              nil,
+		AutoCreateJmsQueues:                &autoCreateJMSQueues,
+		AutoDeleteJmsQueues:                &autoDeleteJmsQueues,
+		AutoCreateJmsTopics:                &autoCreateJmsTopics,
+		AutoDeleteJmsTopics:                &autoDeleteJmsTopics,
+		AutoCreateQueues:                   &autoCreateQueues,
+		AutoDeleteQueues:                   &autoDeleteQueues,
+		AutoDeleteCreatedQueues:            &autoDeleteCreatedQueues,
+		AutoDeleteQueuesDelay:              &autoDeleteQueuesDelay,
+		AutoDeleteQueuesMessageCount:       &autoDeleteQueuesMessageCount,
+		ConfigDeleteQueues:                 &configDeleteQueues,
+		AutoCreateAddresses:                &autoCreateAddresses,
+		AutoDeleteAddresses:                &autoDeleteAddresses,
+		AutoDeleteAddressesDelay:           &autoDeleteAddressDelay,
+		ConfigDeleteAddresses:              nil, //This particular setting is broken in generator
 		ManagementBrowsePageSize:           &managementBrowsePageSize,
 		DefaultPurgeOnNoConsumers:          &defaultPurgeOnNoConsumers,
 		DefaultMaxConsumers:                &defaultMaxConsumers,
