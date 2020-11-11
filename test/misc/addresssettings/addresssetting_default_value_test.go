@@ -1,16 +1,12 @@
 package addresssettings
 
 import (
-    "strconv"
-	"encoding/json"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-	"strings"
 )
 
 var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
@@ -52,20 +48,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        
-		brokerValue := item["value"]["defaultConsumersBeforeDispatch"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1)))
+        verifyAddressSettingsInt(address, AddressBit, "defaultConsumersBeforeDispatch",1, hw)
 	})
     
    
@@ -75,19 +58,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
         
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-        domain := strings.Split(address, ".")[0]
-        header := strings.Replace(OriginHeader,"NAME", domain,1)
-        hw.AddHeader("Origin", header)
-        actualUrl := "http://admin:admin@"+ address + CallAddress + AddressBit
-        hw.WithPassword("admin").WithUser("admin")
-        result, err := hw.PerformHttpRequest(actualUrl)
-        if err != nil {
-            log.Logf("%s", err) 
-        }
-        var item map[string]map[string]string
-        json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultConsumerWindowSize"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1234567)))
+        verifyAddressSettingsInt(address, AddressBit, "defaultConsumerWindowSize",1234567, hw)
 	})
 
 	ginkgo.It("DelayBeforeDispatch check", func() {
@@ -96,19 +67,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultDelayBeforeDispatch"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(150)))
+        verifyAddressSettingsInt(address, AddressBit, "defaultDelayBeforeDispatch",150, hw)
 	})
     
     ginkgo.It("DefaultExclusiveQueue check", func() {
@@ -117,19 +76,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultExclusiveQueue"]
-		gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(true))
+        verifyAddressSettingsBool(address, AddressBit, "defaultExclusiveQueue",true, hw)
 	})
     
     ginkgo.It("DefaultGroupBuckets check", func() {
@@ -138,19 +85,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultGroupBuckets"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(10)))
+        verifyAddressSettingsInt(address, AddressBit, "defaultGroupBuckets",10, hw)
 	})
     
     ginkgo.It("DefaultGroupFirstKey check", func() {
@@ -159,19 +94,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultGroupFirstKey"]
-		gomega.Expect(brokerValue).To(gomega.Equal("hey"))
+        verifyAddressSettingsString(address, AddressBit, "defaultGroupFirstKey","hey", hw)
 	})
         
     ginkgo.It("DefaultGroupRebalance check", func() {
@@ -180,19 +103,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultGroupRebalance"]
-		gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(true))
+        verifyAddressSettingsBool(address, AddressBit, "defaultGroupRebalance",true, hw)
 	})
    /* // TODO: This is NOT expected to work due to issue in the init container
     ginkgo.It("DefaultGroupRebalancePauseDispatch check", func() {
@@ -222,19 +133,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultLastValueKey"]
-		gomega.Expect(brokerValue).To(gomega.Equal("hey"))
+        verifyAddressSettingsString(address, AddressBit, "defaultLastValueKey","hey", hw)
 	})
     
     ginkgo.It("DefaultLastValueQueue check", func() {
@@ -243,19 +142,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultLastValueQueue"]
-		gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(true))
+        verifyAddressSettingsBool(address, AddressBit, "defaultLastValueQueue",true, hw)
 	})
     
     ginkgo.It("DefaultMaxConsumers check", func() {
@@ -264,19 +151,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["defaultMaxConsumers"]
-		gomega.Expect(brokerValue).To(gomega.Equal(32))
+		verifyAddressSettingsInt(address, AddressBit, "defaultMaxConsumers",32, hw)
 	})
 
 })

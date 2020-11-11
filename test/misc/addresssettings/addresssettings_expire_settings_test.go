@@ -1,15 +1,12 @@
 package addresssettings
 
 import (
-	"encoding/json"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-	"strings"
 )
 
 var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
@@ -51,21 +48,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        
-		brokerValue := item["value"]["expiryAddress"]
-		gomega.Expect(brokerValue).To(gomega.Equal("expire"))
-		
+        verifyAddressSettingsString(address, AddressBit, "expiryAddress","expire", hw)
 	})
     
    
@@ -75,19 +58,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
         
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-        domain := strings.Split(address, ".")[0]
-        header := strings.Replace(OriginHeader,"NAME", domain,1)
-        hw.AddHeader("Origin", header)
-        actualUrl := "http://admin:admin@"+ address + CallAddress + AddressBit
-        hw.WithPassword("admin").WithUser("admin")
-        result, err := hw.PerformHttpRequest(actualUrl)
-        if err != nil {
-            log.Logf("%s", err) 
-        }
-        var item map[string]map[string]string
-        json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["expiryDelay"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1)))
+        verifyAddressSettingsInt(address, AddressBit, "expiryDelay",1, hw)
 	})
 
 	ginkgo.It("ExpiryPrefix check", func() {
@@ -96,19 +67,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["expiryQueuePrefix"]
-		gomega.Expect(brokerValue).To(gomega.Equal("prefix"))
+        verifyAddressSettingsString(address, AddressBit, "expiryQueuePrefix","prefix", hw)
 	})
         
     ginkgo.It("ExpirySuffix check", func() {
@@ -117,19 +76,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["expiryQueueSuffix"]
-		gomega.Expect(brokerValue).To(gomega.Equal("suffix"))
+        verifyAddressSettingsString(address, AddressBit, "expiryQueueSuffix","suffix", hw)
 	})
 
 })

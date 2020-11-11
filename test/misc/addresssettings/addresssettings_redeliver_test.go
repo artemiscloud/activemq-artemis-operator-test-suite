@@ -51,21 +51,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        
-		brokerValue := item["value"]["redeliveryCollisionAvoidanceFactor"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1.0f)))
-		
+        verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor",1.0f, hw)
 	})
     
    
@@ -75,19 +61,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
         
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-        domain := strings.Split(address, ".")[0]
-        header := strings.Replace(OriginHeader,"NAME", domain,1)
-        hw.AddHeader("Origin", header)
-        actualUrl := "http://admin:admin@"+ address + CallAddress + AddressBit
-        hw.WithPassword("admin").WithUser("admin")
-        result, err := hw.PerformHttpRequest(actualUrl)
-        if err != nil {
-            log.Logf("%s", err) 
-        }
-        var item map[string]map[string]string
-        json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["redeliveryMultiplier"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1.0f)))
+        verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier",1.0f, hw)
 	})
 
 	ginkgo.It("RedeliveryDelay check", func() {
@@ -96,19 +70,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		domain := strings.Split(address, ".")[0]
-		header := strings.Replace(OriginHeader, "NAME", domain, 1)
-		hw.AddHeader("Origin", header)
-		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-		hw.WithPassword("admin").WithUser("admin")
-		result, err := hw.PerformHttpRequest(actualUrl)
-		if err != nil {
-			log.Logf("%s", err)
-		}
-		var item map[string]map[string]string
-		json.Unmarshal([]byte(result), &item)
-        brokerValue := item["value"]["redeliveryDelay"]
-		gomega.Expect(brokerValue).To(gomega.Equal(string(1)))
+        verifyAddressSettingsInt(address, AddressBit, "redeliveryMultiplier",1, hw)
 	})
 
 })
