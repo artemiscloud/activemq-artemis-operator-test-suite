@@ -1,7 +1,7 @@
 package addresssettings
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
@@ -9,6 +9,7 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"strings"
 )
 
 var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
@@ -22,7 +23,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 	var (
 		AddressBit  = "someQueue"
-		ExpectedUrl =	"wconsj"
+		ExpectedUrl = "wconsj"
 		hw          = test_helpers.NewWrapper()
 	)
 	ginkgo.BeforeEach(func() {
@@ -41,23 +42,73 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 			WithName(DeployName).
 			WithLts(!test.Config.NeedsLatestCR).
 			WithConsoleExposure(true)
-		hw.AddHeader("Origin", "http://localhost:8161")
-        brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
+		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
 	ginkgo.It("CollisionAvoidance check", func() {
-		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit,32).DeployBrokers(1)
+		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
+
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		address := urls[0]
-		method := "org.apache.activemq.artemis:broker=\\\"0.0.0.0\\\"/getAddressSettingsAsJSON/DLQ"
-		address = fmt.Sprintf("%s/console/jolokia/exec/%s", address, method)
-		log.Logf("Address: %s", address)
-		result, err := hw.PerformHttpRequest(address)
+		domain := strings.Split(address, ".")[0]
+		header := strings.Replace(OriginHeader, "NAME", domain, 1)
+		hw.AddHeader("Origin", header)
+		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+		hw.WithPassword("admin").WithUser("admin")
+		result, err := hw.PerformHttpRequest(actualUrl)
+		if err != nil {
+			log.Logf("%s", err)
+		}
+		var item map[string]map[string]string
+		json.Unmarshal([]byte(result), &item)
+        
+		brokerValue := item["value"]["redeliveryCollisionAvoidanceFactor"]
+		gomega.Expect(brokerValue).To(gomega.Equal(string(1.0f)))
+		
+	})
+    
+   
+    ginkgo.It("RedeliveryDelayMultiplier check", func() {
+		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit,1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-		log.Logf("result of request: %s", result)
+        
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		address := urls[0]
+        domain := strings.Split(address, ".")[0]
+        header := strings.Replace(OriginHeader,"NAME", domain,1)
+        hw.AddHeader("Origin", header)
+        actualUrl := "http://admin:admin@"+ address + CallAddress + AddressBit
+        hw.WithPassword("admin").WithUser("admin")
+        result, err := hw.PerformHttpRequest(actualUrl)
+        if err != nil {
+            log.Logf("%s", err) 
+        }
+        var item map[string]map[string]string
+        json.Unmarshal([]byte(result), &item)
+        brokerValue := item["value"]["redeliveryMultiplier"]
+		gomega.Expect(brokerValue).To(gomega.Equal(string(1.0f)))
 	})
 
+	ginkgo.It("RedeliveryDelay check", func() {
+		err := brokerDeployer.WithRedeliveryDelay(AddressBit, 1).DeployBrokers(1)
+		gomega.Expect(err).To(gomega.BeNil())
 
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		address := urls[0]
+		domain := strings.Split(address, ".")[0]
+		header := strings.Replace(OriginHeader, "NAME", domain, 1)
+		hw.AddHeader("Origin", header)
+		actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+		hw.WithPassword("admin").WithUser("admin")
+		result, err := hw.PerformHttpRequest(actualUrl)
+		if err != nil {
+			log.Logf("%s", err)
+		}
+		var item map[string]map[string]string
+		json.Unmarshal([]byte(result), &item)
+        brokerValue := item["value"]["redeliveryDelay"]
+		gomega.Expect(brokerValue).To(gomega.Equal(string(1)))
+	})
 
 })
