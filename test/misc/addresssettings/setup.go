@@ -7,8 +7,14 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "addresssetting"
-	BaseName   = "broker-framework"
+	DeployName = "addrst"
+	BaseName   = "brkr"
+    
+    Command = "curl"
+    
+    OriginHeader = "http://NAME.svc.cluster.local"
+    // addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam    
+    CallAddress = "/console/jolokia/exec/org.apache.activemq.artemis:broker=\"amq-broker\"/getAddressSettingsAsJSON/"
 )
 
 var (

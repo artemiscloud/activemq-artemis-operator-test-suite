@@ -4,6 +4,8 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+    "crypto/tls" 
+    "github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 type HttpWrapper struct {
@@ -49,19 +51,21 @@ func (hw *HttpWrapper) PerformHttpRequest(address string) (string, error) {
 
 	//address := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port) //nope.
 	// there should be only single address in return in this case.
-	client := &http.Client{}
+    http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	request, err := http.NewRequest(hw.Method, address, nil)
 	if err != nil {
 		return "", err
 	}
 	request.SetBasicAuth(hw.Password,hw.User)
 	request.Header = *hw.Header
-	resp, err := client.Do(request)
+	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode!= http.StatusOK {
+        bodyBytes, _ := ioutil.ReadAll(resp.Body)
+        log.Logf("body: %s", string(bodyBytes))
 		return "", errors.New(resp.Status)
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
