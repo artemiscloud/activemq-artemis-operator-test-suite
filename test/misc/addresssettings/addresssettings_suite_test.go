@@ -6,7 +6,7 @@ import (
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
 )
 
-func TestMessaging(t *testing.T) {
+func TestAddressSettings(t *testing.T) {
 	test.PrepareNamespace(t, "addresssetting", "Address Setting test suite")
 }
 

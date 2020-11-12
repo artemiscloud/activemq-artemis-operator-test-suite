@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-
-
-
 func (bdw *BrokerDeploymentWrapper) WaitForBrokerSet(result int, originalSize int) {
 	err := framework.WaitForStatefulSet(bdw.ctx1.Clients.KubeClient,
 		bdw.ctx1.Namespace,
@@ -27,7 +24,6 @@ func (bdw *BrokerDeploymentWrapper) VerifyImage(target string) error {
 	gomega.Expect(artemisCreated.Spec.DeploymentPlan.Image).To(gomega.Equal(target))
 	return nil
 }
-
 
 func max(x, y int) int {
 	if x < y {

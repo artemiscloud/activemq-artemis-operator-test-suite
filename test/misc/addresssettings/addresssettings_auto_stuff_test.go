@@ -20,14 +20,16 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 	var (
 		AddressBit  = "someQueue"
-		ExpectedUrl = "wconsj"
+		ExpectedURL = "wconsj"
 		hw          = test_helpers.NewWrapper()
 	)
+
 	ginkgo.BeforeEach(func() {
 		if brokerDeployer != nil {
 			brokerDeployer.PurgeAddressSettings()
 		}
 	})
+
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
@@ -46,51 +48,53 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		err := brokerDeployer.WithAutoCreateAddresses(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateAddresses",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateAddresses", true, hw)
 	})
-    
-   
-    ginkgo.It("AutoCreateDeadLetterResources check", func() {
-		err := brokerDeployer.WithAutoCreateDeadLetterResources(AddressBit,true).DeployBrokers(1)
+
+	ginkgo.It("AutoCreateDeadLetterResources check", func() {
+		err := brokerDeployer.WithAutoCreateDeadLetterResources(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-        
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateDeadLetterResources",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateDeadLetterResources", true, hw)
 	})
 
 	ginkgo.It("AutoCreateExpiryResources check", func() {
 		err := brokerDeployer.WithAutoCreateExpiryResources(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateExpiryResources",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateExpiryResources", true, hw)
 	})
-    ginkgo.It("AutoCreateJmsQueues check", func() {
+
+	ginkgo.It("AutoCreateJmsQueues check", func() {
 		err := brokerDeployer.WithAutoCreateJmsQueues(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateJmsQueues",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateJmsQueues", true, hw)
 	})
-    ginkgo.It("AutoCreateJmsTopics check", func() {
+
+	ginkgo.It("AutoCreateJmsTopics check", func() {
 		err := brokerDeployer.WithAutoCreateJmsTopics(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateJmsTopics",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateJmsTopics", true, hw)
 	})
-    ginkgo.It("AutoCreateQueues check", func() {
+
+	ginkgo.It("AutoCreateQueues check", func() {
 		err := brokerDeployer.WithAutoCreateQueues(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsBool(address, AddressBit, "autoCreateQueues",true, hw)
+		verifyAddressSettingsBool(address, AddressBit, "autoCreateQueues", true, hw)
 	})
 })

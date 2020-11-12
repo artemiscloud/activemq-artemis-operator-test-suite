@@ -20,14 +20,16 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 	var (
 		AddressBit  = "someQueue"
-		ExpectedUrl = "wconsj"
+		ExpectedURL = "wconsj"
 		hw          = test_helpers.NewWrapper()
 	)
+
 	ginkgo.BeforeEach(func() {
 		if brokerDeployer != nil {
 			brokerDeployer.PurgeAddressSettings()
 		}
 	})
+
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
@@ -46,53 +48,53 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		err := brokerDeployer.WithExpiryAddress(AddressBit, "expire").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsString(address, AddressBit, "expiryAddress","expire", hw)
+		verifyAddressSettingsString(address, AddressBit, "expiryAddress", "expire", hw)
 	})
-    
-   
-    ginkgo.It("ExpiryDelay check", func() {
-		err := brokerDeployer.WithExpiryDelay(AddressBit,1).DeployBrokers(1)
+
+	ginkgo.It("ExpiryDelay check", func() {
+		err := brokerDeployer.WithExpiryDelay(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-        
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsInt(address, AddressBit, "expiryDelay",1, hw)
+		verifyAddressSettingsInt(address, AddressBit, "expiryDelay", 1, hw)
 	})
 
 	ginkgo.It("ExpiryPrefix check", func() {
 		err := brokerDeployer.WithExpiryPrefix(AddressBit, "prefix").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsString(address, AddressBit, "expiryQueuePrefix","prefix", hw)
+		verifyAddressSettingsString(address, AddressBit, "expiryQueuePrefix", "prefix", hw)
 	})
-        
-    ginkgo.It("ExpirySuffix check", func() {
+
+	ginkgo.It("ExpirySuffix check", func() {
 		err := brokerDeployer.WithExpirySuffix(AddressBit, "suffix").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsString(address, AddressBit, "expiryQueueSuffix","suffix", hw)
+		verifyAddressSettingsString(address, AddressBit, "expiryQueueSuffix", "suffix", hw)
 	})
-    
-    ginkgo.It("MinExpiryDelay check", func() {
+
+	ginkgo.It("MinExpiryDelay check", func() {
 		err := brokerDeployer.WithMinExpiryDelay(AddressBit, 101).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsInt(address, AddressBit, "minExpiryDelay",101, hw)
+		verifyAddressSettingsInt(address, AddressBit, "minExpiryDelay", 101, hw)
 	})
-    ginkgo.It("MaxExpiryDelay check", func() {
+
+	ginkgo.It("MaxExpiryDelay check", func() {
 		err := brokerDeployer.WithMaxExpiryDelay(AddressBit, 101).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsInt(address, AddressBit, "maxExpiryDelay",101, hw)
+		verifyAddressSettingsInt(address, AddressBit, "maxExpiryDelay", 101, hw)
 	})
 })

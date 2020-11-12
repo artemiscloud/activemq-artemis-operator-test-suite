@@ -1,24 +1,22 @@
 package addresssettings
 
 import (
-    "fmt"
-    "strings"
-    "strconv"
-    "encoding/json"
+	"encoding/json"
+	"fmt"
 	"github.com/onsi/ginkgo"
-    "github.com/onsi/gomega"
+	"github.com/onsi/gomega"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
 	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
-    "github.com/rh-messaging/shipshape/pkg/framework/log"
-    "gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
+	"strconv"
+	"strings"
 )
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "addrst"
-	BaseName   = "brkr"
-
-	Command = "curl"
-
+	DeployName   = "addrst"
+	BaseName     = "brkr"
+	Command      = "curl"
 	OriginHeader = "http://NAME.svc.cluster.local"
 	// addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam
 	CallAddress = "/console/jolokia/exec/org.apache.activemq.artemis:broker=\"amq-broker\"/getAddressSettingsAsJSON/"
@@ -50,31 +48,30 @@ var _ = ginkgo.AfterEach(func() {
 })
 
 func verifyAddressSettingsInt(address, AddressBit, itemName string,
-                              value int, hw *test_helpers.HttpWrapper) {
+	value int, hw *test_helpers.HttpWrapper) {
 	domain := strings.Split(address, ".")[0]
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
-	actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
 	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualUrl)
+	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)
 	}
 	var item map[string]map[string]string
 	json.Unmarshal([]byte(result), &item)
 	brokerValue := item["value"][itemName]
-	gomega.Expect(brokerValue).To(gomega.Equal(fmt.Sprintf("%d",value)))
-
+	gomega.Expect(brokerValue).To(gomega.Equal(fmt.Sprintf("%d", value)))
 }
 
 func verifyAddressSettingsBool(address, AddressBit, itemName string,
-                              value bool, hw *test_helpers.HttpWrapper) {
+	value bool, hw *test_helpers.HttpWrapper) {
 	domain := strings.Split(address, ".")[0]
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
-	actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
 	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualUrl)
+	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)
 	}
@@ -82,17 +79,16 @@ func verifyAddressSettingsBool(address, AddressBit, itemName string,
 	json.Unmarshal([]byte(result), &item)
 	brokerValue := item["value"][itemName]
 	gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(value))
-
 }
 
 func verifyAddressSettingsString(address, AddressBit, itemName string,
-                              value string, hw *test_helpers.HttpWrapper) {
+	value string, hw *test_helpers.HttpWrapper) {
 	domain := strings.Split(address, ".")[0]
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
-	actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
 	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualUrl)
+	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)
 	}
@@ -100,17 +96,16 @@ func verifyAddressSettingsString(address, AddressBit, itemName string,
 	json.Unmarshal([]byte(result), &item)
 	brokerValue := item["value"][itemName]
 	gomega.Expect(brokerValue).To(gomega.Equal(value))
-
 }
 
 func verifyAddressSettingsFloat(address, AddressBit, itemName string,
-                              value float64, hw *test_helpers.HttpWrapper) {
+	value float64, hw *test_helpers.HttpWrapper) {
 	domain := strings.Split(address, ".")[0]
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
-	actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
+	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
 	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualUrl)
+	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)
 	}
@@ -118,5 +113,4 @@ func verifyAddressSettingsFloat(address, AddressBit, itemName string,
 	json.Unmarshal([]byte(result), &item)
 	brokerValue := item["value"][itemName]
 	gomega.Expect(brokerValue).To(gomega.Equal(strconv.FormatFloat(value, 'f', 1, 64)))
-
 }

@@ -20,14 +20,16 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 	var (
 		AddressBit  = "someQueue"
-		ExpectedUrl = "wconsj"
+		ExpectedURL = "wconsj"
 		hw          = test_helpers.NewWrapper()
 	)
+
 	ginkgo.BeforeEach(func() {
 		if brokerDeployer != nil {
 			brokerDeployer.PurgeAddressSettings()
 		}
 	})
+
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
@@ -45,28 +47,26 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 	ginkgo.It("CollisionAvoidance check", func() {
 		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor",1.0, hw)
+		verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor", 1.0, hw)
 	})
-    
-   
-    ginkgo.It("RedeliveryDelayMultiplier check", func() {
-		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit,1).DeployBrokers(1)
+
+	ginkgo.It("RedeliveryDelayMultiplier check", func() {
+		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
-        
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier",1.0, hw)
+		verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier", 1.0, hw)
 	})
 
 	ginkgo.It("RedeliveryDelay check", func() {
 		err := brokerDeployer.WithRedeliveryDelay(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
-		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-        verifyAddressSettingsInt(address, AddressBit, "redeliveryMultiplier",1, hw)
+		verifyAddressSettingsInt(address, AddressBit, "redeliveryDelay", 1, hw)
 	})
-
 })
