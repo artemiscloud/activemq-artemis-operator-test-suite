@@ -11,7 +11,7 @@ import (
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/onsi/gomega"
 	//"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"

@@ -6,8 +6,8 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {

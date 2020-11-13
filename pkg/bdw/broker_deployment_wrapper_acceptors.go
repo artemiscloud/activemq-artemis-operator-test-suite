@@ -5,7 +5,7 @@ package bdw
 import (
 	"fmt"
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 type AcceptorType int

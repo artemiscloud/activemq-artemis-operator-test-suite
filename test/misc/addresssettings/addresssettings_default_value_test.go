@@ -4,9 +4,9 @@ import (
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/test_helpers"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {

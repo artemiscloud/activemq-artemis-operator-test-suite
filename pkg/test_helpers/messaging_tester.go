@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/pkg/bdw"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 func TestBaseSendReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,

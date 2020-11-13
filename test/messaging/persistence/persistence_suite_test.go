@@ -3,7 +3,7 @@ package persistence
 import (
 	"testing"
 
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 func TestMessaging(t *testing.T) {

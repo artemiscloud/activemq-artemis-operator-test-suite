@@ -3,7 +3,7 @@ package statistics
 import (
 	"testing"
 
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 func TestBasic(t *testing.T) {

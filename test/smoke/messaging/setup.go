@@ -2,7 +2,7 @@ package messaging
 
 import (
 	"github.com/onsi/ginkgo"
-	"gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang/test"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 // Constants available for all test specs related with the One Interior topology

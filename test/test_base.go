@@ -50,7 +50,7 @@ type TestConfiguration struct {
 const (
 	Username       = "admin"
 	Password       = "admin"
-	ProjectRootDir = "msgqe/openshift-broker-suite-golang"
+	ProjectRootDir = "artemiscloud/activemq-artemis-operator-test-suite"
 )
 
 var MainCrds = []string{

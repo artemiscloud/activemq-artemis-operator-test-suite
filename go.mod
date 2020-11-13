@@ -1,4 +1,4 @@
-module gitlab.cee.redhat.com/msgqe/openshift-broker-suite-golang
+module github.com/artemiscloud/activemq-artemis-operator-test-suite
 
 go 1.12
 
