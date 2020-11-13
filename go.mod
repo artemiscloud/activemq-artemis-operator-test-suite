@@ -25,3 +25,4 @@ require (
 // replace github.com/rh-messaging/activemq-artemis-operator v0.0.0+incompatible => ../../../github.com/rh-messaging/activemq-artemis-operator
 
 //replace github.com/rh-messaging/shipshape v0.0.0 => ../../../github.com/rh-messaging/shipshape
+replace bitbucket.org/ww/goautoneg => github.com/munnerz/goautoneg v0.0.0-20120707110453-a547fc61f48d
