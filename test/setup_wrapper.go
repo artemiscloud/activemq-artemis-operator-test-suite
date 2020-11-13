@@ -1,7 +1,8 @@
 package test
 
 import (
-	brokerclientset "github.com/rh-messaging/activemq-artemis-operator/pkg/client/clientset/versioned"
+	"flag"
+	brokerclientset "github.com/artemiscloud/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/rh-messaging/shipshape/pkg/framework/operators"
@@ -61,6 +62,7 @@ func (sw *SetupWrapper) BeforeEach() {
 	sw.Framework = frBuilder.Build()
 	sw.BrokerOperator = sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
 	sw.BrokerClient = sw.BrokerOperator.Interface().(brokerclientset.Interface)
+	log.Logf("We got: %v", Config.NeedsLatestCR)
 }
 
 func (sw *SetupWrapper) AfterEach() {
@@ -73,4 +75,9 @@ func (sw *SetupWrapper) AfterEach() {
 
 func (sw *SetupWrapper) JustBeforeEach() {
 	//Nothing for now
+}
+
+func (sw *SetupWrapper) InitFlags() {
+	RegisterFlags()
+	flag.Parse()
 }

@@ -1,4 +1,4 @@
-package messaging
+package persistencev3
 
 import (
 	"github.com/onsi/ginkgo"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
+var _ = ginkgo.Describe("PersistenceVolumeSizeTest", func() {
 
 	var (
 		ctx1 *framework.ContextData
@@ -28,7 +28,8 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 		AddressBit    = "someQueue"
 		Protocol      = test.AMQP
 	)
-
+	ginkgo.BeforeEach(func() {
+	})
 	// PrepareNamespace after framework has been created
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
@@ -48,9 +49,27 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 			WithMessageCount(MessageCount).
 			WithSendUrl(sendUrl).
 			WithReceiveUrl(receiveUrl)
+
 	})
 
-	ginkgo.It("Deploy single broker instances, send messages", func() {
-		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
+	ginkgo.It("Deploy with smaller PVC", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1Gi")
+		test_helpers.CheckVolumeSize(ctx1, "1Gi")
 	})
+
+	ginkgo.It("Deploy with smallest PVC", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1")
+		test_helpers.CheckVolumeSize(ctx1, "1Gi")
+	})
+
+	ginkgo.It("Deploy with default PVC", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false)
+		test_helpers.CheckVolumeSize(ctx1, "2Gi")
+	})
+
+	ginkgo.It("Deploy with bigger PVC", func() {
+		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("3Gi")
+		test_helpers.CheckVolumeSize(ctx1, "3Gi")
+	})
+
 })

@@ -42,7 +42,7 @@ type TestConfiguration struct {
 	DebugRun          bool
 	RepositoryPath    string
 	AdminUnavailable  bool
-	NeedsV2           bool
+	NeedsLatestCR     bool
 	IBMz              bool
 	Openshift         bool
 }
@@ -98,7 +98,7 @@ func LoadYamls(path string) ([][]byte, error) {
 		}
 	}
 	//And all the other stuff.
-	if Config.NeedsV2 {
+	if Config.NeedsLatestCR {
 		loaded, err := loadFromSlice(CrdsV2, path)
 		if err != nil {
 			return nil, err
@@ -133,10 +133,9 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
 	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", false, "sets cluster-wide admin privileges availability")
-	flag.BoolVar(&Config.NeedsV2, "v2", false, "defines if V2 version of the API needs to be used")
+	flag.BoolVar(&Config.NeedsLatestCR, "v2", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
-
 }
 
 func loadConfig() {
@@ -146,7 +145,7 @@ func loadConfig() {
 	if err != nil {
 		log.Logf("yaml load err: #%v", err)
 	} else {
-		err = yaml.Unmarshal(yamlFile, Config)
+		err = yaml.Unmarshal(yamlFile, &Config)
 		if err != nil {
 			log.Logf("yaml parsing err: #%v", err)
 		}
@@ -154,11 +153,15 @@ func loadConfig() {
 }
 
 func Initialize(m *testing.M) {
+	log.Logf("Initializeing")
 	framework.RegisterFlags()
 	RegisterFlags()
 	flag.Parse()
+	log.Logf("Value: %v", Config.NeedsLatestCR)
 	gomega.RegisterFailHandler(ginkgowrapper.Fail)
-	os.Exit(m.Run())
+	if m != nil {
+		m.Run()
+	}
 }
 
 func PrepareNamespace(t *testing.T, uniqueId string, description string) {
