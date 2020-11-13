@@ -30,15 +30,16 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest", true,
-		false, "", false, false, false, false}
+		"registry.redhat.io/amq7/amq-broker:latest",
+		"registry.redhat.io/amq7/amq-broker:latest",
+		"amq-broker", false, "", false, false, false, false}
 )
 
 type TestConfiguration struct {
 	OperatorImageName string
 	BrokerImageName   string
 	BrokerImageOther  string
-	DownstreamBuild   bool
+	BrokerName        string
 	DebugRun          bool
 	RepositoryPath    string
 	AdminUnavailable  bool
@@ -129,7 +130,7 @@ func RegisterFlags() {
 	flag.StringVar(&Config.OperatorImageName, "operator-image", Config.OperatorImageName, "operator image url")
 	flag.StringVar(&Config.BrokerImageName, "broker-image", Config.BrokerImageName, "broker image url")
 	flag.StringVar(&Config.BrokerImageOther, "broker-image-second", Config.BrokerImageOther, "broker image url to update to")
-	flag.BoolVar(&Config.DownstreamBuild, "downstream", Config.DownstreamBuild, "downstream toggle")
+	flag.StringVar(&Config.BrokerName, "broker-name", Config.BrokerName, "broker name")
 	flag.BoolVar(&Config.DebugRun, "debug-run", false, "debug run toggle")
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
 	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", false, "sets cluster-wide admin privileges availability")
