@@ -3,13 +3,15 @@ package bdw
 /* This file contains non-deployment helper methods for BrokerDeploymentWrapper
  */
 
-import ( 
+import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	brokerv1 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/api/resource"
+
 	//"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	corev1 "k8s.io/api/core/v1"
@@ -54,12 +56,12 @@ func (bdw *BrokerDeploymentWrapper) GetExternalUrls(filter string, podNumber int
 }
 
 func contains(arr []string, str string) bool {
-   for _, a := range arr {
-      if a == str {
-         return true
-      }
-   }
-   return false
+	for _, a := range arr {
+		if a == str {
+			return true
+		}
+	}
+	return false
 }
 
 //We always configure Artemis as if it is latest API version
@@ -82,18 +84,31 @@ func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerv3.ActiveMQAr
 	artemis.ObjectMeta.Name = bdw.name
 	artemis.Spec.Console.Expose = bdw.exposeConsole
 	artemis.Spec.DeploymentPlan.Storage.Size = bdw.storageSize
-    var processed []string
+	var processed []string
 	addressSettingsArray := []brokerv3.AddressSettingType{}
 	for _, addressName := range bdw.knownAddresses {
-        if !contains(processed, addressName) {
-            processed = append(processed,addressName)
-            addressSettingsItem := bdw.fillAddressSetting(addressName)
-            addressSettingsArray = append(addressSettingsArray, addressSettingsItem)
-        }
+		if !contains(processed, addressName) {
+			processed = append(processed, addressName)
+			addressSettingsItem := bdw.fillAddressSetting(addressName)
+			addressSettingsArray = append(addressSettingsArray, addressSettingsItem)
+		}
 	}
 
+	artemis.Spec.DeploymentPlan.Resources.Limits = getResourceList(bdw.ResourcesLimits.cpu, bdw.ResourcesLimits.mem)
+	artemis.Spec.DeploymentPlan.Resources.Requests = getResourceList(bdw.ResourcesRequests.cpu, bdw.ResourcesRequests.mem)
 	artemis.Spec.AddressSettings.AddressSetting = addressSettingsArray
 	return artemis
+}
+
+func getResourceList(cpu, memory string) corev1.ResourceList {
+	res := corev1.ResourceList{}
+	if cpu != "" {
+		res[corev1.ResourceCPU] = resource.MustParse(cpu)
+	}
+	if memory != "" {
+		res[corev1.ResourceMemory] = resource.MustParse(memory)
+	}
+	return res
 }
 
 func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) brokerv3.AddressSettingType {
@@ -226,84 +241,83 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 }
 
 func (bdw *BrokerDeploymentWrapper) SetUpDefaultAddressSettings(addressName string) *BrokerDeploymentWrapper {
-        bdw.WithAddressFullPolicy(addressName, PagePolicy).
-        WithAddressPolicy(addressName, PagePolicy).
-        WithAddressSize(addressName, DEFAULT_SIZE_BIG).
-        WithAudoDeleteAddresses(addressName, false).
-        WithAudoDeleteQueuesMessageCount(addressName, DEFAULT_COUNT).
-        WithAutoCreateAddresses(addressName, true).
-        WithAutoCreateDeadLetterResources(addressName, false).
-        WithAutoCreateExpiryResources(addressName, false).
-        WithAutoCreateJmsQueues(addressName, true). // deprecated?
-        WithAutoCreateJmsTopics(addressName, true). // deprecated?
-        WithAutoCreateQueues(addressName, true).
-        WithAutoDeleteAddressesDelay(addressName, 0).
-        WithAutoDeleteCreatedQueues(addressName, false).
-        WithAutoDeleteJmsQueues(addressName, true).
-        WithAutoDeleteJmsTopics(addressName, true).
-        WithAutoDeleteQueues(addressName, true).
-        WithAutoDeleteQueuesDelay(addressName, 0).
-        WithConfigDeleteAddresses(addressName, Off).
-        WithConfigDeleteQueues(addressName, Off).
-        WithDeadLetterAddress(addressName, DEFAULT_DEAD_ADDRESS).
-        WithDefaultAddressRoutingType(addressName, Multicast).
-        WithDefaultConsumerBeforeDispatch(addressName, 0).
-        WithDefaultConsumerWindowSize(addressName, 1048576).
-        WithDefaultDelayBeforeDispatch(addressName, -1).
-        WithDefaultExclusiveQueue(addressName, false).
-        WithDefaultGroupBuckets(addressName, -1).
-        WithDefaultGroupFirstKey(addressName, DEFAULT_KEY).
-        WithDefaultGroupRebalance(addressName, false).
-        WithDefaultGroupRebalancePauseDispatch(addressName, false).
-        WithDefaultLastValueKey(addressName, DEFAULT_KEY).
-        WithDefaultLastValueQueue(addressName, false).
-        WithDefaultMaxConsumers(addressName, -1).
-        WithDefaultNonDestructive(addressName, false).
-        WithDefaultPurgeOnNoConsumers(addressName, false).
-        WithDefaultQueueRoutingType(addressName, Multicast).
-        WithDefaultRetroMessageCount(addressName, 0).
-        WithDefaultRingSize(addressName, -1).
-        WithDlqPrefix(addressName, DEFAULT_PREFIX).
-        WithDlqSuffix(addressName, DEFAULT_SUFFIX).
-        WithEnableMetrics(addressName, true).
-        WithExpiryAddress(addressName, DEFAULT_EXPIRY_ADDRESS).
-        WithExpiryPrefix(addressName, DEFAULT_PREFIX).
-        WithExpirySuffix(addressName, DEFAULT_SUFFIX).
-        WithLastValueQueue(addressName, true).
-        WithManagementBrowsePageSize(addressName, 1000).
-        WithMaxExpiryDelay(addressName, -1).
-        WithMaxRedeliveryAttempts(addressName, DEFAULT_COUNT).
-        WithMaxRedeliveryDelay(addressName, -1).
-        WithMaxSizeBytes(addressName, DEFAULT_SIZE_SMALL).
-        WithMaxSizeBytesRejectThreshold(addressName, 10000).
-        WithMessageCounterHistoryDayLimit(addressName, 0).
-        WithMinExpiryDelay(addressName, DEFAULT_DELAY).
-        WithPageMaxCacheSize(addressName, 20000000).
-        WithPageSizeBytes(addressName, "10485760").
-        WithRedeliveryCollisionsAvoidance(addressName, 0).
-        WithRedeliveryDelay(addressName, 0).
-        WithRedeliveryDelayMult(addressName, 1).
-        WithRedistributionDelay(addressName, -1).
-        WithSendToDLAOnNoRoute(addressName, false).
-        WithSlowConsumerCheckPeriod(addressName, 5).
-        WithSlowConsumerPolicy(addressName, Notify).
-        WithSlowConsumerThreshold(addressName, -1)
-        
-        return bdw
+	bdw.WithAddressFullPolicy(addressName, PagePolicy).
+		WithAddressPolicy(addressName, PagePolicy).
+		WithAddressSize(addressName, DEFAULT_SIZE_BIG).
+		WithAudoDeleteAddresses(addressName, false).
+		WithAudoDeleteQueuesMessageCount(addressName, DEFAULT_COUNT).
+		WithAutoCreateAddresses(addressName, true).
+		WithAutoCreateDeadLetterResources(addressName, false).
+		WithAutoCreateExpiryResources(addressName, false).
+		WithAutoCreateJmsQueues(addressName, true). // deprecated?
+		WithAutoCreateJmsTopics(addressName, true). // deprecated?
+		WithAutoCreateQueues(addressName, true).
+		WithAutoDeleteAddressesDelay(addressName, 0).
+		WithAutoDeleteCreatedQueues(addressName, false).
+		WithAutoDeleteJmsQueues(addressName, true).
+		WithAutoDeleteJmsTopics(addressName, true).
+		WithAutoDeleteQueues(addressName, true).
+		WithAutoDeleteQueuesDelay(addressName, 0).
+		WithConfigDeleteAddresses(addressName, Off).
+		WithConfigDeleteQueues(addressName, Off).
+		WithDeadLetterAddress(addressName, DEFAULT_DEAD_ADDRESS).
+		WithDefaultAddressRoutingType(addressName, Multicast).
+		WithDefaultConsumerBeforeDispatch(addressName, 0).
+		WithDefaultConsumerWindowSize(addressName, 1048576).
+		WithDefaultDelayBeforeDispatch(addressName, -1).
+		WithDefaultExclusiveQueue(addressName, false).
+		WithDefaultGroupBuckets(addressName, -1).
+		WithDefaultGroupFirstKey(addressName, DEFAULT_KEY).
+		WithDefaultGroupRebalance(addressName, false).
+		WithDefaultGroupRebalancePauseDispatch(addressName, false).
+		WithDefaultLastValueKey(addressName, DEFAULT_KEY).
+		WithDefaultLastValueQueue(addressName, false).
+		WithDefaultMaxConsumers(addressName, -1).
+		WithDefaultNonDestructive(addressName, false).
+		WithDefaultPurgeOnNoConsumers(addressName, false).
+		WithDefaultQueueRoutingType(addressName, Multicast).
+		WithDefaultRetroMessageCount(addressName, 0).
+		WithDefaultRingSize(addressName, -1).
+		WithDlqPrefix(addressName, DEFAULT_PREFIX).
+		WithDlqSuffix(addressName, DEFAULT_SUFFIX).
+		WithEnableMetrics(addressName, true).
+		WithExpiryAddress(addressName, DEFAULT_EXPIRY_ADDRESS).
+		WithExpiryPrefix(addressName, DEFAULT_PREFIX).
+		WithExpirySuffix(addressName, DEFAULT_SUFFIX).
+		WithLastValueQueue(addressName, true).
+		WithManagementBrowsePageSize(addressName, 1000).
+		WithMaxExpiryDelay(addressName, -1).
+		WithMaxRedeliveryAttempts(addressName, DEFAULT_COUNT).
+		WithMaxRedeliveryDelay(addressName, -1).
+		WithMaxSizeBytes(addressName, DEFAULT_SIZE_SMALL).
+		WithMaxSizeBytesRejectThreshold(addressName, 10000).
+		WithMessageCounterHistoryDayLimit(addressName, 0).
+		WithMinExpiryDelay(addressName, DEFAULT_DELAY).
+		WithPageMaxCacheSize(addressName, 20000000).
+		WithPageSizeBytes(addressName, "10485760").
+		WithRedeliveryCollisionsAvoidance(addressName, 0).
+		WithRedeliveryDelay(addressName, 0).
+		WithRedeliveryDelayMult(addressName, 1).
+		WithRedistributionDelay(addressName, -1).
+		WithSendToDLAOnNoRoute(addressName, false).
+		WithSlowConsumerCheckPeriod(addressName, 5).
+		WithSlowConsumerPolicy(addressName, Notify).
+		WithSlowConsumerThreshold(addressName, -1)
+
+	return bdw
 }
 
-
 const (
-    DEFAULT_DELAY = 1000
-    DEFAULT_COUNT = 100
-    DEFAULT_SIZE_BIG = "2G"
-    DEFAULT_SIZE_SMALL = "10K"
-    DEFAULT_DEAD_ADDRESS = ""
-    DEFAULT_EXPIRY_ADDRESS = ""
-    DEFAULT_KEY = ""
-    DEFAULT_SUFFIX = ""
-    DEFAULT_PREFIX = ""
-    DEFAULT_PERIOD = DEFAULT_DELAY
+	DEFAULT_DELAY          = 1000
+	DEFAULT_COUNT          = 100
+	DEFAULT_SIZE_BIG       = "2G"
+	DEFAULT_SIZE_SMALL     = "10K"
+	DEFAULT_DEAD_ADDRESS   = ""
+	DEFAULT_EXPIRY_ADDRESS = ""
+	DEFAULT_KEY            = ""
+	DEFAULT_SUFFIX         = ""
+	DEFAULT_PREFIX         = ""
+	DEFAULT_PERIOD         = DEFAULT_DELAY
 )
 
 func (bdw *BrokerDeploymentWrapper) ConvertToV1(artemisOriginal *brokerv3.ActiveMQArtemis) *brokerv1.ActiveMQArtemis {
