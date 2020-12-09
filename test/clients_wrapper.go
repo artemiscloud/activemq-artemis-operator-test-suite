@@ -75,6 +75,8 @@ func (srw *SenderReceiverWrapper) PrepareNamedSenderWithProtocol(name string, pr
 	clientVer := qeclients.Java
 	if Config.IBMz {
 		clientVer = qeclients.JavaIBMZ
+	} else if Config.PPC {
+		clientVer = qeclients.JavaPPC
 	}
 	senderBuilder := qeclients.NewSenderBuilder(name,
 		clientVer,
@@ -106,6 +108,8 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 	clientVer := qeclients.Java
 	if Config.IBMz {
 		clientVer = qeclients.JavaIBMZ
+	} else if Config.PPC {
+		clientVer = qeclients.JavaPPC
 	}
 	if srw.receiverCount == 0 {
 		srw.receiverCount = srw.messageCount
