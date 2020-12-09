@@ -23,6 +23,17 @@ type BrokerDeploymentWrapper struct {
 	isLtsDeployment bool
 	storageSize     string
 	AddressSettings
+	ResourcesLimits
+	ResourcesRequests
+}
+type ResourcesLimits struct {
+	cpu string
+	mem string
+}
+
+type ResourcesRequests struct {
+	cpu string
+	mem string
 }
 
 type AddressSettings struct {
@@ -97,15 +108,15 @@ type SlowConsumerPolicy int //TODO
 type AddressFullPolicy int
 
 const (
-	DROP  = "DROP"
-	FAIL  = "FAIL"
-	PAGE  = "PAGE"
-	BLOCK = "BLOCK"
-	OFF = "OFF"
-	FORCE = "FORCE"
-	NOTIFY = "NOTIFY"
-	KILL = "KILL"
-	ANYCAST = "ANYCAST"
+	DROP      = "DROP"
+	FAIL      = "FAIL"
+	PAGE      = "PAGE"
+	BLOCK     = "BLOCK"
+	OFF       = "OFF"
+	FORCE     = "FORCE"
+	NOTIFY    = "NOTIFY"
+	KILL      = "KILL"
+	ANYCAST   = "ANYCAST"
 	MULTICAST = "MULTICAST"
 
 	DropPolicy AddressFullPolicy = iota

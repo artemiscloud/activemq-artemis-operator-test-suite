@@ -30,9 +30,9 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest",
-		"registry.redhat.io/amq7/amq-broker:latest",
-		"amq-broker", false, "", false, false, false, false}
+		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest",	"amq-broker", true,
+		false, "", false, false, false, false, false}
+
 )
 
 type TestConfiguration struct {
@@ -45,6 +45,7 @@ type TestConfiguration struct {
 	AdminUnavailable  bool
 	NeedsLatestCR     bool
 	IBMz              bool
+	PPC               bool
 	Openshift         bool
 }
 
@@ -136,6 +137,7 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", false, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsLatestCR, "v2", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
+	flag.BoolVar(&Config.PPC, "ppc", false, "defines if shipshape should use ppc64le client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
 }
 
