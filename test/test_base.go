@@ -30,8 +30,15 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest",	"amq-broker", true,
-		false, "", false, false, false, false, false}
+		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest", 
+		"amq-broker", // BrokerName 
+		"", //Repository path
+		true,	// DebugRun
+		false, // Non-admin run
+		false,  // Using latest (known) CR
+		false,  // IBMz
+		false,  // PPC
+		false}  // Openshift
 
 )
 
@@ -40,8 +47,8 @@ type TestConfiguration struct {
 	BrokerImageName   string
 	BrokerImageOther  string
 	BrokerName        string
-	DebugRun          bool
 	RepositoryPath    string
+	DebugRun          bool
 	AdminUnavailable  bool
 	NeedsLatestCR     bool
 	IBMz              bool
