@@ -17,10 +17,8 @@ func (odw *OperatorDeploymentWrapper) PrepareOperator() operators.OperatorSetupB
 	if len(Config.OperatorImageName) != 0 {
 		builder.WithImage(Config.OperatorImageName)
 	}
-	if Config.DownstreamBuild {
-		builder.WithCommand("/home/amq-broker-operator/bin/entrypoint")
-		builder.WithOperatorName("amq-broker-operator")
-	}
+	builder.WithCommand("/home/" + Config.BrokerName + "-operator/bin/entrypoint")
+	builder.WithOperatorName(Config.BrokerName + "-operator")
 	if Config.RepositoryPath != "" {
 		// Try loading YAMLs from the repo.
 		yamls, err := LoadYamls(Config.RepositoryPath)

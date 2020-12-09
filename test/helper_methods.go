@@ -1,12 +1,13 @@
 package test
 
 import (
-	"github.com/onsi/gomega"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"index/suffixarray"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/onsi/gomega"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 func FormUrl(protocol, DeployName, number, subdomain, namespace, domain, address, port string) string {
@@ -18,10 +19,7 @@ func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duratio
 	expectedLog := "Deleting drain pod"
 	loop := 0
 	r := regexp.MustCompile(expectedLog)
-	label := "amq-broker-operator"
-	if !Config.DownstreamBuild {
-		label = "activemq-artemis-operator"
-	}
+	label := Config.BrokerName + "-operator"
 	operatorPodName, err := sw.Framework.GetFirstContext().GetPodName(label)
 	log.Logf("loading logs from pod %s", operatorPodName)
 	gomega.Expect(err).To(gomega.BeNil())
