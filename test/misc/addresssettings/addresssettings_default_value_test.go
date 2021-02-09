@@ -154,7 +154,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultExclusiveQueue).To(gomega.Equal(true))
+        gomega.Expect(value.LastValueQueue).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("DefaultMaxConsumers check", func() {
