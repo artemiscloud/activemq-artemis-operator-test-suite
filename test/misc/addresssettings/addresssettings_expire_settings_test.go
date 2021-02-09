@@ -50,7 +50,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "expiryAddress", "expire", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.ExpiryAddress).To(gomega.Equal("expire"))
 	})
 
 	ginkgo.It("ExpiryDelay check", func() {
@@ -59,7 +60,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "expiryDelay", 1, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.ExpiryDelay).To(gomega.Equal(1))
 	})
 
 	ginkgo.It("ExpiryPrefix check", func() {
@@ -68,7 +70,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "expiryQueuePrefix", "prefix", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.ExpiryQueuePrefix).To(gomega.Equal("prefix"))
 	})
 
 	ginkgo.It("ExpirySuffix check", func() {
@@ -77,7 +80,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "expiryQueueSuffix", "suffix", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.ExpiryQueueSuffix).To(gomega.Equal("suffix"))
 	})
 
 	ginkgo.It("MinExpiryDelay check", func() {
@@ -86,7 +90,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "minExpiryDelay", 101, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.MinExpiryDelay).To(gomega.Equal(101))
 	})
 
 	ginkgo.It("MaxExpiryDelay check", func() {
@@ -95,6 +100,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "maxExpiryDelay", 101, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.MaxExpiryDelay).To(gomega.Equal(101))
 	})
 })

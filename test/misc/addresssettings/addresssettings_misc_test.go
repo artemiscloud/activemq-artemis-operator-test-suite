@@ -50,7 +50,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "deadLetterQueuePrefix", "prefix", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.DeadLetterQueuePrefix).To(gomega.Equal("prefix"))
 	})
 
 	ginkgo.It("DLQSuffix check", func() {
@@ -59,7 +60,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "deadLetterQueueSuffix", "suffix", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.DeadLetterQueueSuffix).To(gomega.Equal("suffix"))
 	})
 
 	ginkgo.It("DLQAddress check", func() {
@@ -68,7 +70,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "deadLetterAddress", "DLqQ", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.DLA).To(gomega.Equal("DLqQ"))
 	})
 
 	ginkgo.It("AddressFullPolicy check", func() {
@@ -77,7 +80,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "addressFullPolicy", "DROP", hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AddressFullMessagePolicy).To(gomega.Equal("DROP"))
 	})
 
 	ginkgo.It("MetricsCheck check", func() {
@@ -86,7 +90,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "enableMetrics", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.EnableMetrics).To(gomega.Equal(true))
 	})
 
 	/*
@@ -106,7 +111,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "slowConsumerCheckPeriod", 10, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.SlowConsumerCheckPeriod).To(gomega.Equal(10))
 	})
 
 	ginkgo.It("SlowConsumerPolicy check", func() {
@@ -115,7 +121,8 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsString(address, AddressBit, "slowConsumerPolicy", bdw.NOTIFY, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.SlowConsumerPolicy).To(gomega.Equal(bdw.NOTIFY))
 	})
 
 	ginkgo.It("SlowConsumerThreshold check", func() {
@@ -124,6 +131,7 @@ var _ = ginkgo.Describe("AddressSettingMiscTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "slowConsumerThreshold", 320, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.SlowConsumerThreshold).To(gomega.Equal(320))
 	})
 })

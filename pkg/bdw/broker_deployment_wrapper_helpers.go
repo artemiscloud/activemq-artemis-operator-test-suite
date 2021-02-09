@@ -150,6 +150,9 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	slowConsumerThreshold := bdw.slowConsumerThreshold[addressName]
 	slowConsumerPolicy := bdw.slowConsumerPolicy[addressName].String()
 	slowConsumerCheckPeriod := bdw.slowConsumerCheckPeriod[addressName]
+	if (slowConsumerCheckPeriod == 0) {
+        slowConsumerCheckPeriod++
+    }
 	autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
 	autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
 	autoDeleteJmsQueues := bdw.autoDeleteJmsQueues[addressName]

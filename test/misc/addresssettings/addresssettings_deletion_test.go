@@ -50,7 +50,8 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "autoDeleteAddresses", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteAddresses).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("AutoDeleteCreatedQueues check", func() {
@@ -59,7 +60,8 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "autoDeleteCreatedQueues", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteCreatedQueues).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("AutoDeleteQueuesMessageCount check", func() {
@@ -68,7 +70,8 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "autoDeleteQueuesMessageCount", 100, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteQueuesMessageCount).To(gomega.Equal(100))
 	})
 
 	ginkgo.It("AutoDeleteJmsQueues check", func() {
@@ -77,7 +80,8 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "autoDeleteJmsQueues", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteJmsQueues).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("AutoDeleteJmsTopics check", func() {
@@ -86,7 +90,8 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "autoDeleteJmsTopics", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteJmsTopics).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("AutoDeleteQueues check", func() {
@@ -95,6 +100,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsBool(address, AddressBit, "autoDeleteQueues", true, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.AutoDeleteQueues).To(gomega.Equal(true))
 	})
 })

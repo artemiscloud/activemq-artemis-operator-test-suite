@@ -29,14 +29,17 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 	)
 
 	//Really don't like the way its done here, but exposing this to an external wrapper isn't good either.
-	testStatistics := func() {
+	testStatistics := func() error {
 		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
 		brokerDeployer.SetEnvVariable(VarName, VarValue)
 		log.Logf("Waiting for re-rollout of broker with updated environment")
 		brokerDeployer.WaitForBrokerSet(1, 1)
 		//url := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port) //nope.
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		if (err!=nil) {
+            return err
+            
+        }
 		// there should be only single url in return in this case.
 		url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
 		resp, err := http.Get(url)
@@ -48,6 +51,7 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 		bodyString := string(bodyBytes)
 		// Checking for single item should be enough here.
 		gomega.Expect(bodyString).To(gomega.ContainSubstring(ExpectedItem))
+        return nil
 	}
 
 	// PrepareNamespace after framework has been created
@@ -63,26 +67,56 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 			WithLts(!test.Config.NeedsLatestCR)
 	})
 
-	ginkgo.It("Deploy a broker instance and check that statistics endpoint works", func() {
+	/*
+     * This tests are skipped due to ENTMQBR-3653
+     * 
+      ginkgo.It("StatisticsWithConsoleTestExplicit", func() {
 		brokerDeployer.WithConsoleExposure(true)
-		testStatistics()
-	})
+		err:=testStatistics()
+        gomega.Expect(err).NotTo(gomega.HaveOccurred())
+        
+    })
 
-	ginkgo.It("Deploy a broker with console disabled and check that statistics endpoint works", func() {
+	ginkgo.It("StatisticsWithoutConsoleTestNegative", func() {
 		brokerDeployer.WithConsoleExposure(false)
-		testStatistics()
+		err:=testStatistics()
+        gomega.Expect(err).NotTo(gomega.BeNil())
 	})
 
-	ginkgo.It("Deploy a broker. By-default, statistics should be disabled.", func() {
+	ginkgo.It("StatisticsWithConsoleTestDefault", func() {
 		brokerDeployer.WithConsoleExposure(true)
 		brokerDeployer.DeployBrokers(1)
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		// there should be only single url in return in this case.
 		url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
+        log.Logf("%s", url)
 		resp, err := http.Get(url)
-		gomega.Expect(err).To(gomega.HaveOccurred())
-		gomega.Expect(resp.StatusCode).To(gomega.Equal(http.StatusNotFound))
-	})
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(resp.StatusCode).To(gomega.Equal(http.StatusOK))
+        
+	}) */
+    
+    ginkgo.It("StatisticsWithConsoleTestChangeSetup", func() {
+        brokerDeployer.WithConsoleExposure(false)
+		brokerDeployer.DeployBrokers(1)
+		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+        //No URL at this point
+		gomega.Expect(err).To(gomega.HaveOccurred()) 
+
+        brokerDeployer.WithConsoleExposure(true)
+		brokerDeployer.Update()
+		urls, err = brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+        //Got proper URL at this point
+		gomega.Expect(err).NotTo(gomega.HaveOccurred()) 
+
+        url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
+		resp, err := http.Get(url)
+        bodyBytes, err := ioutil.ReadAll(resp.Body)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		bodyString := string(bodyBytes)
+		// Checking for single item should be enough here.
+		gomega.Expect(bodyString).To(gomega.ContainSubstring(ExpectedItem))
+    })
 
 })

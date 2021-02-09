@@ -1,19 +1,22 @@
 package test_helpers
 
 import (
+	"crypto/tls"
 	"errors"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"io/ioutil"
 	"net/http"
-    "crypto/tls" 
-    "github.com/rh-messaging/shipshape/pkg/framework/log"
+	"net/url"
 )
 
 type HttpWrapper struct {
 	Password string
-	User string
-	Method string
-	Header *http.Header
+	User     string
+	Method   string
+	Header   *http.Header
 }
+
+HardcodedCredentials := "admin"
 
 func (hw *HttpWrapper) AddHeader(key, value string) *HttpWrapper {
 	if hw.Header == nil {
@@ -40,8 +43,8 @@ func (hw *HttpWrapper) WithUser(user string) *HttpWrapper {
 
 func NewWrapper() *HttpWrapper {
 	hw := &HttpWrapper{
-		Password: "admin",
-		User:     "admin",
+		Password: hardcodedCredentials,
+		User:     hardcodedCredentials,
 		Method:   "GET",
 	}
 	return hw
@@ -51,25 +54,32 @@ func (hw *HttpWrapper) PerformHttpRequest(address string) (string, error) {
 
 	//address := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port) //nope.
 	// there should be only single address in return in this case.
-    http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	request, err := http.NewRequest(hw.Method, address, nil)
 	if err != nil {
 		return "", err
 	}
-	request.SetBasicAuth(hw.Password,hw.User)
+	actualPath, _ := url.QueryUnescape(request.URL.Path)
+	request.URL = &url.URL{
+		Scheme: request.URL.Scheme,
+		Host:   request.URL.Host,
+		Opaque: actualPath,
+	}
 	request.Header = *hw.Header
+	request.SetBasicAuth(hw.Password, hw.User)
+	request.URL.User = url.UserPassword(hw.User, hw.Password)
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode!= http.StatusOK {
-        bodyBytes, _ := ioutil.ReadAll(resp.Body)
-        log.Logf("body: %s", string(bodyBytes))
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		log.Logf("body: %s", string(bodyBytes))
 		return "", errors.New(resp.Status)
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err!=nil {
+	if err != nil {
 		return "", err
 	}
 	bodyString := string(bodyBytes)

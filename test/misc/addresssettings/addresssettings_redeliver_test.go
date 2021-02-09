@@ -49,7 +49,8 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		gomega.Expect(err).To(gomega.BeNil())
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsFloat(address, AddressBit, "redeliveryCollisionAvoidanceFactor", 1.0, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal(1.0))
 	})
 
 	ginkgo.It("RedeliveryDelayMultiplier check", func() {
@@ -58,7 +59,8 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsFloat(address, AddressBit, "redeliveryMultiplier", 1.0, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.RedeliveryMultiplier).To(gomega.Equal(1.0))
 	})
 
 	ginkgo.It("RedeliveryDelay check", func() {
@@ -67,6 +69,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		verifyAddressSettingsInt(address, AddressBit, "redeliveryDelay", 1, hw)
+		value:= retrieveAddressSettings(address,AddressBit, hw)
+        gomega.Expect(value.RedeliveryDelay).To(gomega.Equal(1))
 	})
 })
