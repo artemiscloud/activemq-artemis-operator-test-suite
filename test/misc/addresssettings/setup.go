@@ -52,7 +52,7 @@ func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWr
 	hw.AddHeader("Origin", header)
 	actualURL := "http://" + address + CallAddress + AddressBit
     log.Logf("url (string): %s", actualURL)
-	hw.WithPassword("admin").WithUser("admin")
+	hw.WithPassword(test.Username).WithUser(test.Password)
 	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)

@@ -114,28 +114,6 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
         gomega.Expect(value.DefaultGroupRebalance).To(gomega.Equal(true))
 	})
 
-	/* // TODO: This is NOT expected to work due to issue in the init container
-	    ginkgo.It("DefaultGroupRebalancePauseDispatch check", func() {
-			err := brokerDeployer.WithDefaultGroupRebalancePauseDispatch(AddressBit, true).DeployBrokers(1)
-			gomega.Expect(err).To(gomega.BeNil())
-
-			urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
-			address := urls[0]
-			domain := strings.Split(address, ".")[0]
-			header := strings.Replace(OriginHeader, "NAME", domain, 1)
-			hw.AddHeader("Origin", header)
-			actualUrl := "http://admin:admin@" + address + CallAddress + AddressBit
-			hw.WithPassword("admin").WithUser("admin")
-			result, err := hw.PerformHttpRequest(actualUrl)
-			if err != nil {
-				log.Logf("%s", err)
-			}
-			var item map[string]map[string]string
-			json.Unmarshal([]byte(result), &item)
-	        brokerValue := item["value"]["defaultGroupRebalancePauseDispatch"]
-			gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(true))
-		})
-	*/
 
 	ginkgo.It("DefaultLastValueKey check", func() {
 		err := brokerDeployer.WithDefaultLastValueKey(AddressBit, "hey").DeployBrokers(1)
