@@ -16,6 +16,8 @@ type HttpWrapper struct {
 	Header   *http.Header
 }
 
+hardcodedCredentials := "admin"
+
 func (hw *HttpWrapper) AddHeader(key, value string) *HttpWrapper {
 	if hw.Header == nil {
 		hw.Header = &http.Header{}
@@ -41,8 +43,8 @@ func (hw *HttpWrapper) WithUser(user string) *HttpWrapper {
 
 func NewWrapper() *HttpWrapper {
 	hw := &HttpWrapper{
-		Password: "admin",
-		User:     "admin",
+		Password: hardcodedCredentials,
+		User:     hardcodedCredentials,
 		Method:   "GET",
 	}
 	return hw
@@ -65,7 +67,7 @@ func (hw *HttpWrapper) PerformHttpRequest(address string) (string, error) {
 	}
 	request.Header = *hw.Header
 	request.SetBasicAuth(hw.Password, hw.User)
-	request.URL.User = url.UserPassword("admin", "admin")
+	request.URL.User = url.UserPassword(hw.User, hw.Password)
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", err
