@@ -3,10 +3,10 @@ package test_helpers
 import (
 	"errors"
 	"fmt"
-	"github.com/onsi/gomega"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	"github.com/onsi/gomega"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 func TestBaseSendReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,

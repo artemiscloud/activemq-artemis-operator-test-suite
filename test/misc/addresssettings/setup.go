@@ -2,13 +2,10 @@ package addresssettings
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
-	"strconv"
 	"strings"
 )
 
@@ -17,8 +14,10 @@ const (
 	DeployName   = "addrst"
 	BaseName     = "brkr"
 	Command      = "curl"
-	OriginHeader = "http://NAME.svc.cluster.local"
+	OriginHeader = "http://localhost:8161"
 	// addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam
+    
+    //             /console/jolokia/exec/org.apache.activemq.artemis:broker=\"0.0.0.0\"/getAddressSettingsAsJSON/DLQ
 	CallAddress = "/console/jolokia/exec/org.apache.activemq.artemis:broker=\"amq-broker\"/getAddressSettingsAsJSON/"
 )
 
@@ -47,70 +46,21 @@ var _ = ginkgo.AfterEach(func() {
 	sw.AfterEach()
 })
 
-func verifyAddressSettingsInt(address, AddressBit, itemName string,
-	value int, hw *test_helpers.HttpWrapper) {
+func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWrapper) test_helpers.Value {
 	domain := strings.Split(address, ".")[0]
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
-	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
+	actualURL := "http://" + address + CallAddress + AddressBit
+    log.Logf("url (string): %s", actualURL)
 	hw.WithPassword("admin").WithUser("admin")
 	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
 		log.Logf("%s", err)
 	}
-	var item map[string]map[string]string
+	//result = strings.ReplaceAll(result,"\\\"","\"")
+	var item test_helpers.JolokiaBrokerSettings
 	json.Unmarshal([]byte(result), &item)
-	brokerValue := item["value"][itemName]
-	gomega.Expect(brokerValue).To(gomega.Equal(fmt.Sprintf("%d", value)))
-}
-
-func verifyAddressSettingsBool(address, AddressBit, itemName string,
-	value bool, hw *test_helpers.HttpWrapper) {
-	domain := strings.Split(address, ".")[0]
-	header := strings.Replace(OriginHeader, "NAME", domain, 1)
-	hw.AddHeader("Origin", header)
-	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
-	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualURL)
-	if err != nil {
-		log.Logf("%s", err)
-	}
-	var item map[string]map[string]string
-	json.Unmarshal([]byte(result), &item)
-	brokerValue := item["value"][itemName]
-	gomega.Expect(strconv.ParseBool(brokerValue)).To(gomega.Equal(value))
-}
-
-func verifyAddressSettingsString(address, AddressBit, itemName string,
-	value string, hw *test_helpers.HttpWrapper) {
-	domain := strings.Split(address, ".")[0]
-	header := strings.Replace(OriginHeader, "NAME", domain, 1)
-	hw.AddHeader("Origin", header)
-	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
-	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualURL)
-	if err != nil {
-		log.Logf("%s", err)
-	}
-	var item map[string]map[string]string
-	json.Unmarshal([]byte(result), &item)
-	brokerValue := item["value"][itemName]
-	gomega.Expect(brokerValue).To(gomega.Equal(value))
-}
-
-func verifyAddressSettingsFloat(address, AddressBit, itemName string,
-	value float64, hw *test_helpers.HttpWrapper) {
-	domain := strings.Split(address, ".")[0]
-	header := strings.Replace(OriginHeader, "NAME", domain, 1)
-	hw.AddHeader("Origin", header)
-	actualURL := "http://admin:admin@" + address + CallAddress + AddressBit
-	hw.WithPassword("admin").WithUser("admin")
-	result, err := hw.PerformHttpRequest(actualURL)
-	if err != nil {
-		log.Logf("%s", err)
-	}
-	var item map[string]map[string]string
-	json.Unmarshal([]byte(result), &item)
-	brokerValue := item["value"][itemName]
-	gomega.Expect(brokerValue).To(gomega.Equal(strconv.FormatFloat(value, 'f', 1, 64)))
+    var value test_helpers.Value
+    json.Unmarshal([]byte(item.Value), &value)
+    return value
 }
