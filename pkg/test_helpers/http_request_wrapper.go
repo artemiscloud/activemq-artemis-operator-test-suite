@@ -24,6 +24,10 @@ func (hw *HttpWrapper) AddHeader(key, value string) *HttpWrapper {
 	return hw
 }
 
+const {
+	HardcodedCredentials = "admin"
+}
+
 func (hw *HttpWrapper) WithMethod(method string) *HttpWrapper {
 	hw.Method = method
 	return hw
