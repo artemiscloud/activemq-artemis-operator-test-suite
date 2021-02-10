@@ -16,8 +16,6 @@ type HttpWrapper struct {
 	Header   *http.Header
 }
 
-HardcodedCredentials := "admin"
-
 func (hw *HttpWrapper) AddHeader(key, value string) *HttpWrapper {
 	if hw.Header == nil {
 		hw.Header = &http.Header{}
