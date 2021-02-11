@@ -1,12 +1,11 @@
 package addresssettings
 
 import (
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
@@ -34,13 +33,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		brokerDeployer.WithWait(true).
-			WithBrokerClient(sw.BrokerClient).
-			WithContext(ctx1).
-			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR).
-			WithConsoleExposure(true)
+		setEnv(ctx1, brokerDeployer)
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
@@ -50,8 +43,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultConsumersBeforeDispatch).To(gomega.Equal(1))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultConsumersBeforeDispatch).To(gomega.Equal(1))
 	})
 
 	ginkgo.It("DefaultConsumerWindowSize check", func() {
@@ -60,8 +53,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultConsumerWindowSize).To(gomega.Equal(1234567))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultConsumerWindowSize).To(gomega.Equal(1234567))
 	})
 
 	ginkgo.It("DelayBeforeDispatch check", func() {
@@ -70,8 +63,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultDelayBeforeDispatch).To(gomega.Equal(150))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultDelayBeforeDispatch).To(gomega.Equal(150))
 	})
 
 	ginkgo.It("DefaultExclusiveQueue check", func() {
@@ -80,8 +73,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultExclusiveQueue).To(gomega.Equal(true))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultExclusiveQueue).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("DefaultGroupBuckets check", func() {
@@ -90,8 +83,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultGroupBuckets).To(gomega.Equal(10))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultGroupBuckets).To(gomega.Equal(10))
 	})
 
 	ginkgo.It("DefaultGroupFirstKey check", func() {
@@ -100,8 +93,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultGroupFirstKey).To(gomega.Equal("hey"))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultGroupFirstKey).To(gomega.Equal("hey"))
 	})
 
 	ginkgo.It("DefaultGroupRebalance check", func() {
@@ -110,10 +103,9 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultGroupRebalance).To(gomega.Equal(true))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultGroupRebalance).To(gomega.Equal(true))
 	})
-
 
 	ginkgo.It("DefaultLastValueKey check", func() {
 		err := brokerDeployer.WithDefaultLastValueKey(AddressBit, "hey").DeployBrokers(1)
@@ -121,8 +113,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultLastValueKey).To(gomega.Equal("hey"))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultLastValueKey).To(gomega.Equal("hey"))
 	})
 
 	ginkgo.It("DefaultLastValueQueue check", func() {
@@ -131,8 +123,8 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.LastValueQueue).To(gomega.Equal(true))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.LastValueQueue).To(gomega.Equal(true))
 	})
 
 	ginkgo.It("DefaultMaxConsumers check", func() {
@@ -141,7 +133,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.DefaultMaxConsumers).To(gomega.Equal(32))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.DefaultMaxConsumers).To(gomega.Equal(32))
 	})
 })

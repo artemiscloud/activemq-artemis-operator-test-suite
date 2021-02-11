@@ -98,3 +98,8 @@ func (bdw *BrokerDeploymentWrapper) WithAddressPolicy(addressName string, policy
 	bdw.addressFullPolicy[addressName] = policy
 	return bdw
 }
+
+func (bdw *BrokerDeploymentWrapper) WithIncreasedTimeout(multiplier int) *BrokerDeploymentWrapper {
+	bdw.timeoutMult = multiplier
+	return bdw
+}

@@ -28,7 +28,8 @@ func setEnv(ctx1 *framework.ContextData, brokerDeployer *bdw.BrokerDeploymentWra
 		WithBrokerClient(sw.BrokerClient).
 		WithCustomImage(test.Config.BrokerImageName).
 		WithName(DeployName).
-		WithLts(!test.Config.NeedsLatestCR)
+		WithLts(!test.Config.NeedsLatestCR).
+		WithIncreasedTimeout(test.Config.TimeoutMultiplier)
 }
 
 func deployBroker(brokerDeployer *bdw.BrokerDeploymentWrapper) {

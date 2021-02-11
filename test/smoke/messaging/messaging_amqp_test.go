@@ -1,11 +1,11 @@
 package messaging
 
 import (
-	"github.com/onsi/ginkgo"
-	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	"github.com/onsi/ginkgo"
+	"github.com/rh-messaging/shipshape/pkg/framework"
 	"strconv"
 )
 
@@ -33,12 +33,7 @@ var _ = ginkgo.Describe("MessagingAmqpBasicTests", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		brokerDeployer.WithWait(true).
-			WithBrokerClient(sw.BrokerClient).
-			WithContext(ctx1).
-			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR)
+		setEnv(ctx1, brokerDeployer)
 
 		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))

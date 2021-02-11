@@ -1,12 +1,11 @@
 package addresssettings
 
 import (
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
@@ -34,13 +33,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		brokerDeployer.WithWait(true).
-			WithBrokerClient(sw.BrokerClient).
-			WithContext(ctx1).
-			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR).
-			WithConsoleExposure(true)
+		setEnv(ctx1, brokerDeployer)
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
@@ -50,8 +43,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.ExpiryAddress).To(gomega.Equal("expire"))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.ExpiryAddress).To(gomega.Equal("expire"))
 	})
 
 	ginkgo.It("ExpiryDelay check", func() {
@@ -60,8 +53,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.ExpiryDelay).To(gomega.Equal(1))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.ExpiryDelay).To(gomega.Equal(1))
 	})
 
 	ginkgo.It("ExpiryPrefix check", func() {
@@ -70,8 +63,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.ExpiryQueuePrefix).To(gomega.Equal("prefix"))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.ExpiryQueuePrefix).To(gomega.Equal("prefix"))
 	})
 
 	ginkgo.It("ExpirySuffix check", func() {
@@ -80,8 +73,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.ExpiryQueueSuffix).To(gomega.Equal("suffix"))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.ExpiryQueueSuffix).To(gomega.Equal("suffix"))
 	})
 
 	ginkgo.It("MinExpiryDelay check", func() {
@@ -90,8 +83,8 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.MinExpiryDelay).To(gomega.Equal(101))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.MinExpiryDelay).To(gomega.Equal(101))
 	})
 
 	ginkgo.It("MaxExpiryDelay check", func() {
@@ -100,7 +93,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
-		value:= retrieveAddressSettings(address,AddressBit, hw)
-        gomega.Expect(value.MaxExpiryDelay).To(gomega.Equal(101))
+		value := retrieveAddressSettings(address, AddressBit, hw)
+		gomega.Expect(value.MaxExpiryDelay).To(gomega.Equal(101))
 	})
 })
