@@ -1,12 +1,9 @@
 package addresssettings
 
 import (
-	"encoding/json"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"strings"
+
 )
 
 // Constants available for all test specs related with the One Interior topology
@@ -46,21 +43,3 @@ var _ = ginkgo.AfterEach(func() {
 	sw.AfterEach()
 })
 
-func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWrapper) test_helpers.Value {
-	domain := strings.Split(address, ".")[0]
-	header := strings.Replace(OriginHeader, "NAME", domain, 1)
-	hw.AddHeader("Origin", header)
-	actualURL := "http://" + address + CallAddress + AddressBit
-	log.Logf("url (string): %s", actualURL)
-	hw.WithPassword(test.Username).WithUser(test.Password)
-	result, err := hw.PerformHttpRequest(actualURL)
-	if err != nil {
-		log.Logf("%s", err)
-	}
-	//result = strings.ReplaceAll(result,"\\\"","\"")
-	var item test_helpers.JolokiaBrokerSettings
-	json.Unmarshal([]byte(result), &item)
-	var value test_helpers.Value
-	json.Unmarshal([]byte(item.Value), &value)
-	return value
-}
