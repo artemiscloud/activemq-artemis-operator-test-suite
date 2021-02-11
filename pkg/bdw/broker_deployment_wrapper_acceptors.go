@@ -1,11 +1,12 @@
 package bdw
+
 /* This file contains acceptor-related helper methods for BrokerDeploymentWrapper
  */
 
 import (
 	"fmt"
-	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 )
 
 type AcceptorType int
@@ -36,7 +37,6 @@ var (
 		AllAcceptor:      defaultAcceptor("all", AcceptorPorts[AllAcceptor]),
 	}
 )
-
 
 func getAcceptor(name string, port int32, protocols string, sslEnabled bool, sslSecret string, enabledCipherSuites string,
 	enabledProtocols string, needsClientAuth bool, wantClientAuth bool, verifyHost bool, sslProvider string, sniHost string,

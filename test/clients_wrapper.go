@@ -84,7 +84,7 @@ func (srw *SenderReceiverWrapper) PrepareNamedSenderWithProtocol(name string, pr
 		srw.sendUrl).
 		Content(srw.messageBody).
 		Count(srw.messageCount).
-		Timeout(20)
+		Timeout(20 * Config.TimeoutMultiplier)
 
 	senderBuilder.WithCustomCommand(fmt.Sprintf(clientProtocolMap[protocol], "sender"))
 
@@ -116,7 +116,7 @@ func (srw *SenderReceiverWrapper) PrepareReceiverWithProtocol(protocol string) *
 	}
 	receiverBuilder := qeclients.
 		NewReceiverBuilder("receiver", clientVer, *srw.ctx1, srw.receiveUrl).
-		Timeout(20).
+		Timeout(20 * Config.TimeoutMultiplier).
 		WithCount(srw.receiverCount)
 	receiverBuilder.WithCustomCommand(fmt.Sprintf(clientProtocolMap[protocol], "receiver"))
 

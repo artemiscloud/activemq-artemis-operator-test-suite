@@ -1,13 +1,13 @@
 package persistence
 
 import (
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
@@ -34,11 +34,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		brokerDeployer.WithWait(true).WithBrokerClient(sw.BrokerClient).
-			WithContext(ctx1).WithCustomImage(test.Config.BrokerImageName).
-			WithPersistence(true).WithMigration(true).
-			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR)
+		setEnv(brokerDeployer)
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).

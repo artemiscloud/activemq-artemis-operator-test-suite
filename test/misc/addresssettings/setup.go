@@ -2,10 +2,10 @@ package addresssettings
 
 import (
 	"encoding/json"
-	"github.com/onsi/ginkgo"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	"github.com/onsi/ginkgo"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"strings"
 )
 
@@ -16,8 +16,8 @@ const (
 	Command      = "curl"
 	OriginHeader = "http://localhost:8161"
 	// addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam
-    
-    //             /console/jolokia/exec/org.apache.activemq.artemis:broker=\"0.0.0.0\"/getAddressSettingsAsJSON/DLQ
+
+	//             /console/jolokia/exec/org.apache.activemq.artemis:broker=\"0.0.0.0\"/getAddressSettingsAsJSON/DLQ
 	CallAddress = "/console/jolokia/exec/org.apache.activemq.artemis:broker=\"amq-broker\"/getAddressSettingsAsJSON/"
 )
 
@@ -51,7 +51,7 @@ func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWr
 	header := strings.Replace(OriginHeader, "NAME", domain, 1)
 	hw.AddHeader("Origin", header)
 	actualURL := "http://" + address + CallAddress + AddressBit
-    log.Logf("url (string): %s", actualURL)
+	log.Logf("url (string): %s", actualURL)
 	hw.WithPassword(test.Username).WithUser(test.Password)
 	result, err := hw.PerformHttpRequest(actualURL)
 	if err != nil {
@@ -60,7 +60,7 @@ func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWr
 	//result = strings.ReplaceAll(result,"\\\"","\"")
 	var item test_helpers.JolokiaBrokerSettings
 	json.Unmarshal([]byte(result), &item)
-    var value test_helpers.Value
-    json.Unmarshal([]byte(item.Value), &value)
-    return value
+	var value test_helpers.Value
+	json.Unmarshal([]byte(item.Value), &value)
+	return value
 }

@@ -1,11 +1,11 @@
 package basic
 
 import (
+	bdw "github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	bdw "github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
-	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 )
 
 var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
@@ -19,13 +19,7 @@ var _ = ginkgo.Describe("DeploymentWithImageUpdates", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		brokerDeployer.
-			WithWait(true).
-			WithBrokerClient(sw.BrokerClient).
-			WithContext(ctx1).
-			WithCustomImage(test.Config.BrokerImageName).
-			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR)
+		setEnv(ctx1, brokerDeployer)
 	})
 
 	ginkgo.It("Deploy single broker, replace image with new one", func() {

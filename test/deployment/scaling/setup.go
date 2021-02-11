@@ -1,8 +1,8 @@
 package scaling
 
 import (
-	"github.com/onsi/ginkgo"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	"github.com/onsi/ginkgo"
 )
 
 // Constants available for all test specs related with the One Interior topology

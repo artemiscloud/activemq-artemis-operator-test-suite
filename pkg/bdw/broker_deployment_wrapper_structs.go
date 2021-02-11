@@ -22,6 +22,7 @@ type BrokerDeploymentWrapper struct {
 	deploymentSize  int
 	isLtsDeployment bool
 	storageSize     string
+	timeoutMult     int
 	AddressSettings
 	ResourcesLimits
 	ResourcesRequests

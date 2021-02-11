@@ -39,7 +39,8 @@ var _ = ginkgo.Describe("PersistenceVolumeSizeTest", func() {
 			WithContext(ctx1).
 			WithCustomImage(test.Config.BrokerImageName).
 			WithName(DeployName).
-			WithLts(!test.Config.NeedsLatestCR)
+			WithLts(!test.Config.NeedsLatestCR).
+			WithIncreasedTimeout(test.Config.TimeoutMultiplier)
 
 		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))

@@ -30,15 +30,16 @@ import (
 var (
 	Config = TestConfiguration{
 		"registry.redhat.io/amq7/amq-broker-rhel7-operator:latest",
-		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest", 
-		"amq-broker", // BrokerName 
-		"", //Repository path
-		true,	// DebugRun
-		false, // Non-admin run
-		false,  // Using latest (known) CR
-		false,  // IBMz
-		false,  // PPC
-		false}  // Openshift
+		"registry.redhat.io/amq7/amq-broker:latest", "registry.redhat.io/amq7/amq-broker:latest",
+		"amq-broker", // BrokerName
+		"",           //Repository path
+		true,         // DebugRun
+		false,        // Non-admin run
+		false,        // Using latest (known) CR
+		false,        // IBMz
+		false,        // PPC
+		false,        // Openshift
+		1}            // TimeoutMultiplier
 
 )
 
@@ -54,6 +55,7 @@ type TestConfiguration struct {
 	IBMz              bool
 	PPC               bool
 	Openshift         bool
+	TimeoutMultiplier int
 }
 
 const (
@@ -146,6 +148,8 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 	flag.BoolVar(&Config.PPC, "ppc", false, "defines if shipshape should use ppc64le client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
+	flag.IntVar(&Config.TimeoutMultiplier, "timeoutMult", 1, "defines timeout multiplier")
+
 }
 
 func loadConfig() {

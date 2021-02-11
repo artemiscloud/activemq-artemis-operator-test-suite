@@ -1,4 +1,5 @@
 package bdw
+
 /* This file contains deployment-related helper methods for BrokerDeploymentWrapper
  */
 
@@ -42,6 +43,7 @@ func (bdw *BrokerDeploymentWrapper) DeployBrokersWithAcceptor(count int, accepto
 
 func (bdw *BrokerDeploymentWrapper) CreateBroker(artemis *brokerv3.ActiveMQArtemis, count int) error {
 	var err error
+    log.Logf("Timeout: %s", bdw.GetTimeout(1))
 	if bdw.isLtsDeployment {
 		artemisConverted := bdw.ConvertToV1(artemis)
 		_, err = bdw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(bdw.ctx1.Namespace).Create(artemisConverted)
@@ -56,7 +58,7 @@ func (bdw *BrokerDeploymentWrapper) CreateBroker(artemis *brokerv3.ActiveMQArtem
 			bdw.ctx1.Namespace,
 			bdw.name+"-ss",
 			count,
-			time.Second*10, time.Minute*time.Duration(5*count))
+			time.Second*10,bdw.GetTimeout(1))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
@@ -71,7 +73,6 @@ func (bdw *BrokerDeploymentWrapper) CreateBroker(artemis *brokerv3.ActiveMQArtem
 func (bdw *BrokerDeploymentWrapper) DeployBrokers(count int) error {
 	return bdw.DeployBrokersWithAcceptor(count, AmqpAcceptor)
 }
-
 
 func (bdw *BrokerDeploymentWrapper) Update() error {
 	resourceVersion := int64(0)
@@ -110,10 +111,7 @@ func (bdw *BrokerDeploymentWrapper) Scale(result int) error {
 	return bdw.Update()
 }
 
-
 // ChangeImage changes image used in Broker instance to a new one
 func (bdw *BrokerDeploymentWrapper) ChangeImage() error {
 	return bdw.Update()
 }
-
-
