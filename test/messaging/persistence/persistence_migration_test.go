@@ -34,7 +34,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	ginkgo.JustBeforeEach(func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
-		setEnv(brokerDeployer)
+		setEnv(ctx1, brokerDeployer)
 		srw = &test.SenderReceiverWrapper{}
 		srw.WithContext(ctx1).
 			WithMessageBody(MessageBody).
