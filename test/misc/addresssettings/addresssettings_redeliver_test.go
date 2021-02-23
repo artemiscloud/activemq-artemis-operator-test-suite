@@ -43,7 +43,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal((float32)1.0))
+		gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal(float32(1.0)))
 	})
 
 	ginkgo.It("RedeliveryDelayMultiplier check", func() {

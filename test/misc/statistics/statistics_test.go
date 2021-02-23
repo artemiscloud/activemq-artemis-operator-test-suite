@@ -2,12 +2,11 @@ package statistics
 
 import (
 	"fmt"
-	bdw "github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"io/ioutil"
 	"net/http"
 )
@@ -19,8 +18,8 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 	)
 	//Uncomfortable bringing this to wider scope then usual.
 	const (
-		VarName    = "AMQ_ENABLE_METRICS_PLUGIN"
-		VarValue   = "true"
+		//	VarName    = "AMQ_ENABLE_METRICS_PLUGIN"
+		//	VarValue   = "true"
 		AddressBit = "metrics"
 		Protocol   = test.HTTP
 		// Should be available at all times
@@ -62,55 +61,61 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 	})
 
 	/*
-	     * This tests are skipped due to ENTMQBR-3653
-	     *
-	      ginkgo.It("StatisticsWithConsoleTestExplicit", func() {
-			brokerDeployer.WithConsoleExposure(true)
-			err:=testStatistics()
-	        gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		     * This tests are skipped due to ENTMQBR-3653
+		     *
+		      ginkgo.It("StatisticsWithConsoleTestExplicit", func() {
+				brokerDeployer.WithConsoleExposure(true)
+				err:=testStatistics()
+		        gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
-	    })
+		    })
 
-		ginkgo.It("StatisticsWithoutConsoleTestNegative", func() {
-			brokerDeployer.WithConsoleExposure(false)
-			err:=testStatistics()
-	        gomega.Expect(err).NotTo(gomega.BeNil())
-		})
+			ginkgo.It("StatisticsWithoutConsoleTestNegative", func() {
+				brokerDeployer.WithConsoleExposure(false)
+				err:=testStatistics()
+		        gomega.Expect(err).NotTo(gomega.BeNil())
+			})
 
-		ginkgo.It("StatisticsWithConsoleTestDefault", func() {
-			brokerDeployer.WithConsoleExposure(true)
-			brokerDeployer.DeployBrokers(1)
-			urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
-			// there should be only single url in return in this case.
-			url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
-	        log.Logf("%s", url)
-			resp, err := http.Get(url)
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
-			gomega.Expect(resp.StatusCode).To(gomega.Equal(http.StatusOK))
+			ginkgo.It("StatisticsWithConsoleTestDefault", func() {
+				brokerDeployer.WithConsoleExposure(true)
+				brokerDeployer.DeployBrokers(1)
+				urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				// there should be only single url in return in this case.
+				url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
+		        log.Logf("%s", url)
+				resp, err := http.Get(url)
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+				gomega.Expect(resp.StatusCode).To(gomega.Equal(http.StatusOK))
 
-		}) */
+			}) */
 
 	ginkgo.It("StatisticsWithConsoleTestChangeSetup", func() {
 		brokerDeployer.WithConsoleExposure(false)
-		brokerDeployer.DeployBrokers(1)
+		err := brokerDeployer.DeployBrokers(1)
+		if err != nil {
+			panic(err)
+		}
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		//No URL at this point
 		gomega.Expect(err).To(gomega.HaveOccurred())
 
 		brokerDeployer.WithConsoleExposure(true)
-		brokerDeployer.Update()
+		err = brokerDeployer.Update()
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		urls, err = brokerDeployer.GetExternalUrls(ExpectedUrl, 0)
 		//Got proper URL at this point
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 
 		url := fmt.Sprintf("%s://%s/%s/", Protocol, urls[0], AddressBit)
 		resp, err := http.Get(url)
+		gomega.Expect(resp).NotTo(gomega.BeNil())
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		bodyString := string(bodyBytes)
 		// Checking for single item should be enough here.
 		gomega.Expect(bodyString).To(gomega.ContainSubstring(ExpectedItem))
+
 	})
 
 })

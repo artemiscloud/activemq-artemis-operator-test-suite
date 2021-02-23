@@ -10,13 +10,13 @@ import (
 
 func (bdw *BrokerDeploymentWrapper) WaitForBrokerSet(result int, originalSize int) {
 
-	log.Logf("Timeout: %s", bdw.GetTimeout(max(result,originalSize)))
+	log.Logf("Timeout: %s", bdw.GetTimeout(max(result, originalSize)))
 
 	err := framework.WaitForStatefulSet(bdw.ctx1.Clients.KubeClient,
 		bdw.ctx1.Namespace,
 		bdw.name+"-ss",
 		result,
-		time.Second*10, bdw.GetTimeout(max(result,originalSize)))
+		time.Second*10, bdw.GetTimeout(max(result, originalSize)))
 	gomega.Expect(err).To(gomega.BeNil())
 }
 
@@ -30,7 +30,7 @@ func (bdw *BrokerDeploymentWrapper) VerifyImage(target string) error {
 }
 
 func (bdw *BrokerDeploymentWrapper) GetTimeout(count int) time.Duration {
-    	return time.Minute * time.Duration(5*bdw.timeoutMult*count)
+	return time.Minute * time.Duration(5*bdw.timeoutMult*count)
 }
 
 func max(x, y int) int {

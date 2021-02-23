@@ -1,14 +1,14 @@
 package addresssettings
 
 import (
+	"encoding/json"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"testing"
-   	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"encoding/json"
-   	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"strings"
+	"testing"
 )
 
 func TestAddressSettings(t *testing.T) {
@@ -27,7 +27,7 @@ func setEnv(ctx1 *framework.ContextData, brokerDeployer *bdw.BrokerDeploymentWra
 		WithName(DeployName).
 		WithLts(!test.Config.NeedsLatestCR).
 		WithIncreasedTimeout(test.Config.TimeoutMultiplier).
-        WithConsoleExposure(true)
+		WithConsoleExposure(true)
 }
 
 func retrieveAddressSettings(address, AddressBit string, hw *test_helpers.HttpWrapper) test_helpers.Value {

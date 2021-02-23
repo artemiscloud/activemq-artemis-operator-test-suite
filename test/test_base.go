@@ -243,7 +243,3 @@ func getProjectRootPath() string {
 		cwd = cwd[0:lastSlashIndex]
 	}
 }
-
-func loadDeployConfiguration() {
-
-}
