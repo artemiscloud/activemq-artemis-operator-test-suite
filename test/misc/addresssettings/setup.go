@@ -3,14 +3,13 @@ package addresssettings
 import (
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
-
 )
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName   = "addrst"
-	BaseName     = "brkr"
-	Command      = "curl"
+	DeployName = "addrst"
+	BaseName   = "brkr"
+	//	Command      = "curl"
 	OriginHeader = "http://localhost:8161"
 	// addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam
 
@@ -42,4 +41,3 @@ var _ = ginkgo.JustBeforeEach(func() {
 var _ = ginkgo.AfterEach(func() {
 	sw.AfterEach()
 })
-

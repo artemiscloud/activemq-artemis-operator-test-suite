@@ -43,7 +43,7 @@ func (bdw *BrokerDeploymentWrapper) DeployBrokersWithAcceptor(count int, accepto
 
 func (bdw *BrokerDeploymentWrapper) CreateBroker(artemis *brokerv3.ActiveMQArtemis, count int) error {
 	var err error
-    log.Logf("Timeout: %s", bdw.GetTimeout(count))
+	log.Logf("Timeout: %s", bdw.GetTimeout(count))
 	if bdw.isLtsDeployment {
 		artemisConverted := bdw.ConvertToV1(artemis)
 		_, err = bdw.brokerClient.BrokerV2alpha1().ActiveMQArtemises(bdw.ctx1.Namespace).Create(artemisConverted)
@@ -58,7 +58,7 @@ func (bdw *BrokerDeploymentWrapper) CreateBroker(artemis *brokerv3.ActiveMQArtem
 			bdw.ctx1.Namespace,
 			bdw.name+"-ss",
 			count,
-			time.Second*10,bdw.GetTimeout(count))
+			time.Second*10, bdw.GetTimeout(count))
 		gomega.Expect(err).To(gomega.BeNil())
 	} else {
 		log.Logf("Not waiting for instances to spawn.\n")
