@@ -118,7 +118,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	dlqPrefix := bdw.dlqPrefix[addressName]
 	dlqSuffix := bdw.dlqSuffix[addressName]
 	expiryAddress := bdw.expiryAddress[addressName]
-	autoCreateExpiryResources := bdw.autoCreateDeadLetterResources[addressName]
+	autoCreateExpiryResources := bdw.autoCreateExpiryResources[addressName]
 	expiryPrefix := bdw.expiryPrefix[addressName]
 	expirySuffix := bdw.expirySuffix[addressName]
 	expiryDelay := bdw.expiryDelay[addressName]
@@ -152,6 +152,9 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	slowConsumerCheckPeriod := bdw.slowConsumerCheckPeriod[addressName]
 	if slowConsumerCheckPeriod == 0 {
 		slowConsumerCheckPeriod++
+	}
+    if slowConsumerThreshold == 0 {
+		slowConsumerThreshold = -1
 	}
 	autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
 	autoCreateJmsTopics := bdw.autoCreateJmsTopics[addressName]
@@ -247,7 +250,7 @@ func (bdw *BrokerDeploymentWrapper) SetUpDefaultAddressSettings(addressName stri
 	bdw.WithAddressFullPolicy(addressName, PagePolicy).
 		WithAddressPolicy(addressName, PagePolicy).
 		WithAddressSize(addressName, DEFAULT_SIZE_BIG).
-		WithAudoDeleteAddresses(addressName, false).
+		WithAutoDeleteAddresses(addressName, false).
 		WithAudoDeleteQueuesMessageCount(addressName, DEFAULT_COUNT).
 		WithAutoCreateAddresses(addressName, true).
 		WithAutoCreateDeadLetterResources(addressName, false).

@@ -38,7 +38,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 	})
 
 	ginkgo.It("AutoDeleteAddresses check", func() {
-		err := brokerDeployer.WithAudoDeleteAddresses(AddressBit, true).DeployBrokers(1)
+		err := brokerDeployer.WithAutoDeleteAddresses(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)

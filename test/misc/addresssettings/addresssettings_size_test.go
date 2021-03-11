@@ -42,7 +42,6 @@ var _ = ginkgo.Describe("AddressSettingsSizeTests", func() {
 		ctx1 = sw.Framework.GetFirstContext()
 		brokerDeployer = &bdw.BrokerDeploymentWrapper{}
 		setEnv(ctx1, brokerDeployer)
-
 		sendURL := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		receiveURL := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, strconv.FormatInt(Port, 10))
 		srw = &test.SenderReceiverWrapper{}

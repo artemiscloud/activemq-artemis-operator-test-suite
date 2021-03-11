@@ -100,7 +100,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			WithReceiverCount(len(podNumbers) * MessageCount).
 			PrepareReceiver()
 
-		_ = receiver.Deploy()
+		err = receiver.Deploy()
 		receiver.Wait()
 		receiverResult := receiver.Result()
 		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount * len(podNumbers)))

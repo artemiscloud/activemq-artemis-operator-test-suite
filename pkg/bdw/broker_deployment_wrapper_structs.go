@@ -88,7 +88,6 @@ type AddressSettings struct {
 	audoDeleteQueuesMessageCount       map[string]int32
 	configDeleteQueues                 map[string]ConfigDelete
 	autoCreateAddresses                map[string]bool
-	audoDeleteAddresses                map[string]bool
 	autoDeleteAddressesDelay           map[string]int32
 	configDeleteAddresses              map[string]ConfigDelete
 	managementBrowsePageSize           map[string]int32
