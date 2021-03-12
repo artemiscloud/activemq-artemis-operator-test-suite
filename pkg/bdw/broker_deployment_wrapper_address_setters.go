@@ -444,12 +444,12 @@ func (bdw *BrokerDeploymentWrapper) WithAutoCreateAddresses(addressName string, 
 	return bdw
 }
 
-func (bdw *BrokerDeploymentWrapper) WithAudoDeleteAddresses(addressName string, audoDeleteAddresses bool) *BrokerDeploymentWrapper {
-	if bdw.audoDeleteAddresses == nil {
-		bdw.audoDeleteAddresses = map[string]bool{}
+func (bdw *BrokerDeploymentWrapper) WithAutoDeleteAddresses(addressName string, autoDeleteAddresses bool) *BrokerDeploymentWrapper {
+	if bdw.autoDeleteAddresses == nil {
+		bdw.autoDeleteAddresses = map[string]bool{}
 	}
 	bdw.addKnownAddress(addressName)
-	bdw.audoDeleteAddresses[addressName] = audoDeleteAddresses
+	bdw.autoDeleteAddresses[addressName] = autoDeleteAddresses
 	return bdw
 }
 
