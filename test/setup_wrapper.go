@@ -49,20 +49,36 @@ func (sw *SetupWrapper) AddOperatorEnv(name string, value string) {
 	sw.odw.EnvVariables[name] = value
 }
 
+func (sw *SetupWrapper) BeforeSuite() {
+	if Config.GlobalOperator {
+		sw.mayBeInitWrapper()
+		builder := sw.odw.PrepareOperator()
+		frBuilder := framework.NewFrameworkBuilder(sw.BaseName).WithBuilders(builder).WithGlobalOperator(Config.GlobalOperator)
+		fr := frBuilder.Build() //.BeforeSuit()
+		fr.BeforeSuite(frBuilder.GetContexts()[0])         //Context?
+		Config.GlobalFramework = *fr
+	}
+}
+
 func (sw *SetupWrapper) BeforeEach() {
 	sw.mayBeInitWrapper()
 	builder := sw.odw.PrepareOperator()
 	frBuilder := framework.NewFrameworkBuilder(sw.BaseName).
-		WithBuilders(builder)
+		WithBuilders(builder).WithGlobalOperator(Config.GlobalOperator)
 	if Config.Openshift {
 		frBuilder = frBuilder.IsOpenshift(true)
 	} else {
 		log.Logf("Would be using namespaces")
 	}
 	sw.Framework = frBuilder.Build()
-	sw.BrokerOperator = sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
+
+	if (!Config.GlobalOperator) {
+		sw.BrokerOperator = sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
+	} else {
+		sw.BrokerOperator = Config.GlobalFramework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker]
+	}
 	sw.BrokerClient = sw.BrokerOperator.Interface().(brokerclientset.Interface)
-	log.Logf("We got: %v", Config.NeedsLatestCR)
+
 }
 
 func (sw *SetupWrapper) AfterEach() {

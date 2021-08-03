@@ -39,7 +39,9 @@ var (
 		false,        // IBMz
 		false,        // PPC
 		false,        // Openshift
-		1}            // TimeoutMultiplier
+		1,            // TimeoutMultiplier
+		false,        // global operator
+		framework.Framework{}} // Global framework.
 
 )
 
@@ -56,6 +58,8 @@ type TestConfiguration struct {
 	PPC               bool
 	Openshift         bool
 	TimeoutMultiplier int
+	GlobalOperator     bool
+	GlobalFramework		framework.Framework //Ugh... I hate this.
 }
 
 const (
@@ -149,6 +153,7 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.PPC, "ppc", false, "defines if shipshape should use ppc64le client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
 	flag.IntVar(&Config.TimeoutMultiplier, "timeoutMult", 1, "defines timeout multiplier")
+    flag.BoolVar(&Config.GlobalOperator, "globalOperator", false, "defines if framework is using global operator")
 
 }
 
@@ -167,7 +172,7 @@ func loadConfig() {
 }
 
 func Initialize(m *testing.M) {
-	log.Logf("Initializeing")
+	log.Logf("Initializing")
 	framework.RegisterFlags()
 	RegisterFlags()
 	flag.Parse()
@@ -210,6 +215,8 @@ func generateReporter(uniqueId string) []ginkgo.Reporter {
 // Before suite validation setup (happens only once per test suite)
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Unique initialization (node 1 only)
+	sw:=&SetupWrapper{}
+	sw.BeforeSuite()
 	return nil
 }, func(data []byte) {
 	// Initialization for each parallel node
