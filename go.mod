@@ -8,12 +8,11 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
-	github.com/onsi/ginkgo v1.12.3
-	github.com/onsi/gomega v1.10.1
-	github.com/rh-messaging/shipshape v0.2.3
+	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/gomega v1.10.2
+	github.com/rh-messaging/shipshape v0.2.5
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
-	golang.org/x/tools v0.0.0-20200331025713-a30bf2db82d4 // indirect
 	k8s.io/api v0.0.0-20190222213804-5cb15d344471
 	k8s.io/apimachinery v0.0.0-20190221213512-86fb29eff628
 	k8s.io/client-go v10.0.0+incompatible
