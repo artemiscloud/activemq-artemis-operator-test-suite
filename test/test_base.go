@@ -39,7 +39,8 @@ var (
 		false,        // IBMz
 		false,        // PPC
 		false,        // Openshift
-		1}            // TimeoutMultiplier
+		1,            // TimeoutMultiplier
+		false}        // GlobalOperator
 
 )
 
@@ -56,6 +57,7 @@ type TestConfiguration struct {
 	PPC               bool
 	Openshift         bool
 	TimeoutMultiplier int
+	GlobalOperator    bool
 }
 
 const (
@@ -64,11 +66,19 @@ const (
 	ProjectRootDir = "artemiscloud/activemq-artemis-operator-test-suite"
 )
 
-var MainCrds = []string{
+var MainYamls = []string{
 	"service_account.yaml",
+	"operator.yaml",
+}
+
+var LocalYamls = []string{
 	"role.yaml",
 	"role_binding.yaml",
-	"operator.yaml",
+}
+
+var GlobalYamls = []string{
+	"cluster_role.yaml",
+	"cluster_role_binding.yaml",
 }
 
 var CrdsV1 = []string{
@@ -100,7 +110,7 @@ func loadFromSlice(slice []string, path string) ([][]byte, error) {
 func LoadYamls(path string) ([][]byte, error) {
 	//Load all the main stuff
 	var result [][]byte
-	loaded, err := loadFromSlice(MainCrds, path)
+	loaded, err := loadFromSlice(MainYamls, path)
 	if err != nil {
 		return nil, err
 	} else {
@@ -108,6 +118,18 @@ func LoadYamls(path string) ([][]byte, error) {
 			result = append(result, item)
 		}
 	}
+	loaded, _ = loadFromSlice(LocalYamls, path)
+	if Config.GlobalOperator {
+		log.Logf("Adding global yamls")
+		loadedNew, _ := loadFromSlice(GlobalYamls, path)
+		for _, item := range loadedNew {
+			loaded = append(loaded, item)
+		}
+	}
+	for _, item := range loaded {
+		result = append(result, item)
+	}
+
 	//And all the other stuff.
 	if Config.NeedsLatestCR {
 		loaded, err := loadFromSlice(CrdsV2, path)
@@ -149,6 +171,7 @@ func RegisterFlags() {
 	flag.BoolVar(&Config.PPC, "ppc", false, "defines if shipshape should use ppc64le client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")
 	flag.IntVar(&Config.TimeoutMultiplier, "timeoutMult", 1, "defines timeout multiplier")
+	flag.BoolVar(&Config.GlobalOperator, "global", false, "defines if operator is expected to be globally installed (managing multiple namespaces)")
 
 }
 
