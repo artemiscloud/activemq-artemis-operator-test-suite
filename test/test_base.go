@@ -81,6 +81,7 @@ var CrdsV2 = []string{
 	"crds/broker_activemqartemis_crd.yaml",
 	"crds/broker_activemqartemisaddress_crd.yaml",
 	"crds/broker_activemqartemisscaledown_crd.yaml",
+	"crds/broker_activemqartemissecurity_crd.yaml",
 }
 
 func loadFromSlice(slice []string, path string) ([][]byte, error) {
