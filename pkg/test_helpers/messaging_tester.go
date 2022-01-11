@@ -3,6 +3,7 @@ package test_helpers
 import (
 	"errors"
 	"fmt"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/gomega"
@@ -75,11 +76,10 @@ func TestBaseReceiveMessages(bdw *bdw.BrokerDeploymentWrapper,
 	protocol string) {
 	receiver := srw.PrepareReceiverWithProtocol(protocol)
 	err := test.ReceiveMessages(receiver)
-	gomega.Expect(err).To(gomega.BeNil())
+	gomega.Expect(err).To(gomega.BeNil(), "error during messages receival: %s", err)
 	receiverResult := receiver.Result()
-	gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
-	log.Logf("MessageCount is fine")
+	gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount), "Delivered messages count %d not equal to expected %d", receiverResult.Delivered, MessageCount)
 	for _, msg := range receiverResult.Messages {
-		gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+		gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: %s, expected %s", msg.Content, MessageBody)
 	}
 }

@@ -39,61 +39,61 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 
 	ginkgo.It("AutoCreateAddresses check", func() {
 		err := brokerDeployer.WithAutoCreateAddresses(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateAddresses).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateAddresses).To(gomega.Equal(true), "AutoCreateAddresses not set")
 	})
 
 	ginkgo.It("AutoCreateDeadLetterResources check", func() {
 		err := brokerDeployer.WithAutoCreateDeadLetterResources(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateDeadLetterResources).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateDeadLetterResources).To(gomega.Equal(true), "AutoCreateDeadLetterResources not set")
 	})
 
 	ginkgo.It("AutoCreateExpiryResources check", func() {
 		err := brokerDeployer.WithAutoCreateExpiryResources(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateExpiryResources).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateExpiryResources).To(gomega.Equal(true), "AutoCreateExpiry resources not set")
 	})
 
 	ginkgo.It("AutoCreateJmsQueues check", func() {
 		err := brokerDeployer.WithAutoCreateJmsQueues(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateJmsQueues).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateJmsQueues).To(gomega.Equal(true), "AutoCreateJmsQueues not set")
 	})
 
 	ginkgo.It("AutoCreateJmsTopics check", func() {
 		err := brokerDeployer.WithAutoCreateJmsTopics(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateJmsTopics).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateJmsTopics).To(gomega.Equal(true), "AutoCreateJmstopics not set")
 	})
 
 	ginkgo.It("AutoCreateQueues check", func() {
 		err := brokerDeployer.WithAutoCreateQueues(AddressBit, true).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.AutoCreateQueues).To(gomega.Equal(true))
+		gomega.Expect(value.AutoCreateQueues).To(gomega.Equal(true), "AutoCreateQueues not set")
 	})
 })

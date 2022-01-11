@@ -7,6 +7,10 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/framework"
 )
 
+const (
+	PodNameSuffix = "-ss-0"
+)
+
 var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 
 	var (
@@ -25,13 +29,12 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 	ginkgo.It("Deploy single broker instance", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		err := brokerDeployer.DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed")
 	})
 
 	ginkgo.It("Deploy double broker instances", func() {
 		//ctx1.OperatorMap[operators.OperatorTypeBroker].Namespace()
 		err := brokerDeployer.DeployBrokers(2)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Double Broker deployment failed")
 	})
-
 })

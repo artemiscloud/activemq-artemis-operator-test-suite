@@ -30,28 +30,28 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and scale it to 4 replicas", func() {
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
-		gomega.Expect(brokerDeployer.Scale(4)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
+		gomega.Expect(brokerDeployer.Scale(4)).To(gomega.BeNil(), "Broker scaling to 4 failed")
 	})
 
 	ginkgo.It("Deploy multiple broker instances and scale it down to 1", func() {
-		gomega.Expect(brokerDeployer.DeployBrokers(4)).To(gomega.BeNil())
-		gomega.Expect(brokerDeployer.Scale(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(4)).To(gomega.BeNil(), "Broker deployment failed")
+		gomega.Expect(brokerDeployer.Scale(1)).To(gomega.BeNil(), "Broker downscaling failed")
 	})
 
 	ginkgo.It("Deploy single broker instances and scale it down to 0", func() {
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
-		gomega.Expect(brokerDeployer.Scale(0)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
+		gomega.Expect(brokerDeployer.Scale(0)).To(gomega.BeNil(), "Broker downscaling to 0 failed")
 	})
 
 	ginkgo.It("Deploy zero broker instances and scale up to 1", func() {
-		gomega.Expect(brokerDeployer.WithWait(false).DeployBrokers(0)).To(gomega.BeNil())
-		gomega.Expect(brokerDeployer.WithWait(true).Scale(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.WithWait(false).DeployBrokers(0)).To(gomega.BeNil(), "Creation of an empty statefulset failed")
+		gomega.Expect(brokerDeployer.WithWait(true).Scale(1)).To(gomega.BeNil(), "Scaling of empty stateful set to 1 failed")
 	})
 
 	ginkgo.It("Deploy single broker instance and scale up to max (16)", func() {
-		gomega.Expect(brokerDeployer.WithWait(false).DeployBrokers(1)).To(gomega.BeNil())
-		gomega.Expect(brokerDeployer.WithWait(true).Scale(16)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.WithWait(false).DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
+		gomega.Expect(brokerDeployer.WithWait(true).Scale(16)).To(gomega.BeNil(), "Broker scaling to 16 failed")
 	})
 
 })

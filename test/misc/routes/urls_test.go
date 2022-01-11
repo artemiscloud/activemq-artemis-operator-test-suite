@@ -29,39 +29,39 @@ var _ = ginkgo.Describe("RouteTests", func() {
 	//
 
 	ginkgo.It("Deploy a broker instance to check default amqp url", func() {
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker delpoyment failed")
 		_, err := brokerDeployer.GetExternalUrls(ExpectedAmqpUrlPart, 0)
 		//URL should be created for this scenario
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "URL retrieval failed: %s", err)
 	})
 
 	ginkgo.It("Deploy a broker instance with wscons disabled", func() {
 		brokerDeployer.WithConsoleExposure(false)
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
 		_, err := brokerDeployer.GetExternalUrls(ExpectedWsconsUrlPart, 0)
 		//No URL should be created for this scenario
-		gomega.Expect(err).To(gomega.HaveOccurred())
+		gomega.Expect(err).To(gomega.HaveOccurred(), "Console URL has been created despite being disabled")
 	})
 
 	ginkgo.It("Deploy a broker instance with wscons enabled", func() {
 		brokerDeployer.WithConsoleExposure(true)
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
 		_, err := brokerDeployer.GetExternalUrls(ExpectedWsconsUrlPart, 0)
 		//URL should be created for this scenario
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "WSCons URL retrieval failed: %s", err)
 	})
 
 	ginkgo.It("Deploy a broker instance with wscons disabled, then enable it", func() {
 		brokerDeployer.WithConsoleExposure(false)
-		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil())
+		gomega.Expect(brokerDeployer.DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
 		_, err := brokerDeployer.GetExternalUrls(ExpectedWsconsUrlPart, 0)
 		//No URL should be created for this scenario
-		gomega.Expect(err).To(gomega.HaveOccurred())
+		gomega.Expect(err).To(gomega.HaveOccurred(), "Console URL has been created despite being disabled")
 		brokerDeployer.WithConsoleExposure(true)
 		gomega.Expect(brokerDeployer.Update()).NotTo(gomega.HaveOccurred())
 		_, err = brokerDeployer.GetExternalUrls(ExpectedWsconsUrlPart, 0)
 		//URL should be created for this scenario
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "Console URL has not been created after configuration change")
 	})
 
 })
