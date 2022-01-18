@@ -6,16 +6,17 @@ package bdw
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"time"
+
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/fgiorgetti/qpid-dispatch-go-tests/pkg/framework/log"
 	"github.com/ghodss/yaml"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"io/ioutil"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 func (bdw *BrokerDeploymentWrapper) DeployBrokersWithAcceptor(count int, acceptorType AcceptorType) error {

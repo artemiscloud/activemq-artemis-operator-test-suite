@@ -39,30 +39,33 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 
 	ginkgo.It("CollisionAvoidance check", func() {
 		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, 1).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
+		gomega.Expect(err).To(gomega.BeNil(), "Can not retrieve URLs from openshift: %s", err)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal(float32(1.0)))
+		gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal(float32(1.0)), "RedeliveryCollisionAvoidanceFactor is %f, expected 1.0", value.RedeliveryCollisionAvoidanceFactor)
 	})
 
 	ginkgo.It("RedeliveryDelayMultiplier check", func() {
 		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit, 1).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
+		gomega.Expect(err).To(gomega.BeNil(), "Can not retrieve URLs from openshift: %s", err)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.RedeliveryMultiplier).To(gomega.Equal(float32(1.0)))
+		gomega.Expect(value.RedeliveryMultiplier).To(gomega.Equal(float32(1.0)), "RedeliveryMultiplier is %f, expected 1.0", value.RedeliveryMultiplier)
 	})
 
 	ginkgo.It("RedeliveryDelay check", func() {
 		err := brokerDeployer.WithRedeliveryDelay(AddressBit, 1).DeployBrokers(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
+		gomega.Expect(err).To(gomega.BeNil(), "Can not retrieve URLs from openshift: %s", err)
 		address := urls[0]
 		value := retrieveAddressSettings(address, AddressBit, hw)
-		gomega.Expect(value.RedeliveryDelay).To(gomega.Equal(1))
+		gomega.Expect(value.RedeliveryDelay).To(gomega.Equal(1), "RedeliveryDelay is %d, expected 1", value.RedeliveryDelay)
 	})
 })

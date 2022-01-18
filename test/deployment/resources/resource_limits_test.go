@@ -26,7 +26,7 @@ var _ = ginkgo.Describe("ResourceLimitsTests", func() {
 		deployBroker(brokerDeployer)
 		pod := getPod(ctx1)
 		actualCPULimit := pod.Spec.Containers[0].Resources.Limits.Cpu()
-		gomega.Expect(expectedCPULimit).To(gomega.Equal(actualCPULimit.String()))
+		gomega.Expect(expectedCPULimit).To(gomega.Equal(actualCPULimit.String()), "Expected CPU Limit: %s, real: %s", expectedCPULimit, actualCPULimit.String())
 	})
 
 	ginkgo.It("Memory Limit check", func() {
@@ -35,6 +35,6 @@ var _ = ginkgo.Describe("ResourceLimitsTests", func() {
 		deployBroker(brokerDeployer)
 		pod := getPod(ctx1)
 		actualMemLimit := pod.Spec.Containers[0].Resources.Limits.Memory()
-		gomega.Expect(expectedMemLimit).To(gomega.Equal(actualMemLimit.String()))
+		gomega.Expect(expectedMemLimit).To(gomega.Equal(actualMemLimit.String()), "Expected Memory limit: %s, real: %s", expectedMemLimit, actualMemLimit.String())
 	})
 })

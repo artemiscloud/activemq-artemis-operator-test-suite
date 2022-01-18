@@ -7,7 +7,6 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
@@ -42,14 +41,13 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	ginkgo.JustAfterEach(func() {
-		log.Logf("Test failures in this suite might be related to ENTMQBR-3597")
 		sw.Framework.GetFirstContext().EventHandler.ClearCallbacks()
 	})
 
 	// This test might fail due to ENTMQBR-3597
 	ginkgo.It("Deploy double broker instance, migrate to single", func() {
 		err := brokerDeployer.DeployBrokers(2)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
@@ -60,19 +58,19 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		callback := func() (interface{}, error) {
 			senderResult := sender.Result()
-			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount))
+			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount), "Delivered %d messages, expected %d", senderResult.Delivered, MessageCount)
 			_ = brokerDeployer.Scale(1)
 			drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
-			gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+			gomega.Expect(drainerCompleted).To(gomega.BeTrue(), "Drainer completion not detected")
 			return drainerCompleted, nil
 		}
 		_, err = test.SendReceiveMessages(sender, receiver, callback)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Sending/receiving messages failed: %s", err)
 
 		receiverResult := receiver.Result()
 
 		for _, msg := range receiverResult.Messages {
-			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
 		}
 
 	})
@@ -82,7 +80,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		podNumbers := []string{"3", "2", "1"}
 
 		err := brokerDeployer.DeployBrokers(4)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 		for _, number := range podNumbers {
 			url := test.FormUrl(Protocol, DeployName, number, SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 			sender = srw.WithSendUrl(url).PrepareNamedSender("sender-" + string(number))
@@ -91,9 +89,9 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 
 		err = brokerDeployer.Scale(1)
-		gomega.Expect(err).To(gomega.BeNil())
+		gomega.Expect(err).To(gomega.BeNil(), "Broker scaling to single instance failed")
 		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
-		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		gomega.Expect(drainerCompleted).To(gomega.BeTrue(), "Drainers have not been completed")
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiver = srw.
 			WithReceiveUrl(receiveUrl).
@@ -101,11 +99,13 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			PrepareReceiver()
 
 		err = receiver.Deploy()
+		gomega.Expect(err).To(gomega.BeNil(), "Receiver deployment failed: %s", err)
 		receiver.Wait()
 		receiverResult := receiver.Result()
-		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount * len(podNumbers)))
+		expectedCount := MessageCount * len(podNumbers)
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(expectedCount), "Message migration not completed. Expected %d messages, received %d.", receiverResult.Delivered, expectedCount)
 		for _, msg := range receiverResult.Messages {
-			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "Message body corrupted: expected: %s, real: %s", MessageBody, msg.Content)
 		}
 	})
 
@@ -120,20 +120,23 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 			PrepareSenderReceiver()
 		err := brokerDeployer.DeployBrokers(4)
 
-		gomega.Expect(err).To(gomega.BeNil())
-		_ = sender.Deploy()
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
+		err = sender.Deploy()
+		gomega.Expect(err).To(gomega.BeNil(), "Sender deployment failed: %s", err)
 		sender.Wait()
-		_ = brokerDeployer.Scale(3)
+		err = brokerDeployer.Scale(3)
+		gomega.Expect(err).To(gomega.BeNil(), "Brokre upscaling failed: %s", err)
 		drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
-		gomega.Expect(drainerCompleted).To(gomega.BeTrue())
+		gomega.Expect(drainerCompleted).To(gomega.BeTrue(), "Drainer completion not detected")
 
-		_ = receiver.Deploy()
+		err = receiver.Deploy()
+		gomega.Expect(err).To(gomega.BeNil(), "Receiver deployment failed :%s", err)
 		receiver.Wait()
 		receiverResult := receiver.Result()
-		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount))
+		gomega.Expect(receiverResult.Delivered).To(gomega.Equal(MessageCount), "MessageCount: expected %d, actual %d", MessageCount, receiverResult.Delivered)
 
 		for _, msg := range receiverResult.Messages {
-			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody))
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, real %s", msg.Content, MessageBody)
 		}
 	})
 

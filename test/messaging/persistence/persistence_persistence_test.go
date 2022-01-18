@@ -1,6 +1,8 @@
 package persistence
 
 import (
+	"strconv"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
@@ -8,7 +10,6 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
-	"strconv"
 )
 
 var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
@@ -57,9 +58,9 @@ var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
 		brokerDeployer.WithPersistence(true).WithMigration(false)
 		callback := func() (interface{}, error) {
 			err := brokerDeployer.Scale(1)
-			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			gomega.Expect(err).ToNot(gomega.HaveOccurred(), "Scaling to single broker instance failed: %s", err)
 			err = brokerDeployer.Scale(2)
-			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			gomega.Expect(err).ToNot(gomega.HaveOccurred(), "Scaling to double broker instance failed: %s", err)
 			return nil, nil
 		}
 		test_helpers.TestBaseSendReceiveMessagesWithCallback(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol, callback)
