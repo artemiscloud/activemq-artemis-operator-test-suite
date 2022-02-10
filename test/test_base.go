@@ -63,7 +63,7 @@ type TestConfiguration struct {
 const (
 	Username       = "admin"
 	Password       = "admin"
-	ProjectRootDir = "artemiscloud/activemq-artemis-operator-test-suite"
+	ProjectRootDir = "activemq-artemis-operator-test-suite"
 )
 
 var MainYamls = []string{
