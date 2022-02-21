@@ -35,23 +35,23 @@ var _ = ginkgo.Describe("ResourceRequestsTests", func() {
 		deployBroker(brokerDeployer)
 		pod := getPod(ctx1)
 		actualMemRequest := pod.Spec.Containers[0].Resources.Requests.Memory()
-		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Memory limit: %s, real: %s", expectedMemLimit, actualMemLimit.String())
+		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Memory limit: %s, real: %s", expectedMemRequest, actualMemRequest.String())
 	})
 
-	ginkgo.It("Memory Request check", func() {
+	ginkgo.It("Memory Request check_Update", func() {
 		expectedMemRequest := "512M"
 		brokerDeployer.WithMemRequest(expectedMemRequest)
 		deployBroker(brokerDeployer)
 		pod := getPod(ctx1)
 
 		actualMemRequest := pod.Spec.Containers[0].Resources.Requests.Memory()
-		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Memory limit: %s, real: %s", expectedMemLimit, actualMemLimit.String())
+		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Memory limit: %s, real: %s", expectedMemRequest, actualMemRequest.String())
 
 		expectedMemRequest = "768M"
 		brokerDeployer.WithMemRequest(expectedMemRequest)
 		brokerDeployer.Update()
-		actualMemRequest := pod.Spec.Containers[0].Resources.Requests.Memory()
-		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Update to Memory limit: %s, real: %s", expectedMemLimit, actualMemLimit.String())
+		actualMemRequest = pod.Spec.Containers[0].Resources.Requests.Memory()
+		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Update to Memory limit: %s, real: %s", expectedMemRequest, actualMemRequest.String())
 
 	})
 })

@@ -42,7 +42,7 @@ func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duratio
 }
 
 // WaitForDrainerRemoval would check logs for amount of drainer finished messages.
-// Wait for up to 60 seconds * count
+// Wait for up to 60 seconds * count in intervals of 10 seconds
 // Returns true when found all drainers expected, false otherwise
 func WaitForDrainerRemoval(sw *SetupWrapper, count int) bool {
 	return WaitForDrainerRemovalSlow(sw, count, time.Second*time.Duration(10), count*6)

@@ -1,11 +1,12 @@
 package bdw
 
 import (
+	"time"
+
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 func (bdw *BrokerDeploymentWrapper) WaitForBrokerSet(result int, originalSize int) {
@@ -17,7 +18,7 @@ func (bdw *BrokerDeploymentWrapper) WaitForBrokerSet(result int, originalSize in
 		bdw.name+"-ss",
 		result,
 		time.Second*10, bdw.GetTimeout(max(result, originalSize)))
-	gomega.Expect(err).To(gomega.BeNil())
+	gomega.Expect(err).To(gomega.BeNil(), "Deployment of broker failed: %s", err)
 }
 
 func (bdw *BrokerDeploymentWrapper) VerifyImage(target string) error {
