@@ -2,12 +2,16 @@ package test
 
 import (
 	"index/suffixarray"
+	"io/ioutil"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/ghodss/yaml"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func FormUrl(protocol, DeployName, number, subdomain, namespace, domain, address, port string) string {
@@ -46,4 +50,17 @@ func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duratio
 // Returns true when found all drainers expected, false otherwise
 func WaitForDrainerRemoval(sw *SetupWrapper, count int) bool {
 	return WaitForDrainerRemovalSlow(sw, count, time.Second*time.Duration(10), count*6)
+}
+
+func GetImages() []corev1.EnvVar {
+	filePath := Config.RepositoryPath + "/operator.yaml"
+	yamlFile, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Logf("yaml load err: #%v:, err")
+		return nil
+	} else {
+		deployment := &v1.Deployment{}
+		err = yaml.Unmarshal(yamlFile, deployment)
+		return deployment.Spec.Template.Spec.Containers[0].Env
+	}
 }

@@ -1,7 +1,10 @@
 package basic
 
 import (
+	"strings"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
@@ -10,7 +13,8 @@ import (
 )
 
 const (
-	CustomImage = "registry.redhat.io/amq7/amq-broker-rhel8@sha256:c5f4c08e068b9721967cf7c7cbd9a9e93fb5e39b264dd13b653e99d8f3fa9e0e"
+	PPC  = "_ppc64le"
+	IBMZ = "_s390x"
 )
 
 var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
@@ -29,11 +33,26 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 	})
 
 	ginkgo.It("CustomImageOverrideTest", func() {
+		images := test.GetImages()
+		imageName := decideImageName()
+		imageArch := decideImageArch()
+		CustomImage := ""
+		for _, item := range images {
+			if strings.HasPrefix(item.Name, imageName) && strings.HasSuffix(item.Name, imageArch) {
+				if imageArch == "" { // Also check lack of other architectures..
+					if !strings.HasSuffix(item.Name, PPC) && !strings.HasSuffix(item.Name, IBMZ) {
+						CustomImage = item.Value
+						break
+					}
+				} else {
+					CustomImage = item.Value
+					break
+				}
+			}
+		}
 		brokerDeployer.WithCustomImage(CustomImage)
-		// TODO: extract this from operator.yaml
 		err := brokerDeployer.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed")
-		//TODO	// Also verify image from the ""broker"" instance
 		pod := getPod(ctx1)
 		actualImage := pod.Spec.Containers[0].Image
 		gomega.Expect(actualImage).To(gomega.Equal(CustomImage), "Image not updated after CR update")
@@ -41,6 +60,26 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 	})
 
 })
+
+func decideImageArch() string {
+	name := ""
+	if test.Config.PPC {
+		name = PPC
+	} else if test.Config.IBMz {
+		name = IBMZ
+	} else {
+		//Problem: _s390x and _ppc here would still work.. Need an elegant solution
+	}
+	return name
+}
+
+func decideImageName() string {
+	name := "RELATED_IMAGE_ActiveMQ_Artemis_Broker_Kubernetes"
+	if test.Config.BrokerName != "amq-broker" {
+		name = "RELATED_IMAGE_ActiveMQ_Artemis_Broker_Kubernetes"
+	}
+	return name
+}
 
 func getPod(ctx1 *framework.ContextData) *v1.Pod {
 	kubeclient := ctx1.Clients.KubeClient
