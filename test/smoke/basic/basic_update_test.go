@@ -1,6 +1,8 @@
 package basic
 
 import (
+	"strings"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
@@ -28,9 +30,10 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 	ginkgo.It("CustomImageOverrideTest", func() {
 		images := test.GetImages()
 		imageName := decideImageName()
+		imageArch := decideImageArch()
 		CustomImage := ""
 		for _, item := range images {
-			if item.Name == imageName {
+			if strings.HasPrefix(item.Name, imageName) && strings.HasSuffix(item.Name, imageArch) {
 				CustomImage = item.Value
 				break
 			}
@@ -48,15 +51,22 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 
 })
 
-func decideImageName() string {
-	version := "_790"
-	name := "RELATED_IMAGE_ActiveMQ_Artemis_Broker_Kubernetes" + version
+func decideImageArch() string {
+	name := ""
 	if test.Config.PPC {
-		name = name + "_ppc64le"
+		name = "_ppc64le"
 	} else if test.Config.IBMz {
-		name = name + "_s390x"
+		name = "_s390x"
 	} else {
-		//no need
+		//Problem: _s390x and _ppc here would still work.. Need an elegant solution
+	}
+	return name
+}
+
+func decideImageName() string {
+	name := "RELATED_IMAGE_ActiveMQ_Artemis_Broker_Kubernetes"
+	if test.Config.BrokerName != "amq-broker" {
+		name = "RELATED_IMAGE_ActiveMQ_Artemis_Broker_Kubernetes"
 	}
 	return name
 }
