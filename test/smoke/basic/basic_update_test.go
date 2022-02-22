@@ -12,6 +12,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	PPC  = "_ppc64le"
+	IBMZ = "_s390x"
+)
+
 var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 
 	var (
@@ -34,15 +39,20 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 		CustomImage := ""
 		for _, item := range images {
 			if strings.HasPrefix(item.Name, imageName) && strings.HasSuffix(item.Name, imageArch) {
-				CustomImage = item.Value
-				break
+				if imageArch == "" { // Also check lack of other architectures..
+					if !strings.HasSuffix(item.Name, PPC) && !strings.HasSuffix(item.Name, IBMZ) {
+						CustomImage = item.Value
+						break
+					}
+				} else {
+					CustomImage = item.Value
+					break
+				}
 			}
 		}
 		brokerDeployer.WithCustomImage(CustomImage)
-		// TODO: extract this from operator.yaml
 		err := brokerDeployer.DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed")
-		//TODO	// Also verify image from the ""broker"" instance
 		pod := getPod(ctx1)
 		actualImage := pod.Spec.Containers[0].Image
 		gomega.Expect(actualImage).To(gomega.Equal(CustomImage), "Image not updated after CR update")
@@ -54,9 +64,9 @@ var _ = ginkgo.Describe("DeploymentUpdateTests", func() {
 func decideImageArch() string {
 	name := ""
 	if test.Config.PPC {
-		name = "_ppc64le"
+		name = PPC
 	} else if test.Config.IBMz {
-		name = "_s390x"
+		name = IBMZ
 	} else {
 		//Problem: _s390x and _ppc here would still work.. Need an elegant solution
 	}
