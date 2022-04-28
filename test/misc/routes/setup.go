@@ -7,7 +7,7 @@ import (
 
 // Constants available for all test specs related with the One Interior topology
 const (
-	DeployName = "configuration"
+	DeployName = "routes"
 	BaseName   = "broker"
 )
 
