@@ -7,16 +7,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	brokerv1 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
 	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
 	"github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	//"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"strings"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strings"
 )
 
 func (bdw *BrokerDeploymentWrapper) GetPodList() *corev1.PodList {
@@ -153,7 +155,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	if slowConsumerCheckPeriod == 0 {
 		slowConsumerCheckPeriod++
 	}
-    if slowConsumerThreshold == 0 {
+	if slowConsumerThreshold == 0 {
 		slowConsumerThreshold = -1
 	}
 	autoCreateJMSQueues := bdw.autoCreateJmsQueues[addressName]
