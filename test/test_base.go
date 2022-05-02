@@ -35,7 +35,8 @@ var (
 		"",           //Repository path
 		true,         // DebugRun
 		false,        // Non-admin run
-		false,        // Using latest (known) CR
+		false,        //
+		false,        // Using v1beta1 CRD
 		false,        // IBMz
 		false,        // PPC
 		false,        // Openshift
@@ -53,6 +54,7 @@ type TestConfiguration struct {
 	DebugRun          bool
 	AdminUnavailable  bool
 	NeedsLatestCR     bool
+	NeedsBetaCR       bool
 	IBMz              bool
 	PPC               bool
 	Openshift         bool
@@ -69,6 +71,12 @@ const (
 var MainYamls = []string{
 	"service_account.yaml",
 	"operator.yaml",
+}
+
+var ElectionYamls = []string{
+	"election_role.yaml",
+	"election_role_binding.yaml",
+	"operator_config.yaml",
 }
 
 var LocalYamls = []string{
@@ -132,6 +140,17 @@ func LoadYamls(path string) ([][]byte, error) {
 	}
 
 	//And all the other stuff.
+	if Config.NeedsBetaCR {
+		Config.NeedsLatestCR = true
+		loaded, err := loadFromSlice(ElectionYamls, path)
+		if err != nil {
+			return nil, err
+		} else {
+			for _, item := range loaded {
+				result = append(result, item)
+			}
+		}
+	}
 	if Config.NeedsLatestCR {
 		loaded, err := loadFromSlice(CrdsV2, path)
 		if err != nil {
@@ -168,6 +187,7 @@ func RegisterFlags() {
 	flag.StringVar(&Config.RepositoryPath, "repository", Config.RepositoryPath, "path to the amq operator deployment repository")
 	flag.BoolVar(&Config.AdminUnavailable, "no-admin-available", false, "sets cluster-wide admin privileges availability")
 	flag.BoolVar(&Config.NeedsLatestCR, "v2", false, "defines if V2 version of the API needs to be used")
+	flag.BoolVar(&Config.NeedsBetaCR, "v3", false, "defines if V2 version of the API needs to be used")
 	flag.BoolVar(&Config.IBMz, "ibmz", false, "defines if shipshape should use ibmz client images")
 	flag.BoolVar(&Config.PPC, "ppc", false, "defines if shipshape should use ppc64le client images")
 	flag.BoolVar(&Config.Openshift, "openshift", false, "defines if shipshape should use openshift specific APIs")

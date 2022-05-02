@@ -50,7 +50,7 @@ var _ = ginkgo.Describe("DeploymentScalingBroker", func() {
 	})
 
 	ginkgo.It("Deploy single broker instance and scale up to max (16)", func() {
-		gomega.Expect(brokerDeployer.WithWait(false).DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
+		gomega.Expect(brokerDeployer.WithWait(true).DeployBrokers(1)).To(gomega.BeNil(), "Broker deployment failed")
 		gomega.Expect(brokerDeployer.WithWait(true).Scale(16)).To(gomega.BeNil(), "Broker scaling to 16 failed")
 	})
 
