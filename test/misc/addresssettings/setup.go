@@ -8,7 +8,7 @@ import (
 // Constants available for all test specs related with the One Interior topology
 const (
 	DeployName = "addrst"
-	BaseName   = "brkr"
+	BaseName   = "broker"
 	//	Command      = "curl"
 	OriginHeader = "http://localhost:8161"
 	// addrst-wconsj-0-svc-rte-e2e-tests-brkr-rx9ls.apps.brokerteam

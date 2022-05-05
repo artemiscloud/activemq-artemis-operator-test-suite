@@ -9,7 +9,7 @@ import (
 
 const (
 	DeployName = "scaling"
-	BaseName   = "broker-framework"
+	BaseName   = "broker"
 )
 
 var (
