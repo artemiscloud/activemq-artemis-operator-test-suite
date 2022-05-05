@@ -8,7 +8,7 @@ import (
 // Constants available for all test specs related with the One Interior topology
 const (
 	DeployName = "persistence"
-	BaseName   = "broker-framework"
+	BaseName   = "broker"
 )
 
 var (

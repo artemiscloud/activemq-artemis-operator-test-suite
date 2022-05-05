@@ -9,7 +9,7 @@ import (
 
 const (
 	DeployName = "resources"
-	BaseName   = "broker-framework"
+	BaseName   = "broker"
 )
 
 var (

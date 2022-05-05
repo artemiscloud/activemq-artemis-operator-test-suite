@@ -917,6 +917,10 @@ github.com/rh-messaging/shipshape v0.2.3 h1:oS5zUiVkMqJJ5PeB9KWE6QrNCjUc7Ox6Vchp
 github.com/rh-messaging/shipshape v0.2.3/go.mod h1:cR19fdO7JXJz5ASBBm1e6n/xyHLaNQaMm7WkWdFiD4Q=
 github.com/rh-messaging/shipshape v0.2.5 h1:f+9W9HsOs/FoUjuWR462dJbhcaogmkk5yPFYKFOUvUE=
 github.com/rh-messaging/shipshape v0.2.5/go.mod h1:/64aVuhWnnst/UnFAP34opR7TiiWMBk3nGdwuWgg5F8=
+github.com/rh-messaging/shipshape v0.2.6 h1:qRhH6bDe1vpuknDKVqaTy/qM7S0f0rwGJLrTIFUKy5s=
+github.com/rh-messaging/shipshape v0.2.6/go.mod h1:/64aVuhWnnst/UnFAP34opR7TiiWMBk3nGdwuWgg5F8=
+github.com/rh-messaging/shipshape v0.2.7 h1:VV71mDKmywqnDFs8zecm3FPh3XQnGWEKOpO2zSkfqyI=
+github.com/rh-messaging/shipshape v0.2.7/go.mod h1:/64aVuhWnnst/UnFAP34opR7TiiWMBk3nGdwuWgg5F8=
 github.com/robfig/cron v0.0.0-20170526150127-736158dc09e1/go.mod h1:JGuDeoQd7Z6yL4zQhZ3OPEVHB7fL6Ka6skscFHfmt2k=
 github.com/roddiekieley/activemq-artemis-management v0.0.0-20190517161234-aeac24d207ec/go.mod h1:PVj7kA/qBiyzJtEBgMiPwpDUS61swuA775UpxyEXi90=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
