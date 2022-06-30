@@ -7,6 +7,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
@@ -45,11 +46,11 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 	})
 
 	// This test might fail due to ENTMQBR-3597
-	ginkgo.It("Deploy double broker instance, migrate to single", func() {
+	ginkgo.It("Message migration from second broker to first", func() {
 		err := brokerDeployer.DeployBrokers(2)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
-		sendUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sendUrl := test.FormUrl(Protocol, DeployName, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		sender, receiver := srw.
 			WithReceiveUrl(receiveUrl).
@@ -59,7 +60,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		callback := func() (interface{}, error) {
 			senderResult := sender.Result()
 			gomega.Expect(senderResult.Delivered).To(gomega.Equal(MessageCount), "Delivered %d messages, expected %d", senderResult.Delivered, MessageCount)
-			_ = brokerDeployer.Scale(1)
+			_ = brokerDeployer.WithWait(true).Scale(1)
 			drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
 			gomega.Expect(drainerCompleted).To(gomega.BeTrue(), "Drainer completion not detected")
 			return drainerCompleted, nil
@@ -69,14 +70,77 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 		receiverResult := receiver.Result()
 
+		log.Logf("Verifying messages")
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
 		}
 
 	})
 
-	// This test might fail due to ENTMQBR-3597
-	ginkgo.It("Deploy 4 brokers, migrate everything to single", func() {
+	ginkgo.It("Message migration with SS reconciliation after operator restart", func() {
+		// Deploy broker.
+		// Send messages.
+		// Stop operator.
+		// Scale broker.
+		// Start operator.
+		// Receive messages from first broker.
+		err := brokerDeployer.DeployBrokers(2)
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
+		sendUrl := test.FormUrl(Protocol, DeployName, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sender, receiver := srw.
+			WithReceiveUrl(receiveUrl).
+			WithSendUrl(sendUrl).
+			PrepareSenderReceiverWithProtocol(test.AMQP)
+		_, err = test.SendMessages(sender, nil)
+		err = sw.StopOperator()
+		brokerDeployer.WithWait(false).Scale(1)
+		err = sw.StartOperator()
+		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
+		if drainerCompleted {
+			log.Logf("Verifying messages")
+			err = test.ReceiveMessages(receiver)
+			gomega.Expect(err).To(gomega.BeNil(), "receiving messages failed")
+			received := receiver.Result()
+			for _, msg := range received.Messages {
+				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
+			}
+		}
+	})
+
+	ginkgo.It("Message migration with operator restart", func() {
+		// Deploy broker.
+		// Send messages.
+		// Restart operator.
+		// Scale broker.
+		// Receive messages from first broker.
+		err := brokerDeployer.DeployBrokers(2)
+		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
+
+		sendUrl := test.FormUrl(Protocol, DeployName, "1", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
+		sender, receiver := srw.
+			WithReceiveUrl(receiveUrl).
+			WithSendUrl(sendUrl).
+			PrepareSenderReceiverWithProtocol(test.AMQP)
+
+		_, err = test.SendMessages(sender, nil)
+		gomega.Expect(err).To(gomega.BeNil(), "Sending messages failed: %s", err)
+
+		err = sw.RestartOperator()
+		brokerDeployer.Scale(1)
+		gomega.Expect(err).To(gomega.BeNil(), "Operator restart failed: %s", err)
+		err = test.ReceiveMessages(receiver)
+
+		receiverResult := receiver.Result()
+
+		for _, msg := range receiverResult.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
+		}
+
+	})
+
+	ginkgo.It("Message migration from 3 brokers to single", func() {
 		podNumbers := []string{"3", "2", "1"}
 
 		err := brokerDeployer.DeployBrokers(4)
@@ -109,8 +173,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-	// This test might fail due to ENTMQBR-3597
-	ginkgo.It("Deploy 4 brokers, migrate last one", func() {
+	ginkgo.It("Message migration from 4th broker to single", func() {
 		sendUrl := test.FormUrl(Protocol, DeployName, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 
@@ -140,5 +203,4 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-	// TODO: redesign mass migration test to be actually able to run it with giant message sizes and message quantities
 })
