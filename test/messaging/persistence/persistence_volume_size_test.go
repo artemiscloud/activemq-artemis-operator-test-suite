@@ -1,12 +1,13 @@
 package persistence
 
 import (
+	"strconv"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"strconv"
 )
 
 var _ = ginkgo.Describe("PersistenceVolumeSizeTest", func() {
@@ -48,33 +49,21 @@ var _ = ginkgo.Describe("PersistenceVolumeSizeTest", func() {
 	})
 
 	ginkgo.It("Deploy with smaller PVC", func() {
-		if !test.Config.NeedsLatestCR {
-			ginkgo.Skip("Not supported on pre-0.17 operator")
-		}
 		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1Gi")
 		test_helpers.CheckVolumeSize(ctx1, "1Gi")
 	})
 
 	ginkgo.It("Deploy with smallest PVC", func() {
-		if !test.Config.NeedsLatestCR {
-			ginkgo.Skip("Not supported on pre-0.17 operator")
-		}
 		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("1")
 		test_helpers.CheckVolumeSize(ctx1, "1Gi")
 	})
 
 	ginkgo.It("Deploy with default PVC", func() {
-		if !test.Config.NeedsLatestCR {
-			ginkgo.Skip("Not supported on pre-0.17 operator")
-		}
 		brokerDeployer.WithPersistence(true).WithMigration(false)
 		test_helpers.CheckVolumeSize(ctx1, "2Gi")
 	})
 
 	ginkgo.It("Deploy with bigger PVC", func() {
-		if !test.Config.NeedsLatestCR {
-			ginkgo.Skip("Not supported on pre-0.17 operator")
-		}
 		brokerDeployer.WithPersistence(true).WithMigration(false).WithStorageSize("3Gi")
 		test_helpers.CheckVolumeSize(ctx1, "3Gi")
 	})
