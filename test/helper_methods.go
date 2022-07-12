@@ -35,6 +35,7 @@ func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duratio
 		if strings.Contains(operatorLog, expectedLog) {
 			index := suffixarray.New([]byte(operatorLog))
 			results := index.FindAllIndex(r, -1)
+			log.Logf("Drainers completed: %d, expected: %d", len(results), count)
 			if len(results) == count {
 				return true
 			}

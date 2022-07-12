@@ -74,7 +74,6 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		for _, msg := range receiverResult.Messages {
 			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
 		}
-
 	})
 
 	ginkgo.It("Message migration with SS reconciliation after operator restart", func() {
@@ -96,7 +95,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err = sw.StopOperator()
 		brokerDeployer.WithWait(false).Scale(1)
 		err = sw.StartOperator()
-		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
+		drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
 		if drainerCompleted {
 			log.Logf("Verifying messages")
 			err = test.ReceiveMessages(receiver)
@@ -106,6 +105,7 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
 			}
 		}
+		gomega.Expect(drainerCompleted).To(gomega.Equal(true), "Drainer completion was not detected")
 	})
 
 	ginkgo.It("Message migration with operator restart", func() {
