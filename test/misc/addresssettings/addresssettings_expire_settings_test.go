@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.It("ExpiryAddress check", func() {
+	ginkgo.PIt("ExpiryAddress check", func() {
 		err := brokerDeployer.WithExpiryAddress(AddressBit, "expire").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -47,7 +47,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		gomega.Expect(value.ExpiryAddress).To(gomega.Equal("expire"), "ExpiryAddress is \"%s\", expected \"expire\"", value.ExpiryAddress)
 	})
 
-	ginkgo.It("ExpiryDelay check", func() {
+	ginkgo.PIt("ExpiryDelay check", func() {
 		err := brokerDeployer.WithExpiryDelay(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -57,7 +57,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		gomega.Expect(value.ExpiryDelay).To(gomega.Equal(1), "ExpiryDelay is %d, expected 1", value.ExpiryDelay)
 	})
 
-	ginkgo.It("ExpiryPrefix check", func() {
+	ginkgo.PIt("ExpiryPrefix check", func() {
 		err := brokerDeployer.WithExpiryPrefix(AddressBit, "prefix").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -67,7 +67,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		gomega.Expect(value.ExpiryQueuePrefix).To(gomega.Equal("prefix"), "ExpiryQueuePrefix is \"%s\", expected \"prefix\"", value.ExpiryQueuePrefix)
 	})
 
-	ginkgo.It("ExpirySuffix check", func() {
+	ginkgo.PIt("ExpirySuffix check", func() {
 		err := brokerDeployer.WithExpirySuffix(AddressBit, "suffix").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -77,7 +77,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		gomega.Expect(value.ExpiryQueueSuffix).To(gomega.Equal("suffix"), "ExpiryQueueSuffix is \"%s\", expected \"suffix\"", value.ExpiryQueueSuffix)
 	})
 
-	ginkgo.It("MinExpiryDelay check", func() {
+	ginkgo.PIt("MinExpiryDelay check", func() {
 		err := brokerDeployer.WithMinExpiryDelay(AddressBit, 101).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -87,7 +87,7 @@ var _ = ginkgo.Describe("AddressSettingsExpiryCheck", func() {
 		gomega.Expect(value.MinExpiryDelay).To(gomega.Equal(101), "MinExpiryDelay is %d, expected 101", value.MinExpiryDelay)
 	})
 
-	ginkgo.It("MaxExpiryDelay check", func() {
+	ginkgo.PIt("MaxExpiryDelay check", func() {
 		err := brokerDeployer.WithMaxExpiryDelay(AddressBit, 101).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 

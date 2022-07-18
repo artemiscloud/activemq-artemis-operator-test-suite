@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.It("UpdateAddressSetting check", func() {
+	ginkgo.PIt("UpdateAddressSetting check", func() {
 		err := brokerDeployer.WithAutoCreateAddresses(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
