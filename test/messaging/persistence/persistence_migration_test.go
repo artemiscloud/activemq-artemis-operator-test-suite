@@ -96,15 +96,14 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		err = sw.StopOperator()
 		brokerDeployer.WithWait(false).Scale(1)
 		err = sw.StartOperator()
-		drainerCompleted := test.WaitForDrainerRemoval(sw, 3)
-		if drainerCompleted {
-			log.Logf("Verifying messages")
-			err = test.ReceiveMessages(receiver)
-			gomega.Expect(err).To(gomega.BeNil(), "receiving messages failed")
-			received := receiver.Result()
-			for _, msg := range received.Messages {
-				gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
-			}
+		drainerCompleted := test.WaitForDrainerRemoval(sw, 1)
+		gomega.Expect(drainerCompleted).To(gomega.Equal(true))
+		log.Logf("Verifying messages")
+		err = test.ReceiveMessages(receiver)
+		gomega.Expect(err).To(gomega.BeNil(), "receiving messages failed")
+		received := receiver.Result()
+		for _, msg := range received.Messages {
+			gomega.Expect(msg.Content).To(gomega.Equal(MessageBody), "MessageBody corrupted: expected %s, received %s", MessageBody, msg.Content)
 		}
 	})
 
