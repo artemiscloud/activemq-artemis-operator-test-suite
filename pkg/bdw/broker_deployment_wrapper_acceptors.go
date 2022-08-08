@@ -5,8 +5,9 @@ package bdw
 
 import (
 	"fmt"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
-	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
+	brokerbeta "github.com/artemiscloud/activemq-artemis-operator/api/v1beta1"
 )
 
 type AcceptorType int
@@ -29,7 +30,7 @@ var (
 		AllAcceptor:      5672,
 	}
 	// Interface to ease transition
-	acceptors = map[AcceptorType]*brokerv3.AcceptorType{
+	acceptors = map[AcceptorType]*brokerbeta.AcceptorType{
 		AmqpAcceptor:     defaultAcceptor(test.AMQP, AcceptorPorts[AmqpAcceptor]),
 		OpenwireAcceptor: defaultAcceptor(test.OPENWIRE, AcceptorPorts[OpenwireAcceptor]),
 		CoreAcceptor:     defaultAcceptor(test.CORE, AcceptorPorts[CoreAcceptor]),
@@ -40,8 +41,8 @@ var (
 
 func getAcceptor(name string, port int32, protocols string, sslEnabled bool, sslSecret string, enabledCipherSuites string,
 	enabledProtocols string, needsClientAuth bool, wantClientAuth bool, verifyHost bool, sslProvider string, sniHost string,
-	expose bool, anycastPrefix string, multicastPrefix string, connectionsAllowed int) *brokerv3.AcceptorType {
-	acceptor := &brokerv3.AcceptorType{
+	expose bool, anycastPrefix string, multicastPrefix string, connectionsAllowed int) *brokerbeta.AcceptorType {
+	acceptor := &brokerbeta.AcceptorType{
 		Name:                name,
 		Port:                port,
 		Protocols:           protocols,
@@ -62,7 +63,7 @@ func getAcceptor(name string, port int32, protocols string, sslEnabled bool, ssl
 	return acceptor
 }
 
-func defaultAcceptor(protocol string, port int32) *brokerv3.AcceptorType {
+func defaultAcceptor(protocol string, port int32) *brokerbeta.AcceptorType {
 	return getAcceptor(protocol,
 		port,
 		protocol,

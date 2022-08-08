@@ -4,14 +4,24 @@ package bdw
  */
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
-	brokerv1 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha1"
-	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/pkg/apis/broker/v2alpha3"
+	brokerbeta "github.com/artemiscloud/activemq-artemis-operator/api/v1beta1"
+	brokerv1 "github.com/artemiscloud/activemq-artemis-operator/api/v2alpha1"
+	brokerv3 "github.com/artemiscloud/activemq-artemis-operator/api/v2alpha3"
+	"github.com/rh-messaging/shipshape/pkg/framework/log"
+
 	"github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/remotecommand"
 
 	//"github.com/rh-messaging/shipshape/pkg/framework/log"
 	"strings"
@@ -21,30 +31,98 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func (bdw *BrokerDeploymentWrapper) GetFile(podname, containername, filename string, restconfig rest.Config) (string, error) {
+	log.Logf("restconfig: %v", restconfig)
+	coreclient := bdw.ctx1.Clients.KubeClient.CoreV1()
+	reader, outStream := io.Pipe()
+	cmd := []string{"cat", filename}
+	req := coreclient.RESTClient().
+		Get().
+		Namespace(bdw.ctx1.Namespace).
+		Resource("pods").
+		Name(podname).
+		SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Container: containername,
+			Command:   cmd,
+			Stdin:     true,
+			Stdout:    true,
+			Stderr:    true,
+			TTY:       false,
+		}, scheme.ParameterCodec)
+
+	restconfig.TLSClientConfig.Insecure = true
+	exec, err := remotecommand.NewSPDYExecutor(&restconfig, "POST", req.URL())
+	if err != nil {
+		return "", err
+	}
+	go func() {
+		defer outStream.Close()
+		err = exec.Stream(remotecommand.StreamOptions{
+			Stdin:  os.Stdin,
+			Stdout: outStream,
+			Stderr: os.Stderr,
+			Tty:    false,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}()
+	outC := ""
+	var buf bytes.Buffer
+	io.Copy(&buf, reader)
+	outC = buf.String()
+	return outC, err
+}
+
+func (bdw *BrokerDeploymentWrapper) CreateDefaultSecurityCR(name, username, pass string, roles []string) brokerbeta.ActiveMQArtemisSecurity {
+	cr := brokerbeta.ActiveMQArtemisSecurity{}
+	ploginmodule := brokerbeta.PropertiesLoginModuleType{}
+	cr.Name = name
+	ploginmodule.Name = name
+	user := brokerbeta.UserType{}
+	user.Name = username
+	user.Password = &pass
+	user.Roles = roles
+	ploginmodule.Users = append(ploginmodule.Users, user)
+	loginmodule := brokerbeta.LoginModulesType{}
+	loginmodule.PropertiesLoginModules = append(loginmodule.PropertiesLoginModules, ploginmodule)
+	cr.Spec.LoginModules = loginmodule
+	secdom := brokerbeta.SecurityDomainsType{}
+	secdom.BrokerDomain.Name = &name
+	ref := brokerbeta.LoginModuleReferenceType{}
+	suff := "sufficient"
+	ref.Flag = &suff
+	ref.Name = &name
+	secdom.BrokerDomain.LoginModules = append(secdom.BrokerDomain.LoginModules, ref)
+	cr.Spec.SecurityDomains = secdom
+	return cr
+}
+
 func (bdw *BrokerDeploymentWrapper) GetPodList() *corev1.PodList {
 	getopts := v1.GetOptions{}
-	statefulSet, err := bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Get(bdw.name+"-ss", getopts)
+	statefulSet, err := bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Get(context.TODO(), bdw.name+"-ss", getopts)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	listOptions := v1.ListOptions{LabelSelector: statefulSet.Name}
-	pods, err := bdw.ctx1.Clients.KubeClient.CoreV1().Pods(bdw.ctx1.Namespace).List(listOptions)
+	pods, err := bdw.ctx1.Clients.KubeClient.CoreV1().Pods(bdw.ctx1.Namespace).List(context.TODO(), listOptions)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	return pods
 }
 
 func (bdw *BrokerDeploymentWrapper) SetEnvVariable(name, value string) {
 	getopts := v1.GetOptions{}
-	statefulSet, err := bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Get(bdw.name+"-ss", getopts)
+	statefulSet, err := bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Get(context.TODO(), bdw.name+"-ss", getopts)
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 	env := statefulSet.Spec.Template.Spec.Containers[0].Env
 	statefulSet.Spec.Template.Spec.Containers[0].Env = append(env, corev1.EnvVar{Name: name, Value: value})
-	_, err = bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Update(statefulSet)
+	_, err = bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Update(context.TODO(), statefulSet, v1.UpdateOptions{})
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 }
 
 //This expects to be ran on openshift.
 func (bdw *BrokerDeploymentWrapper) GetExternalUrls(filter string, podNumber int) ([]string, error) {
 	var result []string
-	routes, _ := bdw.ctx1.Clients.OcpClient.RoutesClient.RouteV1().Routes(bdw.ctx1.Namespace).List(v1.ListOptions{})
+	routes, _ := bdw.ctx1.Clients.OcpClient.RoutesClient.RouteV1().Routes(bdw.ctx1.Namespace).List(context.TODO(), v1.ListOptions{})
 	for _, route := range routes.Items {
 		url := route.Spec.Host
 		if strings.Contains(url, filter) && strings.Contains(url, fmt.Sprintf("-%d-svc", podNumber)) {
@@ -67,7 +145,7 @@ func contains(arr []string, str string) bool {
 }
 
 //We always configure Artemis as if it is latest API version
-func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerv3.ActiveMQArtemis, acceptorType AcceptorType) *brokerv3.ActiveMQArtemis {
+func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerbeta.ActiveMQArtemis, acceptorType AcceptorType) *brokerbeta.ActiveMQArtemis {
 	artemis.Spec.DeploymentPlan.Size = int32(bdw.deploymentSize)
 	if acceptorType != NoChangeAcceptor {
 		artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *acceptors[acceptorType])
@@ -83,11 +161,12 @@ func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerv3.ActiveMQAr
 	artemis.Spec.AdminUser = test.Username
 	artemis.Spec.AdminPassword = test.Password
 	artemis.Spec.DeploymentPlan.Image = bdw.customImage
+	artemis.Spec.DeploymentPlan.InitImage = bdw.customInit
 	artemis.ObjectMeta.Name = bdw.name
 	artemis.Spec.Console.Expose = bdw.exposeConsole
 	artemis.Spec.DeploymentPlan.Storage.Size = bdw.storageSize
 	var processed []string
-	addressSettingsArray := []brokerv3.AddressSettingType{}
+	addressSettingsArray := []brokerbeta.AddressSettingType{}
 	for _, addressName := range bdw.knownAddresses {
 		if !contains(processed, addressName) {
 			processed = append(processed, addressName)
@@ -113,7 +192,7 @@ func getResourceList(cpu, memory string) corev1.ResourceList {
 	return res
 }
 
-func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) brokerv3.AddressSettingType {
+func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) brokerbeta.AddressSettingType {
 	maxSizeBytes := bdw.maxSizeBytes[addressName]
 	deadLetterAddress := bdw.deadLetterAddress[addressName]
 	autoCreateDeadResources := bdw.autoCreateDeadLetterResources[addressName]
@@ -182,7 +261,7 @@ func (bdw *BrokerDeploymentWrapper) fillAddressSetting(addressName string) broke
 	retroactiveMessageCount := bdw.defaultRetroMessageCount[addressName]
 	enableMetrics := bdw.enableMetrics[addressName]
 
-	return brokerv3.AddressSettingType{
+	return brokerbeta.AddressSettingType{
 		DeadLetterAddress:                  &deadLetterAddress,
 		AutoCreateDeadLetterResources:      &autoCreateDeadResources,
 		DeadLetterQueuePrefix:              &dlqPrefix,
@@ -303,9 +382,9 @@ func (bdw *BrokerDeploymentWrapper) SetUpDefaultAddressSettings(addressName stri
 		WithMinExpiryDelay(addressName, DEFAULT_DELAY).
 		WithPageMaxCacheSize(addressName, 20000000).
 		WithPageSizeBytes(addressName, "10485760").
-		WithRedeliveryCollisionsAvoidance(addressName, 0).
+		WithRedeliveryCollisionsAvoidance(addressName, "0").
 		WithRedeliveryDelay(addressName, 0).
-		WithRedeliveryDelayMult(addressName, 1).
+		WithRedeliveryDelayMult(addressName, "1").
 		WithRedistributionDelay(addressName, -1).
 		WithSendToDLAOnNoRoute(addressName, false).
 		WithSlowConsumerCheckPeriod(addressName, 5).
