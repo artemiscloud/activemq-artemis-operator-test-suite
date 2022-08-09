@@ -178,8 +178,12 @@ func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerbeta.ActiveMQ
 	artemis.Spec.DeploymentPlan.PersistenceEnabled = bdw.persistence
 	artemis.Spec.AdminUser = test.Username
 	artemis.Spec.AdminPassword = test.Password
-	artemis.Spec.DeploymentPlan.Image = bdw.customImage
-	artemis.Spec.DeploymentPlan.InitImage = bdw.customInit
+	if bdw.customImage != "" {
+		artemis.Spec.DeploymentPlan.Image = bdw.customImage
+	}
+	if bdw.customInit != "" {
+		artemis.Spec.DeploymentPlan.InitImage = bdw.customInit
+	}
 	artemis.ObjectMeta.Name = bdw.name
 	artemis.Spec.Console.Expose = bdw.exposeConsole
 	artemis.Spec.DeploymentPlan.Storage.Size = bdw.storageSize

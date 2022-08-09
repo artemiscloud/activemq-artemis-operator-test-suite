@@ -2,9 +2,11 @@ package basic
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
+	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
@@ -87,9 +89,24 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy older broker version", func() {
-		err := brokerDeployer.WithVersion("7.8.3").DeployBrokers(1)
+		err := brokerDeployer.WithVersion("7.8.3").WithCustomImage("").DeployBrokers(1)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "broker not deployed")
-		//TODO: check deployed version (logs?)
+		ss := brokerDeployer.GetStatefulSet()
+		images := test.GetImages()
+		imageArch := decideImageArch()
+		imagever := "783"
+		imageName := ""
+		initName := ""
+		if imageArch == "" {
+			imageName = fmt.Sprintf("%s_%s", decideImageName(), imagever)
+			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s", imagever)
+		} else {
+			imageName = fmt.Sprintf("%s_%s_%s", decideImageName(), imagever, imageArch)
+			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s_%s", imagever, imageArch)
+		}
+		gomega.Expect(ss.Spec.Template.Spec.Containers[0].Image).To(gomega.Equal(getEnvVarValue(imageName, images)), "wrong broker image used in actual SS")
+		gomega.Expect(ss.Spec.Template.Spec.InitContainers[0].Image).To(gomega.Equal(getEnvVarValue(initName, images)), "wrong broker image used in actual SS")
+
 	})
 })
 
