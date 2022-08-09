@@ -27,9 +27,23 @@ import (
 	"strings"
 
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func (bdw *BrokerDeploymentWrapper) AddProperty(name, value string) {
+	if bdw.properties == nil {
+		bdw.properties = make(map[string]string)
+	}
+	bdw.properties[name] = value
+}
+
+func (bdw *BrokerDeploymentWrapper) GetStatefulSet() *appsv1.StatefulSet {
+	statefulSet, err := bdw.ctx1.Clients.KubeClient.AppsV1().StatefulSets(bdw.ctx1.Namespace).Get(context.TODO(), bdw.name+"-ss", v1.GetOptions{})
+	gomega.Expect(err).NotTo(gomega.HaveOccurred(), "can't retrieve statefulset")
+	return statefulSet
+}
 
 func (bdw *BrokerDeploymentWrapper) GetFile(podname, containername, filename string, restconfig rest.Config) (string, error) {
 	log.Logf("restconfig: %v", restconfig)
@@ -75,8 +89,12 @@ func (bdw *BrokerDeploymentWrapper) GetFile(podname, containername, filename str
 	return outC, err
 }
 
+func (bdw *BrokerDeploymentWrapper) CreateEmptySecurityCR() brokerbeta.ActiveMQArtemisSecurity {
+	return brokerbeta.ActiveMQArtemisSecurity{}
+}
+
 func (bdw *BrokerDeploymentWrapper) CreateDefaultSecurityCR(name, username, pass string, roles []string) brokerbeta.ActiveMQArtemisSecurity {
-	cr := brokerbeta.ActiveMQArtemisSecurity{}
+	cr := bdw.CreateEmptySecurityCR()
 	ploginmodule := brokerbeta.PropertiesLoginModuleType{}
 	cr.Name = name
 	ploginmodule.Name = name
@@ -178,6 +196,18 @@ func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerbeta.ActiveMQ
 	artemis.Spec.DeploymentPlan.Resources.Limits = getResourceList(bdw.ResourcesLimits.cpu, bdw.ResourcesLimits.mem)
 	artemis.Spec.DeploymentPlan.Resources.Requests = getResourceList(bdw.ResourcesRequests.cpu, bdw.ResourcesRequests.mem)
 	artemis.Spec.AddressSettings.AddressSetting = addressSettingsArray
+	if len(bdw.properties) != 0 {
+		for it := range bdw.properties {
+			prop := fmt.Sprintf("%s=%s", it, bdw.properties[it])
+			artemis.Spec.BrokerProperties = append(artemis.Spec.BrokerProperties, prop)
+		}
+	}
+	if len(bdw.version) != 0 {
+		artemis.Spec.Version = bdw.version
+		artemis.Spec.Upgrades.Enabled = true
+		artemis.Spec.Upgrades.Minor = true
+	}
+
 	return artemis
 }
 

@@ -26,6 +26,8 @@ type BrokerDeploymentWrapper struct {
 	storageSize     string
 	timeoutMult     int
 	securities      map[string]brokerbeta.ActiveMQArtemisSecurity
+	properties      map[string]string
+	version         string
 	AddressSettings
 	ResourcesLimits
 	ResourcesRequests

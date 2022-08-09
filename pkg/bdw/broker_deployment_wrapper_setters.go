@@ -35,6 +35,11 @@ func (bdw *BrokerDeploymentWrapper) WithName(name string) *BrokerDeploymentWrapp
 	return bdw
 }
 
+func (bdw *BrokerDeploymentWrapper) WithVersion(version string) *BrokerDeploymentWrapper {
+	bdw.version = version
+	return bdw
+}
+
 // WithBrokerClient sets broker kubernetes client to use
 func (bdw *BrokerDeploymentWrapper) WithBrokerClient(brokerClient brokerclientset.Interface) *BrokerDeploymentWrapper {
 	bdw.brokerClient = brokerClient
