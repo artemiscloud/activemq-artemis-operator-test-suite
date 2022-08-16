@@ -1,12 +1,13 @@
 package protocols
 
 import (
+	"strconv"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/test_helpers"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"strconv"
 )
 
 var _ = ginkgo.Describe("MessagingAllAcceptorTests", func() {
@@ -59,7 +60,7 @@ var _ = ginkgo.Describe("MessagingAllAcceptorTests", func() {
 
 	})
 
-	ginkgo.It("Deploy single broker instance and send/receive messages through openwire", func() {
+	ginkgo.It("Messaging through openwire", func() {
 		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AllAcceptor, 1, ProtocolNameOpenwire)
 	})
 

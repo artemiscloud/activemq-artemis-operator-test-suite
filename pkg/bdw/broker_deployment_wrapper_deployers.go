@@ -96,7 +96,6 @@ func (bdw *BrokerDeploymentWrapper) DeployBrokers(count int) error {
 
 func (bdw *BrokerDeploymentWrapper) Update() error {
 	resourceVersion := int64(0)
-
 	var err error
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := bdw.brokerClient.BrokerV1beta1().ActiveMQArtemises(bdw.ctx1.Namespace).Get(bdw.name, v1.GetOptions{})

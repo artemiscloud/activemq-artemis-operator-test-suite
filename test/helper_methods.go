@@ -20,7 +20,7 @@ func FormUrl(protocol, DeployName, number, subdomain, namespace, domain, address
 }
 
 func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duration, retries int) bool {
-	expectedLog := "Deleting drain pod"
+	expectedLog := ".*Deleting drain pod.*"
 	loop := 0
 	r := regexp.MustCompile(expectedLog)
 	label := "controller-manager"

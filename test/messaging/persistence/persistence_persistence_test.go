@@ -49,12 +49,12 @@ var _ = ginkgo.Describe("MessagingPersistenceTests", func() {
 			WithReceiveUrl(receiveUrl)
 	})
 
-	ginkgo.It("Deploy double instances with migration disabled, send messages, receive", func() {
+	ginkgo.It("Persistance without message migration", func() {
 		brokerDeployer.WithPersistence(true).WithMigration(false)
 		test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, MessageCount, MessageBody, bdw.AmqpAcceptor, 2, Protocol)
 	})
 
-	ginkgo.It("Deploy double instances with migration disabled, send messages, scaledown, scaleup, receive", func() {
+	ginkgo.It("Message preservation through broker scaling", func() {
 		brokerDeployer.WithPersistence(true).WithMigration(false)
 		callback := func() (interface{}, error) {
 			err := brokerDeployer.Scale(1)
