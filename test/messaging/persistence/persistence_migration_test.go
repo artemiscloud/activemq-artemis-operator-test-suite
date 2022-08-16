@@ -1,6 +1,9 @@
 package persistence
 
 import (
+	"regexp"
+	"strings"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
@@ -172,7 +175,23 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-	ginkgo.It("Message migration from 4th broker to single", func() {
+
+	ginkgo.It("No outsider SS are inspected by SC", func() {
+		brokerDeployer.WithName("sufficientlyuniquename").WithPersistence(true).WithMigration(true).DeployBrokers(2)
+		label := "amq-broker-operator"
+		operatorPodName, err := sw.Framework.GetFirstContext().GetPodName(label)
+		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "can't get logs from pod")
+		oprLogs, _ := sw.Framework.GetFirstContext().GetLogs(operatorPodName)
+
+		rega := regexp.MustCompile("(?m)^.*Enquequing statefulset.*$[\r\n]+")
+		resa := strings.Join(rega.FindAllString(oprLogs, -1), "\n")
+		regb := regexp.MustCompile("(?m)^.*sufficientlyuniquename.*$[\r\n]+")
+		resb := regb.ReplaceAllString(resa, "")
+
+		gomega.Expect(len(resb)).To(gomega.Equal(0), "found non-managed pod in list of SC managed things")
+	})
+	// This test might fail due to ENTMQBR-3597
+	ginkgo.It("Deploy 4 brokers, migrate last one", func() {
 		sendUrl := test.FormUrl(Protocol, DeployName, "3", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 		receiveUrl := test.FormUrl(Protocol, DeployName, "0", SubdomainName, ctx1.Namespace, Domain, AddressBit, Port)
 

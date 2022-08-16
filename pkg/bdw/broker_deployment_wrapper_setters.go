@@ -4,9 +4,25 @@ package bdw
  */
 
 import (
+	brokerbeta "github.com/artemiscloud/activemq-artemis-operator/api/v1beta1"
 	brokerclientset "github.com/artemiscloud/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 )
+
+func (bdw *BrokerDeploymentWrapper) AddSecurityCR(name string, cr brokerbeta.ActiveMQArtemisSecurity) {
+	if nil == bdw.securities {
+		bdw.ClearSecurities()
+	}
+	bdw.securities[name] = cr
+}
+
+func (bdw *BrokerDeploymentWrapper) RemoveSeucirtyCR(name string) {
+	delete(bdw.securities, name)
+}
+
+func (bdw *BrokerDeploymentWrapper) ClearSecurities() {
+	bdw.securities = make(map[string]brokerbeta.ActiveMQArtemisSecurity)
+}
 
 // WithWait sets if shipshape would wait for completion
 func (bdw *BrokerDeploymentWrapper) WithWait(wait bool) *BrokerDeploymentWrapper {
@@ -16,6 +32,11 @@ func (bdw *BrokerDeploymentWrapper) WithWait(wait bool) *BrokerDeploymentWrapper
 
 func (bdw *BrokerDeploymentWrapper) WithName(name string) *BrokerDeploymentWrapper {
 	bdw.name = name
+	return bdw
+}
+
+func (bdw *BrokerDeploymentWrapper) WithVersion(version string) *BrokerDeploymentWrapper {
+	bdw.version = version
 	return bdw
 }
 
@@ -34,6 +55,11 @@ func (bdw *BrokerDeploymentWrapper) WithContext(ctx1 *framework.ContextData) *Br
 // WithCustomImage wets Broker Image to be used
 func (bdw *BrokerDeploymentWrapper) WithCustomImage(image string) *BrokerDeploymentWrapper {
 	bdw.customImage = image
+	return bdw
+}
+
+func (bdw *BrokerDeploymentWrapper) WithCustomInit(init string) *BrokerDeploymentWrapper {
+	bdw.customInit = init
 	return bdw
 }
 

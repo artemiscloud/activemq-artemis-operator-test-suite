@@ -23,7 +23,7 @@ func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duratio
 	expectedLog := ".*Deleting drain pod.*"
 	loop := 0
 	r := regexp.MustCompile(expectedLog)
-	label := Config.BrokerName + "-operator"
+	label := "controller-manager"
 	operatorPodName, err := sw.Framework.GetFirstContext().GetPodName(label)
 	log.Logf("loading logs from pod %s", operatorPodName)
 	gomega.Expect(err).To(gomega.BeNil())

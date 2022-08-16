@@ -4,6 +4,7 @@ package bdw
  */
 
 import (
+	brokerbeta "github.com/artemiscloud/activemq-artemis-operator/api/v1beta1"
 	brokerclientset "github.com/artemiscloud/activemq-artemis-operator/pkg/client/clientset/versioned"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 )
@@ -14,6 +15,7 @@ type BrokerDeploymentWrapper struct {
 	brokerClient    brokerclientset.Interface
 	ctx1            *framework.ContextData
 	customImage     string
+	customInit      string
 	migration       bool
 	persistence     bool
 	name            string
@@ -23,6 +25,9 @@ type BrokerDeploymentWrapper struct {
 	isLtsDeployment bool
 	storageSize     string
 	timeoutMult     int
+	securities      map[string]brokerbeta.ActiveMQArtemisSecurity
+	properties      map[string]string
+	version         string
 	AddressSettings
 	ResourcesLimits
 	ResourcesRequests
@@ -54,8 +59,8 @@ type AddressSettings struct {
 	maxExpiryDelay                     map[string]int32
 	redeliveryDelay                    map[string]int32
 	maxRedeliveryDelay                 map[string]int32
-	redeliveryDelayMult                map[string]int32
-	redeliveryCollisionsAvoidance      map[string]int32
+	redeliveryDelayMult                map[string]string
+	redeliveryCollisionsAvoidance      map[string]string
 	maxRedeliveryAttempts              map[string]int32
 	maxSizeBytesRejectThreshold        map[string]int32
 	pageSizeBytes                      map[string]string

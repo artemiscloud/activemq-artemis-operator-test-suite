@@ -138,18 +138,18 @@ func (bdw *BrokerDeploymentWrapper) WithMaxRedeliveryDelay(addressName string, m
 	return bdw
 }
 
-func (bdw *BrokerDeploymentWrapper) WithRedeliveryDelayMult(addressName string, redeliveryDelayMult int32) *BrokerDeploymentWrapper {
+func (bdw *BrokerDeploymentWrapper) WithRedeliveryDelayMult(addressName string, redeliveryDelayMult string) *BrokerDeploymentWrapper {
 	if bdw.redeliveryDelayMult == nil {
-		bdw.redeliveryDelayMult = map[string]int32{}
+		bdw.redeliveryDelayMult = map[string]string{}
 	}
 	bdw.addKnownAddress(addressName)
 	bdw.redeliveryDelayMult[addressName] = redeliveryDelayMult
 	return bdw
 }
 
-func (bdw *BrokerDeploymentWrapper) WithRedeliveryCollisionsAvoidance(addressName string, redeliveryCollisionsAvoidance int32) *BrokerDeploymentWrapper {
+func (bdw *BrokerDeploymentWrapper) WithRedeliveryCollisionsAvoidance(addressName string, redeliveryCollisionsAvoidance string) *BrokerDeploymentWrapper {
 	if bdw.redeliveryCollisionsAvoidance == nil {
-		bdw.redeliveryCollisionsAvoidance = map[string]int32{}
+		bdw.redeliveryCollisionsAvoidance = map[string]string{}
 	}
 	bdw.addKnownAddress(addressName)
 	bdw.redeliveryCollisionsAvoidance[addressName] = redeliveryCollisionsAvoidance
