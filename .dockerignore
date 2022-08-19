@@ -1,0 +1,7 @@
+.dockerignore
+.git*
+container-image
+examples
+Makefile
+README.md
+
