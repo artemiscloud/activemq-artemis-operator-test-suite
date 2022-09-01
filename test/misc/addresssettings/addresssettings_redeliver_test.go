@@ -38,7 +38,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 	})
 
 	ginkgo.PIt("CollisionAvoidance check", func() {
-		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, 1).DeployBrokers(1)
+		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, "1").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
 		gomega.Expect(err).To(gomega.BeNil(), "Can not retrieve URLs from openshift: %s", err)
@@ -48,7 +48,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 	})
 
 	ginkgo.PIt("RedeliveryDelayMultiplier check", func() {
-		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit, 1).DeployBrokers(1)
+		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit, "1").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)

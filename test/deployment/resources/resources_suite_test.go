@@ -1,13 +1,15 @@
 package resources
 
 import (
+	"context"
+	"testing"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"testing"
 )
 
 const (
@@ -40,7 +42,7 @@ func deployBroker(brokerDeployer *bdw.BrokerDeploymentWrapper) {
 func getPod(ctx1 *framework.ContextData) *v1.Pod {
 	kubeclient := ctx1.Clients.KubeClient
 	podName := DeployName + PodNameSuffix
-	pod, err := kubeclient.CoreV1().Pods(ctx1.Namespace).Get(podName, metav1.GetOptions{})
+	pod, err := kubeclient.CoreV1().Pods(ctx1.Namespace).Get(context.TODO(), podName, metav1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 
 	return pod
