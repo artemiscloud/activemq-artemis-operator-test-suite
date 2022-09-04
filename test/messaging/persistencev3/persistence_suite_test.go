@@ -7,7 +7,7 @@ import (
 )
 
 func TestMessaging(t *testing.T) {
-	test.PrepareNamespace(t, "persistence", "Persistence Settings Suite")
+	test.PrepareNamespace(t, "persistencev3", "Persistence V3 Settings Suite")
 }
 
 func TestMain(m *testing.M) {

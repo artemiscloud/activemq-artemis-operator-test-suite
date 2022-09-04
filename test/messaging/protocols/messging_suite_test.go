@@ -7,7 +7,7 @@ import (
 )
 
 func TestMessaging(t *testing.T) {
-	test.PrepareNamespace(t, "protocols", "Messaging Suite")
+	test.PrepareNamespace(t, "protocols", "Protocols Suite")
 }
 
 func TestMain(m *testing.M) {
