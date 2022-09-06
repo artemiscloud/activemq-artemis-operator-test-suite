@@ -60,7 +60,6 @@ ginkgo_params+=("-timeoutMult" "${TIMEOUT_MULT:-1}")
 [[ "${IBMZ:-false}" == "true" ]] && ginkgo_params+=("-ibmz")
 [[ "${PPC:-false}" == "true" ]] && ginkgo_params+=("-ppc")
 ginkgo_params+=("-delete-namespace-on-failure" "${DELETE_NS_ON_FAILURE:-false}")
-ginkgo_params+=("-logtostderr")
 [[ "${DEBUG:-false}" == "true" ]] && ginkgo_params+=("-debug-run")
 
 # log in into cluster
@@ -74,7 +73,7 @@ if [[ "${OPENSHIFT}" == "true" ]] ; then
     fi
     CLUSTER_APPS="${CLUSTER_APPS_PREFIX}${CLUSTER_NAME}"
     OAUTH_URL="https://oauth-openshift.${CLUSTER_APPS}/oauth/authorize?response_type=token&client_id=openshift-challenging-client"
-    KUBEADMIN_TOKEN=$(curl -v --insecure --user "${CLUSTER_USERNAME}:${CLUSTER_PASSWORD}" --header "X-CSRF-Token: xxx" --url "${OAUTH_URL}" 2>&1 | grep -oP "access_token=\K[^&]*")
+    KUBEADMIN_TOKEN=$(curl -s -k -i -L -X GET --user "${CLUSTER_USERNAME}:${CLUSTER_PASSWORD}" "${OAUTH_URL}" 2>&1 | grep -oP "access_token=\K[^&]*")
     kubectl --kubeconfig="${KUBECONFIG}" config set-credentials "${CLUSTER_USERNAME}/${CLUSTER_NAME}" --token="${KUBEADMIN_TOKEN}"
 else
     kubectl --kubeconfig="${KUBECONFIG}" config set-credentials "${CLUSTER_USERNAME}/${CLUSTER_NAME}" --username="${CLUSTER_USERNAME}" --password="${CLUSTER_PASSWORD}"
