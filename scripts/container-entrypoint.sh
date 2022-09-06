@@ -12,7 +12,7 @@ if [[ "${DEBUG_ENTRYPOINT}" == "true" ]]; then
 fi
 
 WORKDIR_VALUE="${WORKDIR:-/workdir}"
-KUBECONFIG="${WORKDIR_VALUE}/kubeconfig"
+export KUBECONFIG="${WORKDIR_VALUE}/kubeconfig"
 OUTPUT_DIR_PARAM_VALUE="${OUTPUT_DIR:-${WORKDIR_VALUE}/output}"
 mkdir -p "${OUTPUT_DIR_PARAM_VALUE}"
 REPORT_DIR_PARAM_VALUE="${REPORT_DIR:-${WORKDIR_VALUE}/reports}"
@@ -59,7 +59,6 @@ ginkgo_params+=("-timeoutMult" "${TIMEOUT_MULT:-1}")
 [[ "${NO_ADMIN:-false}" == "true" ]] && ginkgo_params+=("-no-admin-available")
 [[ "${IBMZ:-false}" == "true" ]] && ginkgo_params+=("-ibmz")
 [[ "${PPC:-false}" == "true" ]] && ginkgo_params+=("-ppc")
-ginkgo_params+=("-kubeconfig" "${KUBECONFIG}")
 ginkgo_params+=("-delete-namespace-on-failure" "${DELETE_NS_ON_FAILURE:-false}")
 ginkgo_params+=("-logtostderr")
 [[ "${DEBUG:-false}" == "true" ]] && ginkgo_params+=("-debug-run")
