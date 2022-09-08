@@ -166,6 +166,7 @@ func contains(arr []string, str string) bool {
 func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerbeta.ActiveMQArtemis, acceptorType AcceptorType) *brokerbeta.ActiveMQArtemis {
 	artemis.Spec.DeploymentPlan.Size = int32(bdw.deploymentSize)
 	if acceptorType != NoChangeAcceptor {
+		artemis.Spec.Acceptors = []brokerbeta.AcceptorType{}
 		artemis.Spec.Acceptors = append(artemis.Spec.Acceptors, *acceptors[acceptorType])
 	}
 	for num := range artemis.Spec.Acceptors {
