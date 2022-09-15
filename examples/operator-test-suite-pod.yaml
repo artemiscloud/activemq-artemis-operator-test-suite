@@ -1,34 +1,3 @@
-##################################################################################
-# The secret to hold cluster credentials, populate with the expected credentials #
-##################################################################################
-apiVersion: v1
-kind: Secret
-metadata:
-  name: activemq-artemis-operator-test-suite-cluster-secret
-type: Opaque
-stringData:
-  cluster_api_url: the_cluster_api_url
-  cluster_username: the_cluster_user
-  cluster_password: the_cluster_user_password
-
----
-
-#############################################################################
-# The PVC to store the test results, temporary files, etc. Adjust as needed #
-#############################################################################
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: activemq-artemis-operator-test-suite-workdir-pv-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Mi
-
----
-
 ###############################
 # The operator test suite pod #
 ###############################
@@ -44,6 +13,7 @@ spec:
     runAsNonRoot: true
     runAsUser: 1000
     runAsGroup: 0
+    fsGroup: 0
     seccompProfile:
       type: RuntimeDefault
   volumes:
