@@ -7,7 +7,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	test.PrepareNamespace(t, "basic", "Basic Suite")
+	test.PrepareNamespace(t, "scaling", "Scaling Suite")
 }
 
 func TestMain(m *testing.M) {

@@ -1,0 +1,14 @@
+#############################################################################
+# The PVC to store the test results, temporary files, etc. Adjust as needed #
+#############################################################################
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: activemq-artemis-operator-test-suite-workdir-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+

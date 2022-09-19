@@ -1,0 +1,66 @@
+FROM registry.fedoraproject.org/fedora:latest
+
+ARG test_suite_dir=/opt/activemq-artemis-operator-test-suite
+ARG user_home=$test_suite_dir
+ARG user=qe
+
+ARG go_download_base_url=https://go.dev/dl
+ARG go_version=1.18.4
+ARG go_download_file_name=go$go_version.linux-amd64.tar.gz
+ARG go_sha256=c9b099b68d93f5c5c8a8844a89f8db07eaa58270e3a1e01804f17f4cf8df02f5
+
+ARG go_root=/opt/go-$go_version
+ARG go_path=/opt/go-tools
+
+ARG ginkgo_download_base_url=github.com/onsi/ginkgo/ginkgo
+ARG ginkgo_version=v1.16.5
+
+# create user
+RUN useradd -m $user -u 1000 -U -d $user_home
+
+# define environment variables
+ENV GOROOT=$go_root
+ENV GOPATH=$go_path
+ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+ENV TEST_SUITE_DIR=$test_suite_dir
+ENV GOCACHE=$test_suite_dir/.cache
+
+VOLUME /workdir
+
+# create needed directories
+RUN mkdir -p /workdir $go_path && \
+    chown -R $user:$user /workdir $go_path
+
+# install required packages
+RUN dnf install --assumeyes \
+        curl \
+        gcc \
+        unzip && \
+    dnf clean all && \
+    # kubectl
+    curl -s -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    curl -s -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" && \
+    echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+    rm kubectl kubectl.sha256 && \
+    # golang
+    mkdir -p $go_root && \
+    cd $go_root && \
+    curl -s -LO $go_download_base_url/$go_download_file_name && \
+    sha256sum $go_download_file_name | grep -o $go_sha256 && \
+    tar --strip-components=1 -zxf $go_download_file_name && \
+    rm $go_download_file_name && \
+    cd -
+    
+# switch to the user
+USER $user
+
+# install ginkgo
+RUN go install $ginkgo_download_base_url@$ginkgo_version
+
+WORKDIR $test_suite_dir
+COPY --chown=$user:$user . $test_suite_dir/
+RUN chmod 0775 $test_suite_dir && \
+    ginkgo build test/...  
+ENTRYPOINT ["scripts/container-entrypoint.sh"]
+

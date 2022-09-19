@@ -1,14 +1,15 @@
 package persistence
 
 import (
+	"testing"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"testing"
 )
 
 func TestMessaging(t *testing.T) {
-	test.PrepareNamespace(t, "messaging", "Messaging Suite")
+	test.PrepareNamespace(t, "persistence", "Persistence Suite")
 }
 
 func TestMain(m *testing.M) {
@@ -23,6 +24,6 @@ func setEnv(ctx1 *framework.ContextData, brokerDeployer *bdw.BrokerDeploymentWra
 		WithName(DeployName).
 		WithLts(!test.Config.NeedsLatestCR).
 		WithIncreasedTimeout(test.Config.TimeoutMultiplier).
-        WithPersistence(true).
-        WithMigration(true)
+		WithPersistence(true).
+		WithMigration(true)
 }

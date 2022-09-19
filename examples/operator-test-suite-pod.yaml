@@ -1,0 +1,121 @@
+###############################
+# The operator test suite pod #
+###############################
+apiVersion: v1
+kind: Pod
+metadata:
+  name: activemq-artemis-operator-test-suite
+  labels:
+    app: activemq-artemis-operator-test-suite
+spec:
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 0
+    fsGroup: 0
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: activemq-artemis-operator-test-suite-workdir-storage
+      persistentVolumeClaim:
+        claimName: activemq-artemis-operator-test-suite-workdir-pv-claim
+  containers:
+    - name: activemq-artemis-operator-test-suite
+      image: quay.io/artemiscloud/activemq-artemis-operator-test-suite:lpt-stable
+      env:
+        ############################################################################
+        # Required values for cluster credentials, populated from the secret above #
+        ############################################################################
+        - name: CLUSTER_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: activemq-artemis-operator-test-suite-cluster-secret
+              key: cluster_api_url
+        - name: CLUSTER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: activemq-artemis-operator-test-suite-cluster-secret
+              key: cluster_username
+        - name: CLUSTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: activemq-artemis-operator-test-suite-cluster-secret
+              key: cluster_password
+        ##############################################################################
+        # These are the default values used by the container image. Adjust as needed #
+        ##############################################################################
+        #- name: DEBUG_ENTRYPOINT
+        #  value: "false"
+        #- name: REPOSITORY_ZIP_URL
+        #  value: "https://github.com/artemiscloud/activemq-artemis-operator/archive/refs/heads/main.zip"
+        #- name: GINKGO_PARAMS
+        #  value: "-r -keepGoing -noColor -trace -v -randomizeSuites"
+        #- name: SLOW_SPEC_THRESHOLD
+        #  value: 300
+        #- name: TIMEOUT
+        #  value: "1h"
+        #- name: FLAKE_ATTEMPTS
+        #  value: 0
+        #- name: NODES
+        #  value: 1
+        #- name: OUTPUT_DIR
+        #  value: "/workdir/output}"
+        #- name: SKIP_TESTS
+        #  value: ""
+        #- name: FOCUS_TESTS
+        #  value: ""
+        #- name: OPERATOR_IMAGE
+        #  value: "quay.io/artemiscloud/activemq-artemis-operator:latest"
+        #- name: BROKER_IMAGE
+        #  value: "quay.io/artemiscloud/activemq-artemis-broker-kubernetes:1.0.7"
+        #- name: BROKER_PREVIOUS_IMAGE
+        #  value: "quay.io/artemiscloud/activemq-artemis-broker-kubernetes:1.0.6"
+        #- name: REPORT_DIR
+        #  value: "/workdir/reports"
+        #- name: TIMEOUT_MULT
+        #  value: 1
+        #- name: GLOBAL_OPERATOR
+        #  value: "true"
+        #- name: V2
+        #  value: "true"
+        #- name: V3
+        #  value: "true"
+        #- name: OPENSHIFT
+        #  value: "false"
+        #- name: NO_ADMIN
+        #  value: "false"
+        #- name: IBMZ
+        #  value: "false"
+        #- name: PPC
+        #  value: "false"
+        #- name: DELETE_NS_ON_FAILURE
+        #  value: "false"
+        #- name: DEBUG
+        #  value: "false"
+      imagePullPolicy: Always
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: 
+            - ALL
+      volumeMounts:
+        - name: activemq-artemis-operator-test-suite-workdir-storage
+          mountPath: "/workdir"
+    ############################################################################
+    # This is a sidecar shell container to allow access of files under the PVC #
+    # to check / process output files like test results                        #
+    ############################################################################
+    - name: sidecar-shell
+      image: alpine:latest
+      command: [ "/bin/sh", "-c", "--" ]
+      args: [ "while true; do sleep 60; done;" ]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: 
+            - ALL
+      volumeMounts:
+        - name: activemq-artemis-operator-test-suite-workdir-storage
+          mountPath: "/workdir"
+
