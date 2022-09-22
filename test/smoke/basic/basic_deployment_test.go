@@ -99,10 +99,10 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 		initName := ""
 		if imageArch == "" {
 			imageName = fmt.Sprintf("%s_%s", decideImageName(), imagever)
-			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s", imagever)
+			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init%s", imagever)
 		} else {
 			imageName = fmt.Sprintf("%s_%s_%s", decideImageName(), imagever, imageArch)
-			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s_%s", imagever, imageArch)
+			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s%s", imagever, imageArch)
 		}
 		gomega.Expect(ss.Spec.Template.Spec.Containers[0].Image).To(gomega.Equal(getEnvVarValue(imageName, images)), "wrong broker image used in actual SS")
 		gomega.Expect(ss.Spec.Template.Spec.InitContainers[0].Image).To(gomega.Equal(getEnvVarValue(initName, images)), "wrong broker image used in actual SS")
