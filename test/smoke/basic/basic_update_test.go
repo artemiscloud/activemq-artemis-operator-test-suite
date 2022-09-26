@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	PPC  = "_ppc64le"
-	IBMZ = "_s390x"
+	PPC  = "ppc64le"
+	IBMZ = "s390x"
 )
 
 func determineInit() string {
