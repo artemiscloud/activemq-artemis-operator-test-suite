@@ -38,7 +38,7 @@ var _ = ginkgo.Describe("ResourceRequestsTests", func() {
 		gomega.Expect(expectedMemRequest).To(gomega.Equal(actualMemRequest.String()), "Expected Memory limit: %s, real: %s", expectedMemRequest, actualMemRequest.String())
 	})
 
-	ginkgo.It("Memory Request update check", func() {
+	ginkgo.PIt("Memory Request update check", func() {
 		expectedMemRequest := "512M"
 		brokerDeployer.WithMemRequest(expectedMemRequest)
 		deployBroker(brokerDeployer)
