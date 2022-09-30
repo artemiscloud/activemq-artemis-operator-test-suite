@@ -99,7 +99,7 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 		initName := ""
 		if imageArch == "" {
 			imageName = fmt.Sprintf("%s_%s", decideImageName(), imagever)
-			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init%s", imagever)
+			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s", imagever)
 		} else {
 			imageName = fmt.Sprintf("%s_%s_%s", decideImageName(), imagever, imageArch)
 			initName = fmt.Sprintf("RELATED_IMAGE_ActiveMQ_Artemis_Broker_Init_%s%s", imagever, imageArch)
