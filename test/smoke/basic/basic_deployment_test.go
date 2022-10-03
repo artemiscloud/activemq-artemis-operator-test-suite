@@ -83,6 +83,7 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 		initjavaopts := getEnvVarValue("JAVA_OPTS", ss.Spec.Template.Spec.InitContainers[0].Env)
 		filename := strings.Split(initjavaopts, "=")[1]
 		propertiesfile, err := brokerDeployer.GetFile("basic-ss-0", "basic-container", filename, sw.Framework.GetConfig())
+		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "error reading properties file")
 		gomega.Expect(propertiesfile).To(gomega.ContainSubstring("abyrvalg=bluepinspio"), "properties file doesn't contain the expected string")
 		//		propertiesfile, err := brokerDeployer.GetFile("basic-ss-0", "basic-container", "/home/jboss/amq-broker/etc/"
 		// TODO: Properties broken? Currently it only verifies existing issue of wrong array type being supplied to CR

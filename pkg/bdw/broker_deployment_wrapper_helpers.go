@@ -65,7 +65,9 @@ func (bdw *BrokerDeploymentWrapper) GetFile(podname, containername, filename str
 			TTY:       false,
 		}, scheme.ParameterCodec)
 
-	restconfig.TLSClientConfig.Insecure = true
+	if len(restconfig.CAData) == 0 {
+		restconfig.TLSClientConfig.Insecure = true
+	}
 	exec, err := remotecommand.NewSPDYExecutor(&restconfig, "POST", req.URL())
 	if err != nil {
 		return "", err
@@ -137,7 +139,7 @@ func (bdw *BrokerDeploymentWrapper) SetEnvVariable(name, value string) {
 	gomega.Expect(err).NotTo(gomega.HaveOccurred())
 }
 
-//This expects to be ran on openshift.
+// This expects to be ran on openshift.
 func (bdw *BrokerDeploymentWrapper) GetExternalUrls(filter string, podNumber int) ([]string, error) {
 	var result []string
 	routes, _ := bdw.ctx1.Clients.OcpClient.RoutesClient.RouteV1().Routes(bdw.ctx1.Namespace).List(context.TODO(), v1.ListOptions{})
@@ -162,7 +164,7 @@ func contains(arr []string, str string) bool {
 	return false
 }
 
-//We always configure Artemis as if it is latest API version
+// We always configure Artemis as if it is latest API version
 func (bdw *BrokerDeploymentWrapper) ConfigureBroker(artemis *brokerbeta.ActiveMQArtemis, acceptorType AcceptorType) *brokerbeta.ActiveMQArtemis {
 	artemis.Spec.DeploymentPlan.Size = int32(bdw.deploymentSize)
 	if acceptorType != NoChangeAcceptor {
