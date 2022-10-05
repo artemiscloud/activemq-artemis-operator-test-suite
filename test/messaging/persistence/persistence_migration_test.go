@@ -11,6 +11,7 @@ import (
 	"github.com/rh-messaging/shipshape/pkg/api/client/amqp"
 	"github.com/rh-messaging/shipshape/pkg/framework"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"github.com/rh-messaging/shipshape/pkg/framework/operators"
 )
 
 var _ = ginkgo.Describe("MessagingMigrationTests", func() {
@@ -175,13 +176,16 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 		}
 	})
 
-
 	ginkgo.It("No outsider SS are inspected by SC", func() {
 		brokerDeployer.WithName("sufficientlyuniquename").WithPersistence(true).WithMigration(true).DeployBrokers(2)
 		label := "amq-broker-operator"
-		operatorPodName, err := sw.Framework.GetFirstContext().GetPodName(label)
+		if test.Config.BrokerName != "amq-broker" {
+			label = "manager"
+		}
+		operatorNamespace := sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker].Namespace()
+		operatorPodName, err := sw.Framework.GetFirstContext().GetPodNameFromNamespace(label, operatorNamespace)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "can't get logs from pod")
-		oprLogs, _ := sw.Framework.GetFirstContext().GetLogs(operatorPodName)
+		oprLogs, _ := sw.Framework.GetFirstContext().GetLogsFromNamespace(operatorPodName, operatorNamespace)
 
 		rega := regexp.MustCompile("(?m)^.*Enquequing statefulset.*$[\r\n]+")
 		resa := strings.Join(rega.FindAllString(oprLogs, -1), "\n")

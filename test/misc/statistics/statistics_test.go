@@ -2,13 +2,14 @@ package statistics
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/pkg/bdw"
 	"github.com/artemiscloud/activemq-artemis-operator-test-suite/test"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework"
-	"io/ioutil"
-	"net/http"
 )
 
 var _ = ginkgo.Describe("StatisticsTest", func() {
@@ -90,7 +91,7 @@ var _ = ginkgo.Describe("StatisticsTest", func() {
 
 			}) */
 
-	ginkgo.It("StatisticsWithConsoleTestChangeSetup", func() {
+	ginkgo.PIt("StatisticsWithConsoleTestChangeSetup", func() {
 		brokerDeployer.WithConsoleExposure(false)
 		err := brokerDeployer.DeployBrokers(1)
 		if err != nil {

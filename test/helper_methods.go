@@ -10,6 +10,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/onsi/gomega"
 	"github.com/rh-messaging/shipshape/pkg/framework/log"
+	"github.com/rh-messaging/shipshape/pkg/framework/operators"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -20,18 +21,22 @@ func FormUrl(protocol, DeployName, number, subdomain, namespace, domain, address
 }
 
 func WaitForDrainerRemovalSlow(sw *SetupWrapper, count int, timeout time.Duration, retries int) bool {
-	expectedLog := ".*Deleting drain pod.*"
+	expectedLog := "Deleting drain pod"
 	loop := 0
-	r := regexp.MustCompile(expectedLog)
-	label := "controller-manager"
-	operatorPodName, err := sw.Framework.GetFirstContext().GetPodName(label)
+	r := regexp.MustCompile(".*" + expectedLog + ".*")
+	label := "amq-broker-operator"
+	if Config.BrokerName != "amq-broker" {
+		label = "manager"
+	}
+	operatorNamespace := sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker].Namespace()
+	operatorPodName, err := sw.Framework.GetFirstContext().GetPodNameFromNamespace(label, operatorNamespace)
 	log.Logf("loading logs from pod %s", operatorPodName)
 	gomega.Expect(err).To(gomega.BeNil())
 	for loop < retries {
 		if loop%10 == 0 {
 			log.Logf("(still) waiting for drainer completion")
 		}
-		operatorLog, _ := sw.Framework.GetFirstContext().GetLogs(operatorPodName)
+		operatorLog, _ := sw.Framework.GetFirstContext().GetLogsFromNamespace(operatorPodName, operatorNamespace)
 		if strings.Contains(operatorLog, expectedLog) {
 			index := suffixarray.New([]byte(operatorLog))
 			results := index.FindAllIndex(r, -1)
