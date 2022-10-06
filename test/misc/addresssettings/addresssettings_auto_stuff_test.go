@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.PIt("AutoCreateAddresses check", func() {
+	ginkgo.It("AutoCreateAddresses check", func() {
 		err := brokerDeployer.WithAutoCreateAddresses(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -47,7 +47,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		gomega.Expect(value.AutoCreateAddresses).To(gomega.Equal(true), "AutoCreateAddresses not set")
 	})
 
-	ginkgo.PIt("AutoCreateDeadLetterResources check", func() {
+	ginkgo.It("AutoCreateDeadLetterResources check", func() {
 		err := brokerDeployer.WithAutoCreateDeadLetterResources(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -57,7 +57,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		gomega.Expect(value.AutoCreateDeadLetterResources).To(gomega.Equal(true), "AutoCreateDeadLetterResources not set")
 	})
 
-	ginkgo.PIt("AutoCreateExpiryResources check", func() {
+	ginkgo.It("AutoCreateExpiryResources check", func() {
 		err := brokerDeployer.WithAutoCreateExpiryResources(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -67,7 +67,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		gomega.Expect(value.AutoCreateExpiryResources).To(gomega.Equal(true), "AutoCreateExpiry resources not set")
 	})
 
-	ginkgo.PIt("AutoCreateJmsQueues check", func() {
+	ginkgo.It("AutoCreateJmsQueues check", func() {
 		err := brokerDeployer.WithAutoCreateJmsQueues(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -77,7 +77,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		gomega.Expect(value.AutoCreateJmsQueues).To(gomega.Equal(true), "AutoCreateJmsQueues not set")
 	})
 
-	ginkgo.PIt("AutoCreateJmsTopics check", func() {
+	ginkgo.It("AutoCreateJmsTopics check", func() {
 		err := brokerDeployer.WithAutoCreateJmsTopics(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -87,7 +87,7 @@ var _ = ginkgo.Describe("AddressSettingsDeletionTest", func() {
 		gomega.Expect(value.AutoCreateJmsTopics).To(gomega.Equal(true), "AutoCreateJmstopics not set")
 	})
 
-	ginkgo.PIt("AutoCreateQueues check", func() {
+	ginkgo.It("AutoCreateQueues check", func() {
 		err := brokerDeployer.WithAutoCreateQueues(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 

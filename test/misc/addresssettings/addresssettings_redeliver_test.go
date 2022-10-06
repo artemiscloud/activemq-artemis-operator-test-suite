@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.PIt("CollisionAvoidance check", func() {
+	ginkgo.It("CollisionAvoidance check", func() {
 		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, "1").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
@@ -47,7 +47,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		gomega.Expect(value.RedeliveryCollisionAvoidanceFactor).To(gomega.Equal(float32(1.0)), "RedeliveryCollisionAvoidanceFactor is %f, expected 1.0", value.RedeliveryCollisionAvoidanceFactor)
 	})
 
-	ginkgo.PIt("RedeliveryDelayMultiplier check", func() {
+	ginkgo.It("RedeliveryDelayMultiplier check", func() {
 		err := brokerDeployer.WithRedeliveryDelayMult(AddressBit, "1").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -58,7 +58,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		gomega.Expect(value.RedeliveryMultiplier).To(gomega.Equal(float32(1.0)), "RedeliveryMultiplier is %f, expected 1.0", value.RedeliveryMultiplier)
 	})
 
-	ginkgo.PIt("RedeliveryDelay check", func() {
+	ginkgo.It("RedeliveryDelay check", func() {
 		err := brokerDeployer.WithRedeliveryDelay(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 

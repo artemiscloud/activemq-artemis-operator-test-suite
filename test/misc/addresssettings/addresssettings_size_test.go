@@ -55,30 +55,30 @@ var _ = ginkgo.Describe("AddressSettingsSizeTests", func() {
 
 	})
 
-	ginkgo.PIt("maxSizeBytes limit 1KB positive scenarios - DROP", func() {
+	ginkgo.It("maxSizeBytes limit 1KB positive scenarios - DROP", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "1K").WithAddressPolicy(AddressBit, bdw.DropPolicy)
 		test_helpers.TestBaseSendMessages(brokerDeployer, srw, 50, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 	})
 
-	ginkgo.PIt("maxSizeBytes limit 1KB positive scenarios - PAGE", func() {
+	ginkgo.It("maxSizeBytes limit 1KB positive scenarios - PAGE", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "1K").WithAddressPolicy(AddressBit, bdw.PagePolicy)
 		err := test_helpers.TestBaseSendMessages(brokerDeployer, srw, 50, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
-	ginkgo.PIt("maxSizeBytes limit 10KB - DROP", func() {
+	ginkgo.It("maxSizeBytes limit 10KB - DROP", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "10K").WithAddressPolicy(AddressBit, bdw.DropPolicy)
 		err := test_helpers.TestBaseSendMessages(brokerDeployer, srw, 200, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
-	ginkgo.PIt("maxSizeBytes not affecting other addresses", func() {
+	ginkgo.It("maxSizeBytes not affecting other addresses", func() {
 		brokerDeployer.WithAddressSize(AddressBit+"someOtherAddress", "1K").WithAddressPolicy(AddressBit, bdw.DropPolicy)
 		err := test_helpers.TestBaseSendMessages(brokerDeployer, srw, 200, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
-	ginkgo.PIt("maxSizeBytes limit 1KB negative - FAIL", func() {
+	ginkgo.It("maxSizeBytes limit 1KB negative - FAIL", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "1K").WithAddressPolicy(AddressBit, bdw.FailPolicy)
 		err := test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, 200, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
 		gomega.Expect(err).NotTo(gomega.BeNil()) //ToDo: error validation through logs!
@@ -86,7 +86,7 @@ var _ = ginkgo.Describe("AddressSettingsSizeTests", func() {
 		log.Logf("Expected error received: %s", err.Error())
 	})
 
-	ginkgo.PIt("maxSizeBytes limit 1KB negative - BLOCK", func() {
+	ginkgo.It("maxSizeBytes limit 1KB negative - BLOCK", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "1K").WithAddressPolicy(AddressBit, bdw.BlockPolicy)
 		// Should be already filled.
 		err := test_helpers.TestBaseSendReceiveMessages(brokerDeployer, srw, 200, MessageBody, bdw.AmqpAcceptor, 1, Protocol)
@@ -95,13 +95,13 @@ var _ = ginkgo.Describe("AddressSettingsSizeTests", func() {
 		log.Logf("Expected error received: %s", err.Error())
 	})
 
-	ginkgo.PIt("maxSizeBytes limit exact message size (27b) - DROP", func() {
+	ginkgo.It("maxSizeBytes limit exact message size (27b) - DROP", func() {
 		brokerDeployer.WithAddressSize(AddressBit, "27").WithAddressPolicy(AddressBit, bdw.DropPolicy)
 		err := test_helpers.TestBaseSendMessages(brokerDeployer, srw, 1, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 		gomega.Expect(err).To(gomega.BeNil())
 	})
 
-	ginkgo.PIt("maxSizeBytes limit by address regexp - DROP", func() {
+	ginkgo.It("maxSizeBytes limit by address regexp - DROP", func() {
 		brokerDeployer.WithAddressSize("some*", "1K").WithAddressPolicy(AddressBit, bdw.DropPolicy)
 		err := test_helpers.TestBaseSendMessages(brokerDeployer, srw, 1, MessageBody, bdw.AmqpAcceptor, 1, Protocol, "sender", nil)
 		gomega.Expect(err).To(gomega.BeNil())
