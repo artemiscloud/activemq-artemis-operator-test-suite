@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.PIt("DefaultConsumer check", func() {
+	ginkgo.It("DefaultConsumer check", func() {
 		err := brokerDeployer.WithDefaultConsumerBeforeDispatch(AddressBit, 1).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -47,7 +47,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultConsumersBeforeDispatch).To(gomega.Equal(1), "DefaultConsumersBeforeDispatch is %d, expected 1", value.DefaultConsumersBeforeDispatch)
 	})
 
-	ginkgo.PIt("DefaultConsumerWindowSize check", func() {
+	ginkgo.It("DefaultConsumerWindowSize check", func() {
 		err := brokerDeployer.WithDefaultConsumerWindowSize(AddressBit, 1234567).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -57,7 +57,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultConsumerWindowSize).To(gomega.Equal(1234567), "DefaultConsumerWindowSize is %d, expected 1234567", value.DefaultConsumerWindowSize)
 	})
 
-	ginkgo.PIt("DelayBeforeDispatch check", func() {
+	ginkgo.It("DelayBeforeDispatch check", func() {
 		err := brokerDeployer.WithDefaultDelayBeforeDispatch(AddressBit, 150).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -67,7 +67,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultDelayBeforeDispatch).To(gomega.Equal(150), "DefaultDelayBeforeDispatch is %s, expected 150", value.DefaultDelayBeforeDispatch)
 	})
 
-	ginkgo.PIt("DefaultExclusiveQueue check", func() {
+	ginkgo.It("DefaultExclusiveQueue check", func() {
 		err := brokerDeployer.WithDefaultExclusiveQueue(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -77,7 +77,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultExclusiveQueue).To(gomega.Equal(true), "DefaultExclusive queue not set")
 	})
 
-	ginkgo.PIt("DefaultGroupBuckets check", func() {
+	ginkgo.It("DefaultGroupBuckets check", func() {
 		err := brokerDeployer.WithDefaultGroupBuckets(AddressBit, 10).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -87,7 +87,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultGroupBuckets).To(gomega.Equal(10), "DefaultGroupBuckets is, expected 10", value.DefaultGroupBuckets)
 	})
 
-	ginkgo.PIt("DefaultGroupFirstKey check", func() {
+	ginkgo.It("DefaultGroupFirstKey check", func() {
 		err := brokerDeployer.WithDefaultGroupFirstKey(AddressBit, "hey").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil())
 
@@ -97,7 +97,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultGroupFirstKey).To(gomega.Equal("hey"), "DefaultGroupFirstKey is \"%s\", expected \"hey\"", value.DefaultGroupFirstKey)
 	})
 
-	ginkgo.PIt("DefaultGroupRebalance check", func() {
+	ginkgo.It("DefaultGroupRebalance check", func() {
 		err := brokerDeployer.WithDefaultGroupRebalance(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -107,7 +107,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultGroupRebalance).To(gomega.Equal(true), "DefaultGroupRebalance not set")
 	})
 
-	ginkgo.PIt("DefaultLastValueKey check", func() {
+	ginkgo.It("DefaultLastValueKey check", func() {
 		err := brokerDeployer.WithDefaultLastValueKey(AddressBit, "hey").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -117,7 +117,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.DefaultLastValueKey).To(gomega.Equal("hey"), "DefaultLastValueKey is \"%s\", expected \"hey\"", value.DefaultLastValueKey)
 	})
 
-	ginkgo.PIt("DefaultLastValueQueue check", func() {
+	ginkgo.It("DefaultLastValueQueue check", func() {
 		err := brokerDeployer.WithDefaultLastValueQueue(AddressBit, true).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
@@ -127,7 +127,7 @@ var _ = ginkgo.Describe("AddressSettingsDefaultValueTest", func() {
 		gomega.Expect(value.LastValueQueue).To(gomega.Equal(true), "LastValueQueue is not set")
 	})
 
-	ginkgo.PIt("DefaultMaxConsumers check", func() {
+	ginkgo.It("DefaultMaxConsumers check", func() {
 		err := brokerDeployer.WithDefaultMaxConsumers(AddressBit, 32).DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 
