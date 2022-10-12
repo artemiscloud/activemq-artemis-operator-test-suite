@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	PPC  = "_ppc64le"
-	IBMZ = "_s390x"
+	PPC  = "ppc64le"
+	IBMZ = "s390x"
 )
 
 func determineInit() string {
@@ -26,13 +26,14 @@ func determineInit() string {
 	images := test.GetImages()
 	for _, item := range images {
 		if strings.HasPrefix(item.Name, initName) && strings.HasSuffix(item.Name, imageArch) {
-			if imageArch == "" {
-				if !strings.HasSuffix(item.Name, PPC) && !strings.HasSuffix(item.Name, IBMZ) {
+			if imageArch != "" {
+				if strings.HasSuffix(item.Name, PPC) || strings.HasSuffix(item.Name, IBMZ) {
 					CustomInit = item.Value
 					break
 				}
 			} else {
 				CustomInit = item.Value
+				break
 			}
 		}
 	}
@@ -46,8 +47,8 @@ func determineImage() string {
 	CustomImage := ""
 	for _, item := range images {
 		if strings.HasPrefix(item.Name, imageName) && strings.HasSuffix(item.Name, imageArch) {
-			if imageArch == "" { // Also check lack of other architectures..
-				if !strings.HasSuffix(item.Name, PPC) && !strings.HasSuffix(item.Name, IBMZ) {
+			if imageArch != "" { // Also check lack of other architectures..
+				if strings.HasSuffix(item.Name, PPC) || strings.HasSuffix(item.Name, IBMZ) {
 					CustomImage = item.Value
 					break
 				}
