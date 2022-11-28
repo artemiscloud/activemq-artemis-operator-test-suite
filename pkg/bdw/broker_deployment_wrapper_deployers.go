@@ -95,15 +95,11 @@ func (bdw *BrokerDeploymentWrapper) DeployBrokers(count int) error {
 }
 
 func (bdw *BrokerDeploymentWrapper) Update() error {
-	resourceVersion := int64(0)
 	var err error
 	// getting created artemis custom resource to overwrite the resourceVersion and params.
 	artemisCreated, err := bdw.brokerClient.BrokerV1beta1().ActiveMQArtemises(bdw.ctx1.Namespace).Get(bdw.name, v1.GetOptions{})
 	gomega.Expect(err).To(gomega.BeNil())
 	originalSize := artemisCreated.Spec.DeploymentPlan.Size
-	resourceVersion, err = strconv.ParseInt(string(artemisCreated.ObjectMeta.ResourceVersion), 10, 64)
-	gomega.Expect(err).To(gomega.BeNil())
-	artemisCreated.ObjectMeta.ResourceVersion = strconv.FormatInt(int64(resourceVersion), 10)
 
 	bdw.ConfigureBroker(artemisCreated, NoChangeAcceptor)
 
