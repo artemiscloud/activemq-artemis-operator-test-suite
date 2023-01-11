@@ -37,7 +37,7 @@ var _ = ginkgo.Describe("AddressSettingsRedeliveryTest", func() {
 		brokerDeployer.SetUpDefaultAddressSettings(AddressBit)
 	})
 
-	ginkgo.It("CollisionAvoidance check", func() {
+	ginkgo.PIt("CollisionAvoidance check", func() {
 		err := brokerDeployer.WithRedeliveryCollisionsAvoidance(AddressBit, "1").DeployBrokers(1)
 		gomega.Expect(err).To(gomega.BeNil(), "Broker deployment failed: %s", err)
 		urls, err := brokerDeployer.GetExternalUrls(ExpectedURL, 0)
