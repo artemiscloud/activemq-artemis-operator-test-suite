@@ -178,9 +178,9 @@ var _ = ginkgo.Describe("MessagingMigrationTests", func() {
 
 	ginkgo.It("No outsider SS are inspected by SC", func() {
 		brokerDeployer.WithName("sufficientlyuniquename").WithPersistence(true).WithMigration(true).DeployBrokers(2)
-		label := "amq-broker-operator"
+		label := "amq-broker-controller-manager"
 		if test.Config.BrokerName != "amq-broker" {
-			label = "manager"
+			label = "controller-manager"
 		}
 		operatorNamespace := sw.Framework.GetFirstContext().OperatorMap[operators.OperatorTypeBroker].Namespace()
 		operatorPodName, err := sw.Framework.GetFirstContext().GetPodNameFromNamespace(label, operatorNamespace)
