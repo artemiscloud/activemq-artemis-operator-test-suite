@@ -628,6 +628,8 @@ github.com/rh-messaging/shipshape v0.3.6 h1:bXG03wtLcSujkVIcK1JCqmtRxozGWq8rlcdI
 github.com/rh-messaging/shipshape v0.3.6/go.mod h1:EdVreCf4Ib+t1HzT/oj+m8T5EPGcpmRMYAdJLpRvqhA=
 github.com/rh-messaging/shipshape v0.3.7 h1:bQlCmHj4gvShCssVYPSesck6rlSaDP0EwiH3YzS2ZaA=
 github.com/rh-messaging/shipshape v0.3.7/go.mod h1:7F9H0cDtT/1OlgoN92N9dvPJ/gJD9ACsX/GkCM00Z5Q=
+github.com/rh-messaging/shipshape v0.3.8 h1:CMNiy9RmlmYvEaxlrKM2wOTkp2EoH0HkorxcWXWjunI=
+github.com/rh-messaging/shipshape v0.3.8/go.mod h1:7F9H0cDtT/1OlgoN92N9dvPJ/gJD9ACsX/GkCM00Z5Q=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-charset v0.0.0-20180617210344-2471d30d28b4/go.mod h1:qgYeAmZ5ZIpBWTGllZSQnw97Dj+woV0toclVaRGI8pc=
