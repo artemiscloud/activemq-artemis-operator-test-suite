@@ -90,12 +90,12 @@ var _ = ginkgo.Describe("DeploymentBasicTests", func() {
 	})
 
 	ginkgo.It("Deploy older broker version", func() {
-		err := brokerDeployer.WithVersion("7.8.3").WithCustomImage("").DeployBrokers(1)
+		err := brokerDeployer.WithVersion("7.10.0").WithCustomImage("").DeployBrokers(1)
 		gomega.Expect(err).NotTo(gomega.HaveOccurred(), "broker not deployed")
 		ss := brokerDeployer.GetStatefulSet()
 		images := test.GetImages()
 		imageArch := decideImageArch()
-		imagever := "783"
+		imagever := "7100"
 		imageName := ""
 		initName := ""
 		if imageArch == "" {
